@@ -1,0 +1,50 @@
+#!/usr/bin/env perl
+
+use strict;
+use Cwd;
+use Getopt::Long;
+Getopt::Long::Configure ("bundling_override");
+
+
+my @makeoption = @ARGV;
+sub help() {
+	print <<END;
+Usage :
+  $0 [options] [target] ...
+    this is a wrapper over make see man page of make for more informations
+    on options.
+END
+		exit(0);
+}
+my $directory;
+my $result = GetOptions(
+    "b","m","B","always-make",
+    "d","debug=s","e","environment-overrides",
+    "f=s",
+    "file=s",
+    "makefile=s",
+    "h" => \&help,
+    "help" => \&help,"i","ignore-errors","I=s",
+    "include-dir=s","j=i","jobs=i","k","keep-going",
+    "l=i","load-average=i","max-load=i",
+    "L","check-symlink-times","n","just-print","dry-run",
+    "recon","o=s","old-file=s","assume-old=s","p",
+    "print-data-base","q","question","t","touch","w","print-directory",
+    "no-print-directory","W=s",
+    "C=s" => \$directory,
+    "directory=s" => \$directory
+);
+help() unless $result;
+
+$ENV{'LANG'} = 'C';
+
+#the first argument without option is used as the target
+my $target;
+$target = $ARGV[0] if defined $ARGV[0];
+my $current_directory = getcwd;
+$current_directory = "$current_directory/$directory/" if defined $directory;
+print "jael_make_wrapper directory is '$current_directory'\n";
+#print "jael_make_wrapper : target requested : $current_directory.$target\n" if defined $target;
+#print "jael_make_wrapper : $current_directory\n" unless defined $target;
+system("make @makeoption MAKE=\"jael_make -t -p\"");
+

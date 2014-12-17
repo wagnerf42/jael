@@ -1,0 +1,79 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Jael::Configuration;
+use Jael::ExecutionEngine;
+use Jael::Debug;
+
+my $config = new Jael::Configuration;
+parse_command_line($config); #command line overrides configuration
+$config->{'machines'} = ['localhost'] unless exists $config->{'machines'};
+$config->{'id'} = 0 unless exists $config->{'id'};
+
+Jael::Debug::init($config->{'id'}, $config->{'machines'}->[$config->{'id'}]);
+Jael::Debug::msg("using machines : @{$config->{'machines'}}");
+
+if (@{$config->{'machines'}} != 1) {
+	if ($config->{'id'} == 0) {
+		#we are master, deploy everyone
+		my $taktuk_command = 'taktuk -s';
+		my $machines = join(',',@{$config->{'machines'}});
+		for my $id (1..$#{$config->{'machines'}}) {
+			my $machine = $config->{'machines'}->[$id];
+			$taktuk_command .= " -m $machine -[ exec [ jael -m $machines -i $id ] -]";
+		}
+		Jael::Debug::msg("using taktuk : $taktuk_command\n");
+		my $pid = fork();
+		if ($pid == 0) {
+			Jael::Debug::die("unable to deploy using taktuk\n") if system($taktuk_command) == -1;
+			exit(0);
+		}
+	}
+}
+
+my $engine = new Jael::ExecutionEngine($config);
+$engine->bootstrap_system() if $config->{'id'} == 0;
+$engine->start_server();
+
+use constant {
+	ARRAY => 1,
+	IMMEDIATE_VALUE => 2
+};
+sub parse_command_line {
+	my $config = shift;
+	my $key;
+
+	my %keys = (
+		'-m' => 'machines',
+		'-i' => 'id',
+		'-f' => 'makefile',
+		'-t' => 'target'
+	);
+	my %expected_args = (
+		'machines' => ARRAY,
+		'id' => IMMEDIATE_VALUE,
+		'makefile' => IMMEDIATE_VALUE,
+		'target' => IMMEDIATE_VALUE
+	);
+	while(my $arg = shift @ARGV) {
+		help() if ($arg eq '-h');
+		if ($arg =~ /^-/) {
+			$key = $keys{$arg};
+		} else {
+			my $type = $expected_args{$key};
+			if ($type == ARRAY) {
+				my @values = split(/,/, $arg);
+				$config->{$key} = [@values];
+			} else {
+				$config->{$key} = $arg;
+			}
+		}
+	}
+}
+
+sub help {
+	die <<HDOC;
+use : jael [-m machine1,machine2,machine3,...] [-i id]
+HDOC
+}

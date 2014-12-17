@@ -1,0 +1,54 @@
+
+fin du calcul d'une tache :
+envoi 'I computed ID_TASK' vers DHT_OWNER(ID_TASK)									1
+DHT_OWNER(ID_TASK) calcule quelles taches dependent de ID_TASK
+il calcule les owner de chaque tache et leur envoie un message
+envoi aux owners de 'ID_TASK completed'												2
+si une tache ID_TASK2 devient 'ready' alors envoi au possesseur de la tache
+'ID_TASK2 is now ready'																3
+
+chercher a trouver qui possede des donnees :
+envoi 'looking for ID_TASK' vers DHT_OWNER(ID_TASK)									4
+reponse 'ID_TASK available on [ID_COMP list]'										5
+
+informer que l'on possede des donnees :
+envoi 'we obtained ID_TASK' vers DHT_OWNER(ID_TASK)									6
+
+informer de la fin des calculs :
+envoi 'ending' vers ALL 															7
+
+faire une requete de vol :
+envoi 'steal request' vers un ID_COMP aleatoire 									8
+reponse 'nothing to steal' vers source si rien a prendre 							9
+si qqch a prendre
+	reponse 'you can steal ID_TASK' vers source 									10
+	envoi 'we now own ID_TASK' a DHT_OWNER(ID_TASK) 								11
+
+faire une requete de fork :
+envoi 'fork request ID_TASK' vers DHT_OWNER(ID_TASK)								12
+si ok:
+	envoi 'fork accepted for ID_TASK' vers source 									13
+si non:
+	envoi 'fork refused for ID_TASK' vers source 									14
+
+faire une requete de fichier
+envoi 'file request ID_TASK' vers quelqu'un qui possede le fichier 					15
+reponse: envoi du fichier 															16
+
+
+questions: etre le plus econome possible ?
+
+types d'arguments :
+
+	- ID_TASK : 1,2,3,4,6,10,11,12,13,14,15
+	- ID_TASK, NB_COMP, COMP_LIST[NB_COMP] : 5
+	- nothing : 7, 8, 9
+	- data : 16
+
+types de reactions (reseau) possibles
+
+	- ne rien repondre : 3, 5, 6, 7, 9, 11, 13, 14, 16
+	- repondre a owner(ID_TASK) : 1,
+
+types de reactions (locales) possibles
+
