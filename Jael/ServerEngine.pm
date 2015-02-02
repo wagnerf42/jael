@@ -1,5 +1,5 @@
 package Jael::ServerEngine;
-
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 use strict;
 use warnings;
 use threads;
@@ -88,47 +88,28 @@ sub run {
 
     $self->print_infos();
 
-    # L'id du serveur courant indique quelle machine est à utiliser en tant que localhost
-    # Le port du serveur courant correspond à PORT + id du serveur courant
-    $self->{server_socket} = new IO::Socket::INET(LocalHost => $self->{machines_names}->[$self->{id}], 
-                                                  LocalPort => PORT + $self->{id}, 
-                                                  Proto => 'tcp',
-                                                  Listen => 1, 
-                                                  Reuse => 1);
-    
+    # server port is PORT + id of current server
+    $self->{server_socket} = IO::Socket::INET->new(LocalHost => $self->{machines_names}->[$self->{id}], Listen => 1, LocalPort => PORT + $self->{id}, Reuse => 1, Proto => 'tcp');
     die "Could not create socket: $!\n" unless $self->{server_socket};
 
-    # Mise en place d'un select sur le socket serveur + Buf de lecture
-    $self->{read_set} = new IO::Select(); # create handle set for reading
-    $self->{read_set}->add($self->{server_socket}); # add the main socket to the set
-    
-    while (1) {
-        # On réceptionne un message
-        my @rh_set = $self->{read_set}->can_read();
-
-        # On parcourt la liste des descripteurs actifs
-        for my $rh (@rh_set) {
-            # Si le socket est le même que celui du serveur, alors on a une nouvelle connexion
-            if ($rh == $self->{server_socket}) {
-                my $new_socket = $rh->accept();
-                $self->{read_set}->add($new_socket);
-                Jael::Debug::msg("new connexion : $new_socket");
+    # we use select to find non blocking reads
+    $self->{read_set} = IO::Select->new( $self->{server_socket} );
+    while(my @ready = $self->{read_set}->can_read()) {
+        for my $fh (@ready) {
+            if($fh == $self->{server_socket}) {
+                Jael::Debug::msg("new connexion");
+                # Create a new socket
+                my $new = $self->{server_socket}->accept;
+                $self->{read_set}->add($new);
             }
-            # Sinon un socket a interagit avec le serveur
             else {
-                if ($rh->eof()) {
-                    # Le client a fermé sa connexion
-                    $self->{read_set}->remove($rh);
-                    close($rh);
+                if ($fh->eof()) {
+                    Jael::Debug::msg("connection closed");
+                    $self->{read_set}->remove($fh);
+                    close($fh);
                 } else {
-                    Jael::Debug::msg("reading on $rh");
-                    my $buffer;
-		    my $read_size = sysread($rh, $buffer, $max_buffer_reading_size);
-                    die;
-                    Jael::Debug::msg("ok");
-		    if ($read_size != 0) {
-			    $self->{message_buffers}->incoming_data($rh, $buffer);
-		    }
+                    my $buffer = <$fh>;
+                    $self->{message_buffers}->incoming_data($fh, $buffer);
                 }
             }
         }
