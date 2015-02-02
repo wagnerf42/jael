@@ -7,7 +7,7 @@ use Jael::Message;
 use IO::Socket::INET;
 
 # auto-flush on socket
-# $| = 1;
+$| = 1;
 
 my $msg1 = new Jael::Message(END_ALL);
 $msg1->set_sender_id(0);

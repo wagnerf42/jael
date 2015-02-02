@@ -2,6 +2,7 @@ package Jael::MessageBuffers;
 
 use strict;
 use warnings;
+use Jael::Debug;
 
 sub new {
 	my $class = shift;
@@ -22,7 +23,7 @@ sub incoming_data {
 		if ($size <= length($self->{buffers}->{$socket})) { #message is received in its entirety
 			my $message_string = substr($self->{buffers}->{$socket}, 0, $size, ''); #this removes msg from remaining part
 			my $message = Jael::Message::unpack($message_string);
-			print "msg : $message";
+			Jael::Debug::msg("received : $message");
 			#TODO: action
 		} else {
 			return;

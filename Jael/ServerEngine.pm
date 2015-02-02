@@ -6,6 +6,8 @@ use threads;
 use threads::shared;
 use IO::Socket;
 use IO::Select;
+# auto-flush on socket
+$| = 1;
 use Jael::Protocol;
 use Jael::Message;
 use Jael::MessageBuffers;
@@ -20,7 +22,7 @@ use constant {
     SENDING_PRIORITY_HIGH => 1
 };
 
-my $max_buffer_reading_size = 100000;
+my $max_buffer_reading_size = 1024;
 
 # Crée un nouveau serveur
 # Paramètres: ID, [machine 1, machine 2, ...]
@@ -94,6 +96,7 @@ sub run {
 
     # we use select to find non blocking reads
     $self->{read_set} = IO::Select->new( $self->{server_socket} );
+
     while(my @ready = $self->{read_set}->can_read()) {
         for my $fh (@ready) {
             if($fh == $self->{server_socket}) {
@@ -103,17 +106,20 @@ sub run {
                 $self->{read_set}->add($new);
             }
             else {
-                if ($fh->eof()) {
+                my $buffer;
+                my $size = $max_buffer_reading_size;
+                $fh->recv($buffer, $size);
+                if ($size == 0) {
                     Jael::Debug::msg("connection closed");
                     $self->{read_set}->remove($fh);
                     close($fh);
                 } else {
-                    my $buffer = <$fh>;
                     $self->{message_buffers}->incoming_data($fh, $buffer);
                 }
             }
         }
     }
+    return;
 }
 
 #broadcast to everyone but self
