@@ -5,6 +5,8 @@ use overload
 use Jael::Debug;
 use Data::Dumper;
 
+use constant IMAGE_VIEWER => 'ristretto';
+
 sub new {
 	my $class = shift;
 	my $self = {};
@@ -58,8 +60,9 @@ sub display_graph {
 	print $dotfile "}\n";
 	close($dotfile);
 	my $img = "$dotfilename.jpg";
+        my $viewer = IMAGE_VIEWER;
 	`dot -Tjpg $dotfilename -o $img`;
-	`geeqie $img`;
+	`$viewer $img`;
 	unlink $img;
 	unlink $dotfilename;
 }
