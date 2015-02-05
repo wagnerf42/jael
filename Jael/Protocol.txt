@@ -1,43 +1,74 @@
 
-fin du calcul d'une tache :
-envoi 'I computed ID_TASK' vers DHT_OWNER(ID_TASK)									1
-DHT_OWNER(ID_TASK) calcule quelles taches dependent de ID_TASK
-il calcule les owner de chaque tache et leur envoie un message
-envoi aux owners de 'ID_TASK completed'												2
-si une tache ID_TASK2 devient 'ready' alors envoi au possesseur de la tache
-'ID_TASK2 is now ready'																3
+*************************************************************************************
+fin du calcul d'une tache T1 par P_j:
+envoi 'I computed ID_TASK' vers DHT_OWNER(T1)										1
+mise a jour du statut local de T1
+DHT_OWNER(T1) calcule quelles taches (par exemple T2, T3) dependent de T1
+DHT_OWNER(T1) note que P_j possede la donnee associee a T1
+il calcule les owner de chaque tache : DHT_OWNER(T2) et DHT_OWNER(T3)
+et leur envoie un message
+'ID_TASK completed'																	2
+si une tache T_i devient 'ready'
+alors DHT_OWNER(T_i) envoi au possesseur de la tache T_i
+'T_i is now ready'																	3
+le possesseur active la tache dans sa pile locale (passage a ready_waiting ou ready)
+*************************************************************************************
 
-chercher a trouver qui possede des donnees :
-envoi 'looking for ID_TASK' vers DHT_OWNER(ID_TASK)									4
-reponse 'ID_TASK available on [ID_COMP list]'										5
+chercher a trouver qui possede la donnee de la tache T_i :
+envoi 'looking for T_i' vers DHT_OWNER(T_i)											4
+reponse 'T_i available on [ID_COMP list]'											5
+*************************************************************************************
 
+p_j veut faire une requete de fichier pour le fichier de la tache T_i
+envoi 'file request T_i' vers p_k qui possede le fichier 							15
+reponse: p_k envoi le fichier vers p_j (file basse priorite)						16
 informer que l'on possede des donnees :
-envoi 'we obtained ID_TASK' vers DHT_OWNER(ID_TASK)									6
+envoi 'we obtained T_i' vers DHT_OWNER(T_i)											6
+sur recepetion du msg le dht_owner rajoute p_j dans la liste des gens possedant le
+fichier
+
+*************************************************************************************
 
 informer de la fin des calculs :
-envoi 'ending' vers ALL 															7
+lorsque la derniere tache T_i est finie
+par le processus P_j
 
+envoi 'ending' vers	tous sauf P0													7
+envoi du fichier de fin de T_i a P0 (en basse)										18
+lorsque P0 a recu le fichier il envoi 'ending' (7) a P_j
+et quitte
+sur reception de 'ending' : quitter
+*************************************************************************************
+
+au demarrage P0 envoie le graphe a tous
+broadcast du message 'taskgraph graph'										17
+
+*************************************************************************************
+
+P_j n'a plus de travail ready* dans la pile
 faire une requete de vol :
-envoi 'steal request' vers un ID_COMP aleatoire 									8
+envoi 'steal request' vers un P_k aleatoire different de P_j						8
 reponse 'nothing to steal' vers source si rien a prendre 							9
 si qqch a prendre
-	reponse 'you can steal ID_TASK' vers source 									10
-	envoi 'we now own ID_TASK' a DHT_OWNER(ID_TASK) 								11
+	reponse de P_k : 'you can steal T_i' vers P_j									10
+	P_k enleve la tache T_i de sa pile
+	P_j ajoute la tache T_i dans sa pile
+	envoi 'we now own T_i' a DHT_OWNER(T_i) 										11
 
+*************************************************************************************
 faire une requete de fork :
 envoi 'fork request ID_TASK' vers DHT_OWNER(ID_TASK)								12
 si ok:
 	envoi 'fork accepted for ID_TASK' vers source 									13
 si non:
 	envoi 'fork refused for ID_TASK' vers source 									14
-
-faire une requete de fichier
-envoi 'file request ID_TASK' vers quelqu'un qui possede le fichier 					15
-reponse: envoi du fichier 															16
+mise a jour de l'info en local (+details a venir)
 
 
-questions: etre le plus econome possible ?
-
+---------------------------------------------------------------
+***********
+A VERIFIER*
+***********
 types d'arguments :
 
 	- ID_TASK : 1,2,3,4,6,10,11,12,13,14,15

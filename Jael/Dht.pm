@@ -2,6 +2,14 @@ package Jael::Dht;
 
 use strict;
 use warnings;
+use Readonly;
+
+#status information stored for each task
+#this information is NOT THE SAME is as the more detailed status of a Jael::Task object
+Readonly::Scalar my $STATUS_READY => 1; #all dependencies for this task are completed
+Readonly::Scalar my $STATUS_NOT_READY => 2; #some dependencies for this task are not completed
+Readonly::Scalar my $STATUS_FAILED => 3; #task executed and failed
+Readonly::Scalar my $STATUS_COMPLETED => 4; #task executed and succeeded
 
 sub new {
 	my $class = shift;
