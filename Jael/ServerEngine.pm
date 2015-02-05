@@ -13,10 +13,9 @@ use Jael::Message;
 use Jael::MessageBuffers;
 use Jael::Debug;
 
-# Port par défaut du serveur
 use constant PORT => 2345;
 
-# Priorités des threads
+# Threads priority
 use constant {
     SENDING_PRIORITY_LOW => 0,
     SENDING_PRIORITY_HIGH => 1
@@ -24,56 +23,49 @@ use constant {
 
 my $max_buffer_reading_size = 1024;
 
-# Crée un nouveau serveur
-# Paramètres: ID, [machine 1, machine 2, ...]
+# Make a new server
+# Parameters: ID, [machine 1, machine 2, ...]
 
-# Exemple:
+# Example:
 # 1, [m1, m2, m3, m2]
 #      0   1   2   3
-# 1 est ici est des deux serveurs (donc processus) sur la machine 2
 sub new {
     my $class = shift;
     my $self = {};
 
     bless $self, $class;
  
-    # Partage entre les threads
-    # Sockets non partagés et gérés par les threads
+    # Shared data
     my @sh_messages_low :shared;
     my @sh_messages_high :shared;
 
-    # Attributs principaux
     $self->{id} = shift;
     
     my @machines_names :shared = @_;
     
     $self->{machines_names} = \@machines_names;
     $self->{machines_number} = @{$self->{machines_names}};
-    
-    # Tableau de messages
+
+    # Messages list, one per thread
     $self->{sending_messages} = [];
     $self->{sending_messages}->[SENDING_PRIORITY_LOW] = \@sh_messages_low;
     $self->{sending_messages}->[SENDING_PRIORITY_HIGH] = \@sh_messages_high;
   
-    # Buffer du serveur
     $self->{message_buffers} = new Jael::MessageBuffers;
-
-    # Mise en place du protocole à utiliser
     $self->{protocol} = new Jael::Protocol($self);
     
-    # Threads pour la gestion de l'envoi de messages
+    # Make threads
     threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
                     \@sh_messages_low, \@machines_names, SENDING_PRIORITY_LOW);  
     threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
                     \@sh_messages_high, \@machines_names, SENDING_PRIORITY_HIGH); 
 
-    # Informations de debug
+    # Init debug infos for the server thread
     Jael::Debug::init($self->{id}, $self->{machines_names}->[$self->{id}]);
 
     return $self;
 }
 
-# Affichage des informations concernant un serveur
 sub print_infos {
     my $self = shift;
 
@@ -91,7 +83,12 @@ sub run {
     $self->print_infos();
 
     # server port is PORT + id of current server
-    $self->{server_socket} = IO::Socket::INET->new(LocalHost => $self->{machines_names}->[$self->{id}], Listen => 1, LocalPort => PORT + $self->{id}, Reuse => 1, Proto => 'tcp');
+    $self->{server_socket} = IO::Socket::INET->new(LocalHost => $self->{machines_names}->[$self->{id}],
+                                                   Listen => 1, 
+                                                   LocalPort => PORT + $self->{id}, 
+                                                   Reuse => 1,
+                                                   Proto => 'tcp');
+    
     die "Could not create socket: $!\n" unless $self->{server_socket};
 
     # we use select to find non blocking reads
@@ -134,20 +131,20 @@ sub broadcast {
     }
 }
 
-# Thread se chargeant d'envoyer des messages avec une certaine priorité
-# Paramètres : Hashtable de sockets, Tableau de id + messages
+# One sending thread
 sub th_send_with_priority {
-    my $id = shift;           # ID de la machine courante
-    my $machine_name = shift; # Nom de la machine courante
+    my $id = shift;
+    my $machine_name = shift;
     
-    my $sending_sockets = {};     # Liste des sockets connues sur le réseau
-    my $sending_messages = shift; # Liste de messages à envoyer
-    my $machines_names = shift;   # Liste des machines 
-    my $priority = shift;         # Priorité du thread
+    my $sending_sockets = {};     # Thread's Sockets
+    my $sending_messages = shift; # Messages list for the sockets
+    my $machines_names = shift;   # Machines list
+    my $priority = shift;         # Thread priority
     
-    my $string;            # Chaine à envoyer
-    my $target_machine_id; # ID de la machine cible
+    my $string;            # Message string
+    my $target_machine_id; # Message id
 
+    # Init the debug infos for the sending thread
     Jael::Debug::init($id, $machine_name);
 
     while (1) {
@@ -155,39 +152,40 @@ sub th_send_with_priority {
             sleep(0.1);
             Jael::Debug::msg("th (priority=$priority): sleep");
             lock($sending_messages);                                 
-            cond_wait($sending_messages) unless @{$sending_messages}; # On attend si rien dans le tableau
+            cond_wait($sending_messages) unless @{$sending_messages}; # Wait if nothing in messages array
             Jael::Debug::msg("th (priority=$priority): waken");
-            $target_machine_id = shift @{$sending_messages};          # Machine cible
-            $string = shift @{$sending_messages};                     # Message pour la machine de destination
+
+            # Get message in the message list
+            $target_machine_id = shift @{$sending_messages};
+            $string = shift @{$sending_messages};
         }
                     
-        # On se connecte si aucun socket n'existe pour un groupe de priorité donné
-        connect_to($machines_names, $target_machine_id, $sending_sockets) unless exists $sending_sockets->{$target_machine_id};
+        # Connect if socket doesn't exists
+        connect_to($machines_names, $target_machine_id, $sending_sockets)
+            unless exists $sending_sockets->{$target_machine_id};
 
-        # Récupération socket
+        # Sending data
         my $socket = $sending_sockets->{$target_machine_id};
         Jael::Debug::msg("sending message (priority=$priority)");
-
-        # Envoi du message
         print $socket $string;    
     }
 }
 
-# Envoyer un message sur une machine
-# Paramètres: Machine cible, message
+# Send function (For Server object)
 sub send {
     my $self = shift;
     my $target_machine_id = shift;
     my $message = shift;
 
-    # ID de la machine source (donc le serveur courant) à mettre dans le message
+    # Source machine id = sender id
     $message->set_sender_id($self->{id});
 
-    # Choix de la priorité
-    # TMP
-    my $priority = $message->get_type == TASK_COMPUTATION_COMPLETED ? SENDING_PRIORITY_LOW : SENDING_PRIORITY_HIGH;
-
-    # Ajout du message dans la bonne liste de messages en fonction de la priorité
+    # Get or define priority
+    # By default, it is a high priority message
+    my $priority = $message->get_priority();
+    $priority = SENDING_PRIORITY_HIGH unless (defined $priority);
+    
+    # Add message in the the right messages list (So the right thread)
     {
         lock($self->{sending_messages}->[$priority]);
         push @{$self->{sending_messages}->[$priority]}, ($target_machine_id, $message->pack());
@@ -197,8 +195,7 @@ sub send {
     }
 }
 
-# Ajouter une connexion d'un client au serveur
-# Paramètres : ID de la machine cliente, liste de sockets
+# Add socket in sockets list (For sending thread, not Server object)
 sub connect_to {
     my $machines_names = shift;
     my $machine_id = shift;

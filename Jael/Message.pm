@@ -76,6 +76,32 @@ sub set_sender_id {
 	$self->{sender_id} = shift;
 }
 
+sub get_sender_id {
+    my $self = shift;
+    return $self->{sender_id};
+}
+
+sub set_priority {
+    my $self = shift;
+    $self->{priority} = shift;
+}
+
+sub get_priority {
+    my $self = shift;    
+    return $self->{priority};
+}
+
+sub get_type {
+    my $self = shift;
+    return $self->{type};
+}
+
+sub get_task_id {
+    my $self = shift;
+    die "no task in $self" unless exists $self->{task_id};
+    return $self->{task_id};
+}
+
 sub pack {
 	my $self = shift;
 	my $string;
@@ -148,22 +174,6 @@ sub stringify {
 	}
 	$string .= "\n";
 	return $string;
-}
-
-sub get_type {
-	my $self = shift;
-	return $self->{type};
-}
-
-sub get_task_id {
-	my $self = shift;
-	die "no task in $self" unless exists $self->{task_id};
-	return $self->{task_id};
-}
-
-sub get_sender_id {
-	my $self = shift;
-	return $self->{sender_id};
 }
 
 1;
