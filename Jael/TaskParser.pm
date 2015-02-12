@@ -13,6 +13,8 @@ use constant {
 	PARSING_FILES_COMMAND => 3
 };
 
+use constant JAEL_MAKE => "bin/jael_make";
+
 my @handlers = (\&nothing, \&variables, \&before_target, \&command);
 
 sub make {
@@ -23,7 +25,7 @@ sub make {
 	$self->{commands} = [];
 
 	Jael::Debug::msg("launching jael_make\n");
-	open(MAKE, "jael_make -t -p |") or die "unable to fork jael_make : $!";
+	open(MAKE, JAEL_MAKE . " -t -p |") or die "unable to fork jael_make : $!";
 	$self->{state} = PARSING_NOTHING;
 	my $line;
 	while($line = <MAKE>) {

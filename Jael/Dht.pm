@@ -23,8 +23,8 @@ sub new {
 #prerequisite : we own t1
 sub change_task_status {
 	my $self = shift;
-	my $task_id = shift;
-	my $task_status = shift;
+	my $task_id = shift;     # t1 task
+	my $task_status = shift; # New status for t1
 #TODO
 }
 

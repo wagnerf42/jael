@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use threads;
+use threads 'exit' => 'threads_only';
 use Jael::ServerEngine;
 use Jael::Message;
 
@@ -11,7 +11,7 @@ my $ip = "127.0.0.1";
 sub exec_machine {
     my $id = shift;
     my $server = new Jael::ServerEngine($id, 'wescoeur-pc', 'localhost');
-    $server->send(1-$id, Jael::Message->new(TASK_COMPUTATION_COMPLETED, $id));
+    $server->send(1-$id, Jael::Message->new(END_ALL));
     $server->run();
 }
 

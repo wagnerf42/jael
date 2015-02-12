@@ -9,11 +9,11 @@ use IO::Socket::INET;
 # auto-flush on socket
 $| = 1;
 
-my $msg1 = new Jael::Message(END_ALL);
+my $msg1 = new Jael::Message(SENDING_PRIORITY_LOW, END_ALL);
 $msg1->set_sender_id(0);
-my $msg2 = new Jael::Message(TASK_COMPUTATION_COMPLETED, 5);
+my $msg2 = new Jael::Message(SENDING_PRIORITY_LOW, TASK_COMPUTATION_COMPLETED, 5);
 $msg2->set_sender_id(0);
-my $msg3 = new Jael::Message(TASKGRAPH, "graph", "foobar baz");
+my $msg3 = new Jael::Message(SENDING_PRIORITY_LOW, TASKGRAPH, "graph", "foobar baz");
 $msg3->set_sender_id(2);
 my $string = $msg1->pack() . $msg2->pack() . $msg3->pack();
 

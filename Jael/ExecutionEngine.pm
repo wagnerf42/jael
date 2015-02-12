@@ -48,6 +48,8 @@ sub bootstrap_system {
 	if (defined $self->{network}) {
 		$self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', "$self->{taskgraph}"));
 	}
+        sleep 30;
+        $self->{network}->broadcast(Jael::Message->new(END_ALL));
 	#put initial task on the stack
 	die 'TODO put init task';
 }

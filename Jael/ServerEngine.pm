@@ -66,21 +66,9 @@ sub new {
     return $self;
 }
 
-sub print_infos {
-    my $self = shift;
-
-    print "# Server\n";
-    print "Server Id: " . $self->{id} . "\n";
-    print "Server Name: " . $self->{machines_names}->[$self->{id}] . "\n";
-    print "Machines number: " . $self->{machines_number} . "\n";
-    print "Machines: " . join(", ", @{$self->{machines_names}}) . "\n\n";
-}
-
 sub run {
     my $self = shift;
     Jael::Debug::msg('starting new server');
-
-    $self->print_infos();
 
     # server port is PORT + id of current server
     $self->{server_socket} = IO::Socket::INET->new(LocalHost => $self->{machines_names}->[$self->{id}],
@@ -96,22 +84,30 @@ sub run {
 
     while(my @ready = $self->{read_set}->can_read()) {
         for my $fh (@ready) {
+	    # New connexion
             if($fh == $self->{server_socket}) {
                 Jael::Debug::msg("new connexion");
-                # Create a new socket
                 my $new = $self->{server_socket}->accept;
                 $self->{read_set}->add($new);
             }
+	    # Receiving message...
             else {
                 my $buffer;
                 my $size = $max_buffer_reading_size;
                 $fh->recv($buffer, $size);
+		# Closing connexion
                 if ($size == 0) {
                     Jael::Debug::msg("connection closed");
                     $self->{read_set}->remove($fh);
                     close($fh);
+	        # Handle message
                 } else {
-                    $self->{message_buffers}->incoming_data($fh, $buffer);
+		    # If message is received entirely, we use the message protocol
+                    my $received_message = $self->{message_buffers}->incoming_data($fh, $buffer);
+		   
+		    if (defined $received_message) {
+			$self->{protocol}->incoming_message($received_message);
+		    }
                 }
             }
         }
@@ -213,7 +209,7 @@ sub connect_to {
             Proto => 'tcp'
             );
 
-        sleep(0.1);
+        sleep(2);
     }
     
     Jael::Debug::msg("opened connection to $machine_id");

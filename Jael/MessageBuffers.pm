@@ -12,6 +12,7 @@ sub new {
 	return $self;
 }
 
+# Returns an unpacked Message or nothing if there are not enough data
 sub incoming_data {
 	my $self = shift;
 	my $socket = shift;
@@ -24,7 +25,7 @@ sub incoming_data {
 			my $message_string = substr($self->{buffers}->{$socket}, 0, $size, ''); #this removes msg from remaining part
 			my $message = Jael::Message::unpack($message_string);
 			Jael::Debug::msg("received : $message");
-			#TODO: action
+			return $message;
 		} else {
 			return;
 		}
