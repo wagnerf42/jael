@@ -148,7 +148,7 @@ sub th_send_with_priority {
             sleep(0.1);
             Jael::Debug::msg("th (priority=$priority): sleep");
             lock($sending_messages);                                 
-            cond_wait($sending_messages) unless @{$sending_messages}; # Wait if nothing in messages array
+            cond_wait($sending_messages) until @{$sending_messages}; # Wait if nothing in messages array
             Jael::Debug::msg("th (priority=$priority): waken");
 
             # Get message in the message list

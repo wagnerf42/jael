@@ -13,7 +13,7 @@ use constant {
 	PARSING_FILES_COMMAND => 3
 };
 
-use constant JAEL_MAKE => "bin/jael_make";
+use constant JAEL_MAKE => "jael_make";
 
 my @handlers = (\&nothing, \&variables, \&before_target, \&command);
 
@@ -93,7 +93,7 @@ sub command {
 	if ($line eq '') {
 		my $command = join("\n", @{$self->{commands}});
 		$command = replace_variables($self, $command, 0);
-		my $task = new Jael::Task(Jael::Task::REAL_TASK, $self->{current_target}, $command, $self->{current_deps}, $self->{current_directory});
+		my $task = Jael::Task->new(Jael::Task::REAL_TASK, $self->{current_target}, $command, $self->{current_deps}, $self->{current_directory});
 		unless ($self->{not_a_target}) {
 			$self->{tasksgraph}->add_task($task);
 		}

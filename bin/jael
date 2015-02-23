@@ -76,6 +76,6 @@ sub parse_command_line {
 
 sub help {
 	die <<HDOC;
-use : jael [-m machine1,machine2,machine3,...] [-i id]
+use : jael [-m machine1,machine2,machine3,...] [-i id] [-t target]
 HDOC
 }
