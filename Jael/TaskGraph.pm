@@ -1,22 +1,28 @@
-package Jael::TaskGraph;
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
+package Jael::TaskGraph;
+
+use strict;
+use warnings;
+
 use File::Temp;
-use overload
-    '""' => \&stringify;
+use overload '""' => \&stringify;
 use Jael::Debug;
 use Data::Dumper;
 use Scalar::Util qw(refaddr);
-use strict;
-use warnings;
+
+use Jael::VirtualTask;
 
 use constant IMAGE_VIEWER => 'ristretto';
 
 sub new {
     my $class = shift;
     my $self = {};
-    $self->{tasks} = {}; #index of all tasks, indexed by ID
-    $self->{dependencies} = {}; #store for each task what other tasks we need
+    
+    $self->{tasks} = {};        # Index of all tasks, indexed by ID
+    $self->{dependencies} = {}; # Store for each task what other tasks we need
+    
     bless $self, $class;
+    
     return $self;
 }
 
@@ -29,34 +35,55 @@ sub add_task {
     my $self = shift;
     my $task = shift;
     my $id = $task->get_id();
+
     die "task $id already there" if exists $self->{tasks}->{$id};
+    
     $self->{tasks}->{$id} = $task;
     $self->{dependencies}->{$id} = [$task->get_dependencies()]; 
+    
     return;
+}
+
+sub get_task {
+    my $self = shift;
+    return $self->{tasks}->{shift};
 }
 
 sub display_graph {
     my $self = shift;
+
+    # Make new temp file for image graph
     my ($dotfile, $dotfilename) = File::Temp::tempfile();
+    
     print $dotfile "digraph g {\n";
+    
     for my $task (values %{$self->{tasks}}) {
         my $task_name = refaddr $task;
         my $id = $task->get_id();
+        
         print $dotfile "n$task_name [label=\"$id\"];\n";
+
         for my $dep ($task->get_dependencies()) {
             my $task_we_need = $self->{tasks}->{$dep};
             my $needed_name = refaddr $task_we_need;
+            
             print $dotfile "n$needed_name -> n$task_name;\n";
-        }
+        }        
     }
+    
     print $dotfile "}\n";
     close($dotfile);
+
+    # Print image with user viewer
     my $img = "$dotfilename.jpg";
     my $viewer = IMAGE_VIEWER;
+    
     `dot -Tjpg $dotfilename -o $img`;
     `$viewer $img`;
+    
     unlink $img;
     unlink $dotfilename;
+    
     return;
 }
 
@@ -81,16 +108,27 @@ sub set_main_target {
     return;
 }
 
-#depth first graph exploration
+sub get_main_target {
+    my $self = shift;
+    return $self->{main_target};
+}
+
+
+# Depth first graph exploration
 sub find_useful_targets {
     my $useful_targets = shift;
     my $dependencies = shift;
     my $current_target = shift;
+    
     return if exists $useful_targets->{$current_target};
+    
     $useful_targets->{$current_target} = 1;
+    
     for my $target (@{$dependencies->{$current_target}}) {
         find_useful_targets($useful_targets, $dependencies, $target);
     }
+
+    return;
 }
 
 sub generate_reverse_dependencies {
@@ -102,12 +140,14 @@ sub generate_reverse_dependencies {
         # We get the dependencies of the current task
         my $task = $self->{tasks}->{$task_id};
         my @dependencies = $task->get_dependencies();
-        
+
+        # Update the virtuals tasks hierarchy
         for my $dependency (@dependencies) {
-            $self->{reverse_dependencies}->{$dependency} = [] unless exists $self->{reverse_dependencies}->{$dependency};
-            push @{$self->{reverse_dependencies}->{$dependency}}, $task_id;
+            $self->{reverse_dependencies}->{$dependency}->{"virtual//$task_id"} = 1;
         }
     }
+
+    return;
 }
 
 sub generate_virtual_tasks {
@@ -118,11 +158,8 @@ sub generate_virtual_tasks {
     # For each task, we add one virtual task in graph
     for my $task_id (keys %{$self->{tasks}}) {
         my $dependencies = $self->{reverse_dependencies}->{$task_id};
-        
-        print STDERR "DEPS " . join(", ", @{$dependencies}) . "\n";
-
-        my $tasks_to_fork = [ $task_id, map { "virtual:$_" } @{$self->{dependencies}->{$task_id}} ];
-        my $virtual_task = Jael::Task->new(Jael::Task::VIRTUAL_TASK, $task_id, $dependencies, $tasks_to_fork);
+        my $tasks_to_fork = [map {"virtual//$_"} @{$self->{dependencies}->{$task_id}}, $task_id];
+        my $virtual_task = Jael::VirtualTask->new($task_id, $dependencies, $tasks_to_fork);
         
         $self->add_task($virtual_task);
     }

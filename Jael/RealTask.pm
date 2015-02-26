@@ -20,9 +20,11 @@ sub new {
     
     if (defined $deps) {
         my @deps = split(/\s+/, $deps);
-        $self->{dependencies} = [grep {$_ ne ''} @deps];
+        for my $dep (grep {$_ ne ''} @deps) {
+            $self->{dependencies}->{$dep} = 1;
+        }
     } else {
-        $self->{dependencies} = [];
+        $self->{dependencies} = {};
     }
         
     bless $self, $class;
@@ -32,7 +34,7 @@ sub new {
 
 sub stringify {
     my $self = shift;
-    return $self->{target_name} . ": " . join(" ", @{$self->{dependencies}}) . "\n\t" . $self->{command} . "\n";
+    return $self->{target_name} . ": " . join(" ", keys %{$self->{dependencies}}) . "\n\t" . $self->{command} . "\n";
 }
 
 sub get_id {

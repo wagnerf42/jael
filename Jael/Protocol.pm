@@ -90,7 +90,7 @@ sub incoming_message {
         my $sender_id = $message->get_sender_id();
         $self->{server}->send_file($sender_id, $task_id);
     } elsif ($type == TASKGRAPH) {
-        Jael::Debug::msg("graph:".$message->get_string()." is ".$message->get_string());
+        Jael::Debug::msg("graph:" . $message->get_string() . " is " . $message->get_string());
     } elsif ($type == LAST_FILE) {
         # P0 receives the last file
         #TODO

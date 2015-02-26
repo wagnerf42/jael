@@ -18,7 +18,7 @@ sub new {
     if (defined $deps) {
         $self->{dependencies} = $deps;
     } else {
-        $self->{dependencies} = [];
+        $self->{dependencies} = {};
     }
     
     $self->{tasks_to_generate} = shift;
@@ -30,12 +30,12 @@ sub new {
 
 sub stringify {
     my $self = shift;
-    return "virtual:$self->{target_name}: " . join(" ", @{$self->{tasks_to_generate}}) . "\n";
+    return "virtual//$self->{target_name}: " . join(" ", @{$self->{tasks_to_generate}}) . "\n";
 }
 
 sub get_id {
     my $self = shift;
-    return "virtual:$self->{target_name}";
+    return "virtual//$self->{target_name}";
 }
 
 1;

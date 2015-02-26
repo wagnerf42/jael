@@ -1,4 +1,8 @@
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 package Jael::Stack;
+
+use strict;
+use warnings;
 
 use threads;
 use threads::shared;
@@ -17,7 +21,7 @@ sub new {
     return $self;
 }
 
-sub shift {
+sub shift_value {
     my $self = shift;
     
     lock($self->{elems});  
@@ -26,7 +30,7 @@ sub shift {
     return $elem;
 }
 
-sub pop {
+sub pop_value {
     my $self = shift;
     
     lock($self->{elems});  
@@ -35,7 +39,7 @@ sub pop {
     return $elem;
 }
 
-sub push {
+sub push_value {
     my $self = shift;
     my $elem = shift;
 
@@ -45,7 +49,7 @@ sub push {
     return;
 }
 
-sub unshift {
+sub unshift_value {
     my $self = shift;
     my $elem = shift;
     
@@ -59,7 +63,6 @@ sub get_size {
     my $self = shift;
     
     lock($self->{elems});
-
     # Force scalar, we doesn't return the array reference
     return scalar @{$self->{elems}};
 }

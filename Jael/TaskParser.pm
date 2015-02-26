@@ -1,16 +1,18 @@
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 package Jael::TaskParser;
 
 use strict;
 use warnings;
-use Jael::Task;
+
+use Jael::RealTask;
 use Jael::TaskGraph;
 use Jael::Debug;
 
 use constant {
-	PARSING_NOTHING => 0,
-	PARSING_VARIABLES => 1,
-	PARSING_FILES_BEFORE_TARGET => 2,
-	PARSING_FILES_COMMAND => 3
+    PARSING_NOTHING => 0,
+    PARSING_VARIABLES => 1,
+    PARSING_FILES_BEFORE_TARGET => 2,
+    PARSING_FILES_COMMAND => 3
 };
 
 use constant JAEL_MAKE => "jael_make";
@@ -93,7 +95,7 @@ sub command {
 	if ($line eq '') {
 		my $command = join("\n", @{$self->{commands}});
 		$command = replace_variables($self, $command, 0);
-		my $task = Jael::Task->new(Jael::Task::REAL_TASK, $self->{current_target}, $command, $self->{current_deps}, $self->{current_directory});
+		my $task = Jael::RealTask->new($self->{current_target}, $command, $self->{current_deps});
 		unless ($self->{not_a_target}) {
 			$self->{tasksgraph}->add_task($task);
 		}

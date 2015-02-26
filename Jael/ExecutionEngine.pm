@@ -1,10 +1,11 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
-
 package Jael::ExecutionEngine;
 
 use strict;
 use warnings;
+
 use threads;
+
 use Jael::ServerEngine;
 use Jael::TaskParser;
 use Jael::Stack;
@@ -37,11 +38,20 @@ sub new {
 #TODO a faire : code des threads de calcul
 
 sub computation_thread {
+    my $self = shift; # Protocol engine
+    
     while(1) {
         # Take task
+        my $task = $self->{stack}->pop_value();
 
-        # Execute real task
-        
+        # Steal
+        if(not defined $task) {
+            sleep(0.2);
+        } elsif($task->get_id() =~ /^virtual\/\//) {
+
+        } else {
+
+        }
     }
 
     return;
@@ -73,18 +83,19 @@ sub bootstrap_system {
     $graph->set_main_target($self->{config}->{target});
     $graph->generate_virtual_tasks();
     $graph->display_graph() if exists $ENV{JAEL_DEBUG};
-    
-    die;
-    
+        
     $self->{taskgraph} = $graph;
     
-    #now, if there is a network, broadcast the graph to everyone
+    # Now, if there is a network, broadcast the graph to everyone
     if (defined $self->{network}) {
         $self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', "$self->{taskgraph}"));
     }
+
+    die;
     
-    #put initial task on the stack
-    die 'TODO put init task'; #TODO : a faire mettre la tache primaire sur la pile
+    # Put initial task on the stack
+    Jael::Debug::msg("put initial task on task: " . $self->{config}->{target});
+    #$self->{stack}->push_value
 }
 
 sub detect_cores {
