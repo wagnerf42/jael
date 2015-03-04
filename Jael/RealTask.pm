@@ -1,5 +1,4 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
-
 package Jael::RealTask;
 
 use strict;
@@ -17,16 +16,24 @@ sub new {
     $self->{command} = shift;
     
     my $deps = shift;
-    
+
+    # Set dependencies
+    $self->{dependencies} = {};
+
     if (defined $deps) {
         my @deps = split(/\s+/, $deps);
         for my $dep (grep {$_ ne ''} @deps) {
             $self->{dependencies}->{$dep} = 1;
         }
-    } else {
-        $self->{dependencies} = {};
     }
-        
+
+    # Set the initial task status : Ready or not ready
+    if (%{$self->{dependencies}}) {
+        $self->{status} = Jael::Task::STATUS_NOT_READY;
+    } else {
+        $self->{status} = Jael::Task::STATUS_READY;
+    }
+    
     bless $self, $class;
     
     return $self;

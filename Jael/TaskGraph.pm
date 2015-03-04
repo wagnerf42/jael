@@ -113,7 +113,6 @@ sub get_main_target {
     return $self->{main_target};
 }
 
-
 # Depth first graph exploration
 sub find_useful_targets {
     my $useful_targets = shift;
@@ -143,7 +142,7 @@ sub generate_reverse_dependencies {
 
         # Update the virtuals tasks hierarchy
         for my $dependency (@dependencies) {
-            $self->{reverse_dependencies}->{$dependency}->{"virtual//$task_id"} = 1;
+            $self->{reverse_dependencies}->{$dependency}->{VIRTUAL_TASK_PREFIX . $task_id} = 1;
         }
     }
 
@@ -157,10 +156,14 @@ sub generate_virtual_tasks {
 
     # For each task, we add one virtual task in graph
     for my $task_id (keys %{$self->{tasks}}) {
+        # Dependencies of virtual task
         my $dependencies = $self->{reverse_dependencies}->{$task_id};
-        my $tasks_to_fork = [map {"virtual//$_"} @{$self->{dependencies}->{$task_id}}, $task_id];
-        my $virtual_task = Jael::VirtualTask->new($task_id, $dependencies, $tasks_to_fork);
+
+        # Tasks to generate by virtual task : [virtual A, virtual B ... , real_task_id]
+        my $tasks_to_fork = [(map {VIRTUAL_TASK_PREFIX . $_} @{$self->{dependencies}->{$task_id}}), $task_id];
         
+        # Update graph state
+        my $virtual_task = Jael::VirtualTask->new($task_id, $dependencies, $tasks_to_fork);
         $self->add_task($virtual_task);
     }
 

@@ -1,13 +1,17 @@
-package Jael::ServerEngine;
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
+package Jael::ServerEngine;
+
 use strict;
 use warnings;
 use threads;
 use threads::shared;
+
 use IO::Socket;
 use IO::Select;
+
 # auto-flush on socket
 $| = 1;
+
 use Jael::Protocol;
 use Jael::Message;
 use Jael::MessageBuffers;
@@ -112,6 +116,7 @@ sub run {
             }
         }
     }
+    
     return;
 }
 
@@ -120,11 +125,15 @@ sub run {
 sub broadcast {
     my $self = shift;
     my $message = shift;
+    
     Jael::Debug::msg("broadcasting $message");
+    
     for my $machine_id (0..$#{$self->{machines_names}}) {
         next if $machine_id == $self->{id};
         $self->send($machine_id, $message);
     }
+
+    return;
 }
 
 # One sending thread
@@ -165,6 +174,9 @@ sub th_send_with_priority {
         Jael::Debug::msg("sending message (priority=$priority)");
         print $socket $string;    
     }
+
+    # No reached
+    return;
 }
 
 # Send function (For Server object)
@@ -189,6 +201,8 @@ sub send {
         Jael::Debug::msg("new message in queue (id_dest=$target_machine_id, priority=$priority)");
         cond_signal($self->{sending_messages}->[$priority]);
     }
+
+    return;
 }
 
 # Add socket in sockets list (For sending thread, not Server object)
@@ -213,6 +227,8 @@ sub connect_to {
     }
     
     Jael::Debug::msg("opened connection to $machine_id");
+
+    return;
 }
 
 1;

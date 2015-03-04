@@ -41,6 +41,7 @@ use constant {
 	ARRAY => 1,
 	IMMEDIATE_VALUE => 2
 };
+
 sub parse_command_line {
 	my $config = shift;
 	my $key;

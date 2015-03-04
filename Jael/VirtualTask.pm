@@ -8,6 +8,15 @@ use overload '""' => \&stringify;
 # VirtualTask extends Task
 use parent 'Jael::Task';
 
+our (@ISA, @EXPORT);
+BEGIN {
+    require Exporter;
+    push @ISA, qw(Exporter);
+    push @EXPORT, qw(VIRTUAL_TASK_PREFIX);
+}
+
+use constant VIRTUAL_TASK_PREFIX => 'virtual//';
+    
 # Parameters : Target name, \@deps, \@tasks_to_generate
 sub new {
     my $class = shift;
@@ -22,6 +31,9 @@ sub new {
     }
     
     $self->{tasks_to_generate} = shift;
+
+    # Virtual task is always ready
+    $self->{status} = Jael::Task::STATUS_READY;
     
     bless $self, $class;
 
@@ -30,12 +42,17 @@ sub new {
 
 sub stringify {
     my $self = shift;
-    return "virtual//$self->{target_name}: " . join(" ", @{$self->{tasks_to_generate}}) . "\n";
+    return VIRTUAL_TASK_PREFIX . "$self->{target_name}: " . join(" ", @{$self->{tasks_to_generate}});
 }
 
 sub get_id {
     my $self = shift;
-    return "virtual//$self->{target_name}";
+    return VIRTUAL_TASK_PREFIX . "$self->{target_name}";
+}
+
+sub get_tasks_to_generate {
+    my $self = shift;
+    return $self->{tasks_to_generate};
 }
 
 1;

@@ -43,4 +43,28 @@ sub get_dependencies {
     return (keys %{$self->{dependencies}});
 }
 
+# Set one dependency's task to 0 (if exists)
+# Change the task status to STATUS_READY if it is necessary (no more dependencies)
+sub unset_dependency {
+    my $self = shift;
+    my $id = shift;
+
+    if (defined ${$self->{dependencies}}{$id}) {
+        # No update, the dependency is already unset
+        return if (${$self->{dependencies}}{$id} == 0);
+
+        # Unset dependency
+        ${$self->{dependencies}}{$id} = 0;
+
+        # Update status
+        foreach (values %{$self->{dependencies}}) {
+            return if $_ != 0; # It exists one active dependency
+        }
+
+        $self->{status} = STATUS_READY;
+    }
+
+    return;
+}
+
 1;
