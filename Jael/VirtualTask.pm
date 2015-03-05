@@ -40,6 +40,10 @@ sub new {
     return $self;
 }
 
+sub is_virtual {
+    return 1;
+}
+
 sub stringify {
     my $self = shift;
     return VIRTUAL_TASK_PREFIX . "$self->{target_name}: " . join(" ", @{$self->{tasks_to_generate}});

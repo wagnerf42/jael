@@ -57,12 +57,15 @@ sub new {
   
     $self->{message_buffers} = new Jael::MessageBuffers;
     $self->{protocol} = new Jael::Protocol($self);
+
+    # Threads list
+    $self->{sending_threads} = [];
     
     # Make threads
-    threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
-                    \@sh_messages_low, \@machines_names, SENDING_PRIORITY_LOW);  
-    threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
-                    \@sh_messages_high, \@machines_names, SENDING_PRIORITY_HIGH); 
+    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
+                                                      \@sh_messages_low, \@machines_names, SENDING_PRIORITY_LOW);  
+    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
+                                                      \@sh_messages_high, \@machines_names, SENDING_PRIORITY_HIGH); 
 
     # Init debug infos for the server thread
     Jael::Debug::init($self->{id}, $self->{machines_names}->[$self->{id}]);
@@ -141,7 +144,7 @@ sub th_send_with_priority {
     my $id = shift;
     my $machine_name = shift;
     
-    my $sending_sockets = {};     # Thread's Sockets
+    my $sending_sockets = {};     # Thread's sockets
     my $sending_messages = shift; # Messages list for the sockets
     my $machines_names = shift;   # Machines list
     my $priority = shift;         # Thread priority
@@ -150,8 +153,8 @@ sub th_send_with_priority {
     my $target_machine_id; # Message id
 
     # Init the debug infos for the sending thread
-    Jael::Debug::init($id, $machine_name);
-
+    Jael::Debug::msg("creating sending thread with tid: " . threads->tid());
+    
     while (1) {
         {
             sleep(0.1);
@@ -193,13 +196,28 @@ sub send {
     my $priority = $message->get_priority();
     $priority = SENDING_PRIORITY_HIGH unless (defined $priority);
     
-    # Add message in the the right messages list (So the right thread)
+    # Add message in the the right messages list
     {
         lock($self->{sending_messages}->[$priority]);
         push @{$self->{sending_messages}->[$priority]}, ($target_machine_id, $message->pack());
 
         Jael::Debug::msg("new message in queue (id_dest=$target_machine_id, priority=$priority)");
         cond_signal($self->{sending_messages}->[$priority]);
+    }
+
+    return;
+}
+
+sub kill_sending_threads {
+    my $self = shift;
+
+    $_->kill('SIGUSR1') for (@{$self->{sending_threads}});
+    
+    for my $priority (@{$self->{sending_messages}}) {
+        {
+            lock($priority);
+            cond_signal($priority);
+        }
     }
 
     return;

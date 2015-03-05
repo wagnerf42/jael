@@ -27,46 +27,29 @@ sub pop_task {
     
     lock($self->{elems});  
 
-    # C solution, it's not easy in perl with shared data
-    
-    # Pop the first ready task
-    for (my $i = @{$self->{elems}} - 1; $i >= 0; $i--) {
-        if(${$self->{elems}}[$i]->{status} == Jael::Task::STATUS_READY) {
-            # Splice not implemented for shared arrays, so it's one solution :
-            my $task = ${$self->{elems}}[$i];
-            
-            for (my $j = $i; $j < @{$self->{elems}} - 1; $j++) {
-                ${$self->{elems}}[$j] = ${$self->{elems}}[$j + 1];
-            }
-
-            pop @{$self->{elems}};
-            return $task;
+    my $selected_task;
+    my @remaining_tasks;
+    while ((not defined $selected_task) and (@{$self->{elems}})) {
+        my $candidate_task = pop @{$self->{elems}};
+        if ($candidate_task->is_ready()) {
+            $selected_task = $candidate_task;
+        } else {
+            push @remaining_tasks, $candidate_task;
         }
     }
-    
-    return;
+
+    push @{$self->{elems}}, @remaining_tasks;
+    return $selected_task;
 }
 
 sub push_task {
     my $self = shift;
 
-    lock($self->{elems});    
-    push @{$self->{elems}}, shared_clone(shift);
-
-    return;
-}
-
-# Same as push_task, but take one array reference of tasks
-sub push_several_tasks {
-    my $self = shift;
-    my $elems = shift;
-    
     lock($self->{elems});
-
-    foreach (@{$elems}) {
-        push @{$self->{elems}}, shared_clone($_);
+    for my $task (@_) {
+        push @{$self->{elems}}, shared_clone($task);
     }
-    
+
     return;
 }
 
@@ -86,9 +69,7 @@ sub update_dependencies {
 
     lock($self->{elems});
 
-    foreach (@{$self->{elems}}) {
-        $_->unset_dependency($id);
-    }
+    $_->unset_dependency($id) for @{$self->{elems}};
 
     return;
 }

@@ -46,7 +46,8 @@ sub add_task {
 
 sub get_task {
     my $self = shift;
-    return $self->{tasks}->{shift};
+    my $id = shift;
+    return $self->{tasks}->{$id};
 }
 
 sub display_graph {
@@ -105,6 +106,7 @@ sub set_main_target {
 #        }
 #    }
     $self->{main_target} = $main_target;
+    $self->{tasks}->{$main_target}->mark_as_main_task();
     return;
 }
 

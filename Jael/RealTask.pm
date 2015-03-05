@@ -39,6 +39,22 @@ sub new {
     return $self;
 }
 
+sub mark_as_main_task {
+    my $self = shift;
+    $self->{is_main_task} = 1;
+    return;
+}
+
+sub is_virtual {
+    return 0;
+}
+
+sub execute {
+    my $self = shift;
+    system("$self->{command}");
+    return (defined $self->{is_main_task});
+}
+
 sub stringify {
     my $self = shift;
     return $self->{target_name} . ": " . join(" ", keys %{$self->{dependencies}}) . "\n\t" . $self->{command} . "\n";
@@ -47,11 +63,6 @@ sub stringify {
 sub get_id {
     my $self = shift;
     return "$self->{target_name}";
-}
-
-sub get_command {
-    my $self = shift;
-    return $self->{command};
 }
 
 1;

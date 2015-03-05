@@ -33,6 +33,11 @@ sub new {
     return $self;
 }
 
+sub is_ready {
+    my $self = shift;
+    return ($self->{status} == STATUS_READY);
+}
+
 sub get_target_name {
     my $self = shift;
     return $self->{target_name};

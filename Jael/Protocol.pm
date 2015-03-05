@@ -7,6 +7,7 @@ use strict;
 use warnings;
 use Jael::Message;
 use Jael::Task;
+use threads;
 
 sub new {
     my $class = shift;
@@ -50,9 +51,18 @@ sub incoming_message {
     } elsif ($type == END_ALL) {
         # There are no more tasks, exiting process
         Jael::Debug::msg('we stop now');
-        exit 0 if($self->{server}->{id} > 0);
-        # The process 0 (error)
-        die "I must die after receiving the message: LAST_FILE";
+
+        # Kill threads server
+        $self->{server}->kill_sending_threads();
+            
+        # Waiting all threads (except server threads)
+        for my $thr (threads->list()) {
+            $thr->kill('SIGUSR1');
+            $thr->join();
+        }
+
+        # Done, main thread
+        exit 0;
     } elsif ($type == STEAL_REQUEST) {
         my $task_id = $self->{task}->steal_task();
         my $sender_id = $message->get_sender_id();
