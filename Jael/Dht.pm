@@ -4,28 +4,30 @@ use strict;
 use warnings;
 use Readonly;
 
-#status information stored for each task
-#this information is NOT THE SAME is as the more detailed status of a Jael::Task object
-Readonly::Scalar my $STATUS_READY => 1; #all dependencies for this task are completed
-Readonly::Scalar my $STATUS_NOT_READY => 2; #some dependencies for this task are not completed
-Readonly::Scalar my $STATUS_FAILED => 3; #task executed and failed
-Readonly::Scalar my $STATUS_COMPLETED => 4; #task executed and succeeded
+# Status information stored for each task
+# This information is NOT THE SAME is as the more detailed status of a Jael::Task object
+Readonly::Scalar my $STATUS_READY     => 1; # All dependencies for this task are completed
+Readonly::Scalar my $STATUS_NOT_READY => 2; # Some dependencies for this task are not completed
+Readonly::Scalar my $STATUS_FAILED    => 3; # Task executed and failed
+Readonly::Scalar my $STATUS_COMPLETED => 4; # Task executed and succeeded
 
 sub new {
-	my $class = shift;
-	my $self = {};
-	bless $self, $class;
-	return $self;
+    my $class = shift;
+    my $self = {};
+    
+    bless $self, $class;
+    
+    return $self;
 }
 
 #some task t1 status changed
 #change its status
 #prerequisite : we own t1
 sub change_task_status {
-	my $self = shift;
-	my $task_id = shift;     # t1 task
-	my $task_status = shift; # New status for t1
-#TODO
+    my $self = shift;
+    my $task_id = shift;     # t1 task
+    my $task_status = shift; # New status for t1
+    #TODO
 }
 
 #some task t1 status changed
@@ -55,4 +57,5 @@ sub get_dht_id_for_task {
 #set machine owning task
 sub set_machine_owning {
 }
+
 1;

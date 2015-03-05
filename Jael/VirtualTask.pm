@@ -17,7 +17,7 @@ BEGIN {
 
 use constant VIRTUAL_TASK_PREFIX => 'virtual//';
     
-# Parameters : Target name, \@deps, \@tasks_to_generate
+# Parameters : Target name, \@deps
 sub new {
     my $class = shift;
     my $self = $class->SUPER::new(shift); # Call Task->new with target name
@@ -30,8 +30,6 @@ sub new {
         $self->{dependencies} = {};
     }
     
-    $self->{tasks_to_generate} = shift;
-
     # Virtual task is always ready
     $self->{status} = Jael::Task::STATUS_READY;
     
@@ -52,6 +50,15 @@ sub stringify {
 sub get_id {
     my $self = shift;
     return VIRTUAL_TASK_PREFIX . "$self->{target_name}";
+}
+
+sub set_tasks_to_generate {
+    my $self = shift;
+
+    die "tasks to generate are already set" if defined $self->{tasks_to_generate};
+    $self->{tasks_to_generate} = shift;
+
+    return;
 }
 
 sub get_tasks_to_generate {

@@ -53,15 +53,6 @@ sub new {
     return $self;
 }
 
-sub get_tasks_to_generate_by_taskgraph {
-    my $self = shift;
-    my $task = shift;
-
-    my @tasks = map {$self->{taskgraph}->{tasks}->{$_}} @{$task->get_tasks_to_generate()};
-
-    return \@tasks;
-}
-
 sub computation_thread {
     my $self = shift; # Protocol engine
     my $tid = threads->tid();
@@ -80,7 +71,7 @@ sub computation_thread {
             Jael::Debug::msg("tid $tid get virtual task: " . $task->get_id() . " (sons: " . @{$task->get_tasks_to_generate()} . ")");
 
             # Get tasks to generate & Push
-            my $tasks = $self->get_tasks_to_generate_by_taskgraph($task); # TODO : move tasks generation in VirtualTask directly
+            my $tasks = $task->get_tasks_to_generate();
             $self->{stack}->push_task(@$tasks);
         } 
 

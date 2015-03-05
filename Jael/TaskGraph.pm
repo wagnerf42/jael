@@ -156,20 +156,34 @@ sub generate_virtual_tasks {
     
     $self->generate_reverse_dependencies();
 
-    # For each task, we add one virtual task in graph
+    # We store tasks ids here because the graph is updated and all tasks don't yet exist
+    my %tasks_ids_to_generate;
+    
+    # For each task, we add one virtual id task in graph
     for my $task_id (keys %{$self->{tasks}}) {
         # Dependencies of virtual task
         my $dependencies = $self->{reverse_dependencies}->{$task_id};
 
         # Tasks to generate by virtual task : [virtual A, virtual B ... , real_task_id]
-        my $tasks_to_fork = [(map {VIRTUAL_TASK_PREFIX . $_} @{$self->{dependencies}->{$task_id}}), $task_id];
-        
+        $tasks_ids_to_generate{VIRTUAL_TASK_PREFIX . $task_id} = 
+            [(map {VIRTUAL_TASK_PREFIX . $_} @{$self->{dependencies}->{$task_id}}), $task_id];  
+
         # Update graph state
-        my $virtual_task = Jael::VirtualTask->new($task_id, $dependencies, $tasks_to_fork);
+        my $virtual_task = Jael::VirtualTask->new($task_id, $dependencies);
         $self->add_task($virtual_task);
     }
 
-    print STDERR Data::Dumper->Dump([$self]);
+    # Here all tasks exist, so we can add tasks to fork in graph
+    for my $task (values %{$self->{tasks}}) {
+        if ($task->is_virtual()) {
+            my $tasks_ids = $tasks_ids_to_generate{$task->get_id()};
+            my $tasks_to_fork = [map {$self->{tasks}->{$_}} @$tasks_ids];
+
+            $task->set_tasks_to_generate($tasks_to_fork);
+        }
+    }
+
+    # print STDERR Data::Dumper->Dump([$self]);
     
     return;
 }

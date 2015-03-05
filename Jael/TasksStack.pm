@@ -29,8 +29,10 @@ sub pop_task {
 
     my $selected_task;
     my @remaining_tasks;
+    
     while ((not defined $selected_task) and (@{$self->{elems}})) {
         my $candidate_task = pop @{$self->{elems}};
+        
         if ($candidate_task->is_ready()) {
             $selected_task = $candidate_task;
         } else {
@@ -39,6 +41,7 @@ sub pop_task {
     }
 
     push @{$self->{elems}}, @remaining_tasks;
+    
     return $selected_task;
 }
 
