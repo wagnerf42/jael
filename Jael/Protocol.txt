@@ -1,4 +1,8 @@
+*************************************************************************************
+SPAWN DE TACHE DANS PILE
 
+lorsqu'une tache T_i est poussee dans la pile par P_j
+envoi a DHT_OWNER(T_i) : T_i est sur moi                                           11
 *************************************************************************************
 FIN CALCUL TACHE
 
@@ -58,10 +62,9 @@ faire une requete de vol :
 envoi 'steal request' vers un P_k aleatoire different de P_j                        8
 reponse 'nothing to steal' vers source si rien a prendre                            9
 si qqch a prendre
- reponse de P_k : 'you can steal T_i' vers P_j                                     10
- P_k enleve la tache T_i de sa pile
- P_j ajoute la tache T_i dans sa pile
- envoi 'we now own T_i' a DHT_OWNER(T_i)                                           11
+reponse de P_k : 'you can steal T_i' vers P_j                                      10
+P_k enleve la tache T_i de sa pile
+P_j ajoute la tache T_i dans sa pile
 
 *************************************************************************************
 # REQUETES DE FORK

@@ -13,6 +13,24 @@ use Jael::VirtualTask;
 
 use constant IMAGE_VIEWER => 'ristretto';
 
+# -----------------------------------------------------------------
+
+# Private taskgraph, please use global functions
+my $taskgraph;
+
+sub set_global_taskgraph {
+    die "taskgraph is already set" if defined $taskgraph;
+    $taskgraph = shift;
+    return;
+}
+
+sub get_global_task {
+    my $task_id = shift;
+    return $taskgraph->{$task_id};
+}
+
+# -----------------------------------------------------------------
+
 sub new {
     my $class = shift;
     my $self = {};
@@ -21,6 +39,7 @@ sub new {
     $self->{dependencies} = {}; # Store for each task what other tasks we need
     
     bless $self, $class;
+    $taskgraph = $self;
     
     return $self;
 }
