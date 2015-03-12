@@ -3,9 +3,8 @@ package Jael::TaskGraph;
 
 use strict;
 use warnings;
-
-use File::Temp;
 use overload '""' => \&stringify;
+use File::Temp;
 use Jael::Debug;
 use Data::Dumper;
 use Scalar::Util qw(refaddr);
@@ -177,9 +176,9 @@ sub generate_virtual_tasks {
     for my $task (values %{$self->{tasks}}) {
         if ($task->is_virtual()) {
             my $tasks_ids = $tasks_ids_to_generate{$task->get_id()};
-            my $tasks_to_fork = [map {$self->{tasks}->{$_}} @$tasks_ids];
+            my $tasks_to_generate = [map {$self->{tasks}->{$_}} @$tasks_ids];
 
-            $task->set_tasks_to_generate($tasks_to_fork);
+            $task->set_tasks_to_generate($tasks_to_generate);
         }
     }
 
