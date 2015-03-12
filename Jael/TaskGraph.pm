@@ -14,6 +14,8 @@ use Jael::VirtualTask;
 
 use constant IMAGE_VIEWER => 'ristretto';
 
+my $taskgraph;
+
 sub new {
     my $class = shift;
     my $self = {};
@@ -22,6 +24,7 @@ sub new {
     $self->{dependencies} = {}; # Store for each task what other tasks we need
     
     bless $self, $class;
+	$taskgraph = $self;
     
     return $self;
 }

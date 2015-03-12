@@ -1,4 +1,6 @@
-
+******
+lorsqu'une tache T_i est poussee dans la pile par P_j
+envoi a DHT_OWNER(T_i) : T_i est sur moi                                           11
 *************************************************************************************
 fin du calcul d'une tache T1 par P_j:
 envoi 'I computed ID_TASK' vers DHT_OWNER(T1)										1
@@ -53,7 +55,6 @@ si qqch a prendre
 	reponse de P_k : 'you can steal T_i' vers P_j									10
 	P_k enleve la tache T_i de sa pile
 	P_j ajoute la tache T_i dans sa pile
-	envoi 'we now own T_i' a DHT_OWNER(T_i) 										11
 
 *************************************************************************************
 faire une requete de fork :
