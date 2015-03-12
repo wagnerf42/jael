@@ -117,10 +117,15 @@ sub pack {
 	my $self = shift;
 	my $string;
 	if ($messages_format[$self->{type}] == TASK_ID) {
-		$string = pack('N4', 16, $self->{sender_id}, $self->{type}, $self->{task_id});
+		my $task_id_size = length($self->{task_id});
+		my $message_size = 12 + $task_id_size;
+		$string = pack('N3A*', $message_size, $self->{sender_id}, $self->{type}, $self->{task_id});
 	} elsif ($messages_format[$self->{type}] == TASK_ID_AND_MACHINES_LIST) {
-		my $fields_count = 4 + @{$self->{machines_ids}};
-		$string = pack("N$fields_count", $fields_count*4, $self->{sender_id}, $self->{type}, $self->{task_id}, @{$self->{machines_ids}});
+		my $machines_number = @{$self->{machines_ids}}; 
+		my $integer_fields = 4 + $machines_number;
+		my $task_id_size = length($self->{task_id});
+		my $message_size = $integer_fields * 4 + $task_id_size;
+		$string = pack("N4A${task_id_size}N$machines_number", $message_size, $self->{sender_id}, $self->{type}, $task_id_size, $self->{task_id}, @{$self->{machines_ids}});
 	} elsif ($messages_format[$self->{type}] == NOTHING) {
 		$string = pack('N3', 12, $self->{sender_id}, $self->{type});
 	} elsif ($messages_format[$self->{type}] == LABEL_AND_STRING) {
@@ -143,13 +148,14 @@ sub unpack {
 	die "wrong message size" unless $size == length($string);
 	my $unpacked_msg;
 	if ($messages_format[$type] == TASK_ID) {
-		my ($size, $sender_id, $type, $task_id) = unpack('N4', $string);
+		my ($size, $sender_id, $type, $task_id) = unpack('N3A*', $string);
 		$unpacked_msg = new Jael::Message($type, $task_id);
 	} elsif ($messages_format[$type] == TASK_ID_AND_MACHINES_LIST) {
-		my @fields = unpack('N*', $string);
-		shift @fields; #remove size
-		shift @fields; #remove sender id
-		$unpacked_msg = new Jael::Message(@fields);
+		my ($size, $sender, $type, $task_id_size) = unpack('N4', $string);
+		my $task_id;
+		my @machines;
+		($size, $sender, $type, $task_id_size, $task_id, @machines) = unpack("N4A${task_id_size}N*", $string);
+		$unpacked_msg = new Jael::Message($type, $task_id, @machines);
 	} elsif ($messages_format[$type] == NOTHING) {
 		$unpacked_msg = new Jael::Message($type);
 	} elsif ($messages_format[$type] == LABEL_AND_STRING) {
