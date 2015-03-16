@@ -9,8 +9,7 @@ use Jael::ServerEngine;
 use Jael::TaskParser;
 use Jael::TasksStack;
 use Jael::Message;
-
-use Jael::Dht;         # use hash_task_id
+use Jael::Dht;
 use Jael::VirtualTask; # use VIRTUAL_TASK_PREFIX
 
 # -----------------------------------------------------------------
@@ -36,14 +35,14 @@ sub new {
     my $class = shift;
     my $self = {};
     my $config = shift;
+    
     Jael::Debug::msg('creating a new execution engine');
+    
     $self->{config} = $config;
     $self->{id} = $config->{'id'};
     $self->{machines} = $config->{'machines'};
     $self->{machines_number} = @{$config->{'machines'}};
-    #$self->{max_threads} = shift; TODO
     $self->{max_threads} = detect_cores() unless defined $self->{max_threads};
-    #$self->{max_threads} = 0;
     $self->{active_threads} = 0;
     $self->{stack} = Jael::TasksStack->new();
     $self->{network} = new Jael::ServerEngine($config->{'id'}, @{$config->{'machines'}});
@@ -75,7 +74,7 @@ sub computation_thread {
 
             # For each task, we send to DHT_OWNER($task) : 'We have $task on our stack'
             for $task (@{$tasks}) {
-                my $message = Jael::Message->new(TASK_IS_PUSH, $task->get_id());
+                my $message = Jael::Message->new(TASK_IS_PUSHED, $task->get_id());
                 my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
 
                 # Send to DHT_OWNER($task)
@@ -98,7 +97,10 @@ sub computation_thread {
             if ($main_task_completed) {
                 my $end_message = Jael::Message->new(END_ALL);
                 $self->{network}->send(0, $end_message);
-            } else {
+            } 
+
+            # Local dependencies update
+            else {
                 $self->{stack}->update_dependencies($task->get_id());
             }
         }
@@ -137,10 +139,8 @@ sub bootstrap_system {
         
     $self->{taskgraph} = $graph;
     
-    # Now, if there is a network, broadcast the graph to everyone
-    if (defined $self->{network}) {
-        $self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', "$self->{taskgraph}"));
-    }
+    # Broadcast the graph to everyone
+    $self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', "$self->{taskgraph}"));
 
     # Get initial task
     my $init_task_id = VIRTUAL_TASK_PREFIX . $graph->get_main_target();
@@ -149,9 +149,12 @@ sub bootstrap_system {
     Jael::Debug::msg("put initial task on task: '$init_task_id'");
 
     # We send to DHT_OWNER($task) : 'We have $task on our stack'
-    my $message = Jael::Message->new(TASK_IS_PUSH, $init_task->get_id());
+    my $message = Jael::Message->new(TASK_IS_PUSHED, $init_task->get_id());
     my $destination = Jael::Dht::hash_task_id($init_task->get_id(), $self->{machines_number});
 
+    # Send to DHT_OWNER($task)
+    $self->{network}->send($destination, $message);
+        
     # Put initial task on the stack
     $self->{stack}->push_task($init_task);
 

@@ -10,12 +10,15 @@ use threads;
 
 use Jael::Message;
 use Jael::Task;
+use Jael::Dht;
 
 sub new {
     my $class = shift;
     my $self = {};
    
     $self->{server} = shift;
+    $self->{dht} = new Jael::Dht();
+    
     bless $self, $class;
     
     return $self;
@@ -89,10 +92,17 @@ sub incoming_message {
         die 'TODO';
     } elsif ($type == STEAL_FAILED) {
         #die 'TODO';
-    } elsif ($type == TASK_IS_PUSH) {
-        #my $task_id = $message->get_task_id();
-        #my $sender_id = $message->get_sender_id();
-        #$self->{dht}->set_machine_owning($task_id, $sender_id);
+    }
+    
+    # -----------------------------------------------------------------
+    # DHT_OWNER(task_i) knows task_i is on the stack of sender_j (process_j)
+    # -----------------------------------------------------------------
+    elsif ($type == TASK_IS_PUSHED) {
+        my $task_id = $message->get_task_id();
+        my $sender_id = $message->get_sender_id();
+
+        Jael::Debug::msg("task $task_id is on the stack of process $sender_id");
+        $self->{dht}->set_machine_owning($task_id, $sender_id);
     } elsif ($type == FORK_REQUEST) {
         my $task_id = $message->get_task_id();
         my $fork_ok = $self->{dht}->fork($task_id);

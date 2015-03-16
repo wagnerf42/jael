@@ -15,6 +15,8 @@ Readonly::Scalar my $STATUS_COMPLETED => 4; # Task executed and succeeded
 sub new {
     my $class = shift;
     my $self = {};
+
+    $self->{machine_owner_of_task_id} = {}; # Update by TASK_IS_PUSHED message
     
     bless $self, $class;
     
@@ -34,6 +36,17 @@ sub hash_task_id {
     }
     
     return $hash_value % $machines_number;
+}
+
+# Set machine owning task
+sub set_machine_owning {
+    my $self = shift;
+    my $task_id = shift;
+    my $machine_id = shift;
+
+    $self->{machine_owner_of_task_id}{$task_id} = $machine_id;
+    
+    return;
 }
 
 #some task t1 status changed
@@ -68,10 +81,6 @@ sub update_location {
 
 #return machine id for dht owning this task
 sub get_dht_id_for_task {
-}
-
-#set machine owning task
-sub set_machine_owning {
 }
 
 1;
