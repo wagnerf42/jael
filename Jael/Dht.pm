@@ -1,3 +1,4 @@
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 package Jael::Dht;
 
 use strict;
@@ -18,6 +19,21 @@ sub new {
     bless $self, $class;
     
     return $self;
+}
+
+# Get not unique identifier for one task id in [0..n_machines]
+# TODO : Temp hash function... Test others functions
+sub hash_task_id {
+    my $task_id = shift;
+    my $machines_number = shift;
+    my $hash_value = 0;
+    
+    for my $c (split //, $task_id) {
+        $hash_value = ($hash_value << 5) | ($hash_value >> 27);
+        $hash_value += ord($c);
+    }
+    
+    return $hash_value % $machines_number;
 }
 
 #some task t1 status changed

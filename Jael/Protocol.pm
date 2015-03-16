@@ -1,19 +1,23 @@
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 package Jael::Protocol;
 
-#this package handles protocol logic
-#how to react on incoming messages
+# This package handles protocol logic
+# How to react on incoming messages
 
 use strict;
 use warnings;
+use threads;
+
 use Jael::Message;
 use Jael::Task;
-use threads;
 
 sub new {
     my $class = shift;
     my $self = {};
+   
     $self->{server} = shift;
     bless $self, $class;
+    
     return $self;
 }
 
@@ -22,6 +26,8 @@ sub incoming_message {
     my $message = shift;
     my $type = $message->get_type();
 
+    Jael::Debug::msg("incoming_message type: $type");
+    
     if ($type == TASK_COMPUTATION_COMPLETED) {
         my $task_id = $message->get_task_id();
         $self->{dht}->change_task_status($task_id, STATUS_COMPLETED);
@@ -48,7 +54,12 @@ sub incoming_message {
         my $task_id = $message->get_task_id();
         my $sender_id = $message->get_sender_id();
         $self->{dht}->update_location($task_id, $sender_id);
-    } elsif ($type == END_ALL) {
+    } 
+
+    # -----------------------------------------------------------------
+    # Computation end : Wait/kill threads & exit
+    # -----------------------------------------------------------------
+    elsif ($type == END_ALL) {
         # There are no more tasks, exiting process
         Jael::Debug::msg('we stop now');
 
@@ -74,14 +85,14 @@ sub incoming_message {
     } elsif ($type == STEAL_SUCCESS) {
         my $task_id = $message->get_task_id();
         my $machine_id = $self->{dht}->get_dht_id_for_task($task_id);
-        $self->{server}->send($machine_id, new Jael::Message(TASK_STOLEN, $task_id));
+        #$self->{server}->send($machine_id, new Jael::Message(TASK_STOLEN, $task_id));
         die 'TODO';
     } elsif ($type == STEAL_FAILED) {
-        die 'TODO';
-    } elsif ($type == TASK_STOLEN) {
-        my $task_id = $message->get_task_id();
-        my $sender_id = $message->get_sender_id();
-        $self->{dht}->set_machine_owning($task_id, $sender_id);
+        #die 'TODO';
+    } elsif ($type == TASK_IS_PUSH) {
+        #my $task_id = $message->get_task_id();
+        #my $sender_id = $message->get_sender_id();
+        #$self->{dht}->set_machine_owning($task_id, $sender_id);
     } elsif ($type == FORK_REQUEST) {
         my $task_id = $message->get_task_id();
         my $fork_ok = $self->{dht}->fork($task_id);

@@ -3,7 +3,6 @@ package Jael::ExecutionEngine;
 
 use strict;
 use warnings;
-
 use threads;
 
 use Jael::ServerEngine;
@@ -11,6 +10,7 @@ use Jael::TaskParser;
 use Jael::TasksStack;
 use Jael::Message;
 
+use Jael::Dht;         # use hash_task_id
 use Jael::VirtualTask; # use VIRTUAL_TASK_PREFIX
 
 # -----------------------------------------------------------------
@@ -56,7 +56,7 @@ sub new {
 sub computation_thread {
     my $self = shift; # Protocol engine
     my $tid = threads->tid();
-    
+
     while(1) {
         # Take task
         my $task = $self->{stack}->pop_task();
@@ -70,8 +70,19 @@ sub computation_thread {
         elsif($task->is_virtual()) {
             Jael::Debug::msg("tid $tid get virtual task: " . $task->get_id() . " (sons: " . @{$task->get_tasks_to_generate()} . ")");
 
-            # Get tasks to generate & Push
-            my $tasks = $task->get_tasks_to_generate();
+            # Get tasks to generate
+            my $tasks = $task->get_tasks_to_generate(); 
+
+            # For each task, we send to DHT_OWNER($task) : 'We have $task on our stack'
+            for $task (@{$tasks}) {
+                my $message = Jael::Message->new(TASK_IS_PUSH, $task->get_id());
+                my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
+
+                # Send to DHT_OWNER($task)
+                $self->{network}->send($destination, $message);
+            }
+
+            # Push tasks in stack
             $self->{stack}->push_task(@$tasks);
         } 
 
@@ -80,15 +91,16 @@ sub computation_thread {
             Jael::Debug::msg("tid $tid get real task: " . $task->get_id());
 
             # Execute real task & update dependencies
+            Jael::Debug::msg("tid $tid execute cmd");
             my $main_task_completed = $task->execute();
+
+            # End
             if ($main_task_completed) {
                 my $end_message = Jael::Message->new(END_ALL);
                 $self->{network}->send(0, $end_message);
+            } else {
+                $self->{stack}->update_dependencies($task->get_id());
             }
-        
-            Jael::Debug::msg("tid $tid execute cmd");
-
-            $self->{stack}->update_dependencies($task->get_id());
         }
     }
 
@@ -102,7 +114,7 @@ sub start_server {
     Jael::Debug::msg("creating " . $self->{max_threads} . " threads");
     
     for my $i (1..$self->{max_threads}) {
-        threads->create(\&computation_thread, $self); #TODO: store threads for clean exit
+        threads->create(\&computation_thread, $self);
     }
     
     $self->{network}->run();
@@ -129,12 +141,19 @@ sub bootstrap_system {
     if (defined $self->{network}) {
         $self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', "$self->{taskgraph}"));
     }
-    
+
+    # Get initial task
+    my $init_task_id = VIRTUAL_TASK_PREFIX . $graph->get_main_target();
+    my $init_task = $graph->{tasks}->{$init_task_id};
+
+    Jael::Debug::msg("put initial task on task: '$init_task_id'");
+
+    # We send to DHT_OWNER($task) : 'We have $task on our stack'
+    my $message = Jael::Message->new(TASK_IS_PUSH, $init_task->get_id());
+    my $destination = Jael::Dht::hash_task_id($init_task->get_id(), $self->{machines_number});
+
     # Put initial task on the stack
-    my $init_task = VIRTUAL_TASK_PREFIX . $graph->get_main_target();
-    Jael::Debug::msg("put initial task on task: '$init_task'");
-    
-    $self->{stack}->push_task($graph->{tasks}->{$init_task});
+    $self->{stack}->push_task($init_task);
 
     return;
 }
