@@ -13,11 +13,13 @@ DHT_OWNER(T1) calcule quelles taches (par exemple T2, T3) dependent de T1
 DHT_OWNER(T1) note que P_j possede la donnee associee a T1
 il calcule les owner de chaque tache : DHT_OWNER(T2) et DHT_OWNER(T3)
 et leur envoie un message
-'ID_TASK completed'                                                                 2
+'ID_TASK completed'
+                                                                                    2
 si une tache T_i devient 'ready'
 alors DHT_OWNER(T_i) envoi au possesseur de la tache T_i
-'T_i is now ready'                                                                  3
-le possesseur active la tache dans sa pile locale (passage a ready_waiting ou ready)
+'T_i is now ready'
+                                                                                    3
+le possesseur active la tache dans sa        pile locale (passage a ready_waiting ou ready)
 
 *************************************************************************************
 CHERCHER DONNEE

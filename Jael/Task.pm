@@ -3,73 +3,57 @@ package Jael::Task;
 
 use strict;
 use warnings;
+use Readonly;
+use base 'Exporter';
 
 # Warning : Task class is abstract, please to use the following classes : VirtualTask & RealTask
 
-our (@ISA, @EXPORT);
-BEGIN {
-    require Exporter;
-    @ISA = qw(Exporter);
-    @EXPORT = qw(STATUS_READY STATUS_READY_WAITING_FOR_FILES STATUS_NOT_READY STATUS_FAILED STATUS_COMPLETED);
-}
+our @EXPORT = qw(TASK_STATUS_READY TASK_STATUS_READY_WAITING_FOR_FILES TASK_STATUS_NOT_READY TASK_STATUS_FAILED TASK_STATUS_COMPLETED);
 
 # Once in the system, tasks can be in one of the following states :
-use constant {
-    STATUS_READY => 1,                   # All dependencies are ok, all files are here => ready to run
-    STATUS_READY_WAITING_FOR_FILES => 2, # All dependencies are ok, but waiting for files
-    STATUS_NOT_READY => 3,               # Some dependencies are not computed yet
-    STATUS_FAILED => 4,                  # Task executed and failed
-    STATUS_COMPLETED => 5                # Task executed successfully
-};
+Readonly::Scalar our $TASK_STATUS_READY => 1;                   # All dependencies are ok, all files are here => ready to run
+Readonly::Scalar our $TASK_STATUS_READY_WAITING_FOR_FILES => 2; # All dependencies are ok, but waiting for files
+Readonly::Scalar our $TASK_STATUS_NOT_READY => 3;               # Some dependencies are not computed yet
+Readonly::Scalar our $TASK_STATUS_FAILED => 4;                  # Task executed and failed
+Readonly::Scalar our $TASK_STATUS_COMPLETED => 5;               # Task executed successfully
 
+# Create a new Task (Real or Virtual) with one target name
 sub new {
     my $class = shift;
     my $self = {};
     
     $self->{target_name} = shift;
+    die "target name is undef" if not defined $self->{target_name};
     
     bless $self, $class;
-
     return $self;
 }
 
+# Check the task's status and return 1 if the task is READY
+# Note: One Virtual task is always READY
 sub is_ready {
     my $self = shift;
-    return ($self->{status} == STATUS_READY);
+    return ($self->{status} == $TASK_STATUS_READY);
 }
 
+# Return the target name of the current task
 sub get_target_name {
     my $self = shift;
     return $self->{target_name};
 }
 
+# Get dependencies id
+# Note: use get_task of TaskGraph for the dependencies tasks
 sub get_dependencies {
     my $self = shift;    
-    return (keys %{$self->{dependencies}});
+    return $self->{dependencies};
 }
 
-# Set one dependency's task to 0 (if exists)
-# Change the task status to STATUS_READY if it is necessary (no more dependencies)
-sub unset_dependency {
-    my $self = shift;
-    my $id = shift;
-
-    if (defined ${$self->{dependencies}}{$id}) {
-        # No update, the dependency is already unset
-        return if (${$self->{dependencies}}{$id} == 0);
-
-        # Unset dependency
-        ${$self->{dependencies}}{$id} = 0;
-
-        # Update status
-        foreach (values %{$self->{dependencies}}) {
-            return if $_ != 0; # It exists one active dependency
-        }
-
-        $self->{status} = STATUS_READY;
-    }
-
-    return;
+# Get reverse dependencies id
+# Note: use get_task of TaskGraph for the reverse dependencies tasks
+sub get_reverse_dependencies {
+    my $self = shift;    
+    return $self->{reverse_dependencies};
 }
 
 1;

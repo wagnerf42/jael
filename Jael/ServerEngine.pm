@@ -3,12 +3,14 @@ package Jael::ServerEngine;
 
 use strict;
 use warnings;
+use Readonly;
+use base 'Exporter';
 use threads;
 use threads::shared;
 use IO::Socket;
 use IO::Select;
 
-# auto-flush on socket
+# Auto-flush on socket
 $| = 1;
 
 use Jael::Protocol;
@@ -16,13 +18,13 @@ use Jael::Message;
 use Jael::MessageBuffers;
 use Jael::Debug;
 
-use constant PORT => 23456;
+our @EXPORT = qw(SENDING_PRIORITY_LOW SENDING_PRIORITY_HIGH);
+
+Readonly::Scalar my $PORT => 23456;
 
 # Threads priority
-use constant {
-    SENDING_PRIORITY_LOW => 0,
-    SENDING_PRIORITY_HIGH => 1
-};
+Readonly::Scalar our $SENDING_PRIORITY_LOW => 0;
+Readonly::Scalar our $SENDING_PRIORITY_HIGH => 1;
 
 my $max_buffer_reading_size = 1024;
 
@@ -42,8 +44,9 @@ sub new {
     my @sh_messages_low :shared;
     my @sh_messages_high :shared;
 
+    my $dht = shift;
     $self->{id} = shift;
-    
+
     my @machines_names :shared = @_;
     
     $self->{machines_names} = \@machines_names;
@@ -51,20 +54,20 @@ sub new {
 
     # Messages list, one per thread
     $self->{sending_messages} = [];
-    $self->{sending_messages}->[SENDING_PRIORITY_LOW] = \@sh_messages_low;
-    $self->{sending_messages}->[SENDING_PRIORITY_HIGH] = \@sh_messages_high;
+    $self->{sending_messages}->[$SENDING_PRIORITY_LOW] = \@sh_messages_low;
+    $self->{sending_messages}->[$SENDING_PRIORITY_HIGH] = \@sh_messages_high;
   
     $self->{message_buffers} = new Jael::MessageBuffers;
-    $self->{protocol} = new Jael::Protocol($self);
+    $self->{protocol} = new Jael::Protocol($dht, $self);
 
     # Threads list
     $self->{sending_threads} = [];
     
     # Make threads
     push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
-                                                      \@sh_messages_low, \@machines_names, SENDING_PRIORITY_LOW);  
+                                                      \@sh_messages_low, \@machines_names, $SENDING_PRIORITY_LOW);  
     push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
-                                                      \@sh_messages_high, \@machines_names, SENDING_PRIORITY_HIGH); 
+                                                      \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH); 
 
     # Init debug infos for the server thread
     Jael::Debug::init($self->{id}, $self->{machines_names}->[$self->{id}]);
@@ -74,11 +77,11 @@ sub new {
 
 sub run {
     my $self = shift;
-    Jael::Debug::msg("starting new server (port=" . (PORT + $self->{id}) . ", id=$self->{id})");
+    Jael::Debug::msg("starting new server (port=" . ($PORT + $self->{id}) . ", id=$self->{id})");
 
     # server port is PORT + id of current server
     $self->{server_socket} = IO::Socket::INET->new(LocalHost => $self->{machines_names}->[$self->{id}],
-                                                   LocalPort => PORT + $self->{id},
+                                                   LocalPort => $PORT + $self->{id},
                                                    Listen => 1, 
                                                    Reuse => 1,
                                                    Proto => 'tcp');
@@ -156,11 +159,8 @@ sub th_send_with_priority {
 
     while (1) {
         {
-            #sleep(0.1);
-            Jael::Debug::msg("th (priority=$priority): sleep");
             lock($sending_messages);                                 
             cond_wait($sending_messages) until @{$sending_messages}; # Wait if nothing in messages array
-            Jael::Debug::msg("th (priority=$priority): waken");
 
             # Get message in the message list
             $target_machine_id = shift @{$sending_messages};
@@ -193,7 +193,7 @@ sub send {
     # Get or define priority
     # By default, it is a high priority message
     my $priority = $message->get_priority();
-    $priority = SENDING_PRIORITY_HIGH unless (defined $priority);
+    $priority = $SENDING_PRIORITY_HIGH unless (defined $priority);
 
     # Add message in the the right messages list
     {
@@ -229,7 +229,7 @@ sub connect_to {
     my $machine_id = shift;
     my $sending_sockets = shift;
 
-    my $port = PORT + $machine_id;
+    my $port = $PORT + $machine_id;
     my $machine = $machines_names->[$machine_id];
 
     while (not defined $sending_sockets->{$machine_id}) {

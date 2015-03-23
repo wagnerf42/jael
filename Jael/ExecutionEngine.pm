@@ -6,11 +6,11 @@ use warnings;
 use threads;
 
 use Jael::ServerEngine;
-use Jael::TaskParser;
+use Jael::TasksParser;
 use Jael::TasksStack;
 use Jael::Message;
 use Jael::Dht;
-use Jael::VirtualTask; # use VIRTUAL_TASK_PREFIX
+use Jael::VirtualTask;
 
 # -----------------------------------------------------------------
 
@@ -41,11 +41,16 @@ sub new {
     $self->{config} = $config;
     $self->{id} = $config->{'id'};
     $self->{machines} = $config->{'machines'};
+
+    # Set machine number for global data in Dht module and current object
     $self->{machines_number} = @{$config->{'machines'}};
+    Jael::Dht::set_machines_number($self->{machines_number});
+        
     $self->{max_threads} = detect_cores() unless defined $self->{max_threads};
     $self->{active_threads} = 0;
     $self->{stack} = Jael::TasksStack->new();
-    $self->{network} = new Jael::ServerEngine($config->{'id'}, @{$config->{'machines'}});
+    $self->{dht} = new Jael::Dht();
+    $self->{network} = new Jael::ServerEngine($self->{dht}, $config->{'id'}, @{$config->{'machines'}});
     
     bless $self, $class;
     
@@ -93,15 +98,23 @@ sub computation_thread {
             Jael::Debug::msg("tid $tid execute cmd");
             my $main_task_completed = $task->execute();
 
-            # End
+            # TODO: Check if execute returns error !
+            
+            # Protocol end
+            # Send message to the first process/machine
             if ($main_task_completed) {
-                my $end_message = Jael::Message->new(END_ALL);
-                $self->{network}->send(0, $end_message);
+                my $message = Jael::Message->new(END_ALL);
+                $self->{network}->send(0, $message);
             } 
 
-            # Local dependencies update
+            # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
             else {
-                $self->{stack}->update_dependencies($task->get_id());
+                my $message = Jael::Message->new(TASK_COMPUTATION_COMPLETED, $task->get_id());
+                my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
+
+                # Send to DHT_OWNER($task)
+                $self->{network}->send($destination, $message);
+                $self->{stack}->update_dependencies($task->get_id());                
             }
         }
     }
@@ -126,31 +139,32 @@ sub start_server {
 
 sub bootstrap_system {
     my $self = shift;
-    Jael::Debug::msg("initialisation");
+    
+    Jael::Debug::msg("initialization");
     Jael::Debug::msg("computing tasks graph");
 
-    my $graph = Jael::TaskParser::make();
+    # Initialize and create tasks graph
+    Jael::TasksParser::make();
     
     die "missing target" unless defined $self->{config}->{target};
     
-    $graph->set_main_target($self->{config}->{target});
-    $graph->generate_virtual_tasks();
-    $graph->display_graph() if exists $ENV{JAEL_DEBUG};
-        
-    $self->{taskgraph} = $graph;
-    
+    Jael::TasksGraph::set_main_target($self->{config}->{target});
+    Jael::TasksGraph::generate_reverse_dependencies();
+    Jael::TasksGraph::display() if exists $ENV{JAEL_DEBUG};
+            
     # Broadcast the graph to everyone
-    $self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', "$self->{taskgraph}"));
+    # TODO : Send properly tasks graph
+    #$self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', $taskgraph));
 
     # Get initial task
-    my $init_task_id = VIRTUAL_TASK_PREFIX . $graph->get_main_target();
-    my $init_task = $graph->{tasks}->{$init_task_id};
+    my $init_task_id = $VIRTUAL_TASK_PREFIX . Jael::TasksGraph::get_main_target();
+    my $init_task = Jael::TasksGraph::get_task($init_task_id);
 
     Jael::Debug::msg("put initial task on task: '$init_task_id'");
 
     # We send to DHT_OWNER($task) : 'We have $task on our stack'
     my $message = Jael::Message->new(TASK_IS_PUSHED, $init_task->get_id());
-    my $destination = Jael::Dht::hash_task_id($init_task->get_id(), $self->{machines_number});
+    my $destination = Jael::Dht::hash_task_id($init_task->get_id());
 
     # Send to DHT_OWNER($task)
     $self->{network}->send($destination, $message);

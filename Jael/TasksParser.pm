@@ -1,19 +1,18 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
-package Jael::TaskParser;
+package Jael::TasksParser;
 
 use strict;
 use warnings;
+use Readonly;
 
 use Jael::RealTask;
-use Jael::TaskGraph;
+use Jael::TasksGraph;
 use Jael::Debug;
 
-use constant {
-    PARSING_NOTHING => 0,
-    PARSING_VARIABLES => 1,
-    PARSING_FILES_BEFORE_TARGET => 2,
-    PARSING_FILES_COMMAND => 3
-};
+Readonly::Scalar my $PARSING_NOTHING => 0;
+Readonly::Scalar my $PARSING_VARIABLES => 1;
+Readonly::Scalar my $PARSING_FILES_BEFORE_TARGET => 2;
+Readonly::Scalar my $PARSING_FILES_COMMAND => 3;
 
 use constant JAEL_MAKE => "jael_make";
 
@@ -24,12 +23,14 @@ sub make {
     
     $self->{vars} = {};
     $self->{not_a_target} = 0;
-    $self->{tasksgraph} = new Jael::TaskGraph;
     $self->{commands} = [];
 
-    Jael::Debug::msg("launching jael_make\n");
+    # Initialize the singleton TasksGraph
+    Jael::TasksGraph->initialize();
+
+    Jael::Debug::msg("launching jael_make");
     open(MAKE, JAEL_MAKE . " -t -p |") or die "unable to fork jael_make : $!";
-    $self->{state} = PARSING_NOTHING;
+    $self->{state} = $PARSING_NOTHING;
     
     my $line;
     
@@ -39,30 +40,31 @@ sub make {
     }
     
     close(MAKE);
-    Jael::Debug::msg("jael_make completed\n");
-    Jael::Debug::msg("tasks :\n $self->{tasksgraph}\n");
+    Jael::Debug::msg("jael_make completed");
+    Jael::Debug::msg("tasks list:\n" . Jael::TasksGraph::stringify());
 
+    # Define the main target
     if (defined $self->{vars}->{'.DEFAULT_GOAL'}) {
-        $self->{tasksgraph}->set_main_target($self->{vars}->{'.DEFAULT_GOAL'});
+        Jael::TasksGraph::set_main_target($self->{vars}->{'.DEFAULT_GOAL'});
     }
     
-    return $self->{tasksgraph};
+    return;
 }
 
 sub nothing {
     my $self = shift;
     my $line = shift;
     
-    if ($line=~/jael_make_wrapper directory is '([^']+)'/) {
+    if ($line =~ /jael_make_wrapper directory is '([^']+)'/) {
         $self->{current_directory} = $1;
     }
     
     if ($line eq '# Variables') {
-        $self->{state} = PARSING_VARIABLES;
+        $self->{state} = $PARSING_VARIABLES;
     }
     
     if ($line eq '# Files') {
-        $self->{state} = PARSING_FILES_BEFORE_TARGET;
+        $self->{state} = $PARSING_FILES_BEFORE_TARGET;
     }
 
     return;
@@ -77,7 +79,7 @@ sub variables {
     }
     
     if ($line eq '# variable set hash-table stats:') {
-        $self->{state} = PARSING_NOTHING;
+        $self->{state} = $PARSING_NOTHING;
     }
 
     return;
@@ -90,11 +92,11 @@ sub before_target {
     if ($line =~/^(\S+):(.*)?$/) {
         $self->{current_target} = $1;
         $self->{current_deps} = $2;
-        $self->{state} = PARSING_FILES_COMMAND;
+        $self->{state} = $PARSING_FILES_COMMAND;
     }
     
     if ($line eq '# files hash-table stats:') {
-        $self->{state} = PARSING_NOTHING;
+        $self->{state} = $PARSING_NOTHING;
     }
 
     if ($line eq '# Not a target:') {
@@ -108,7 +110,7 @@ sub command {
     my $self = shift;
     my $line = shift;
     
-    if ($line=~/^#/) {
+    if ($line =~ /^#/) {
         return;
     }
     
@@ -117,16 +119,14 @@ sub command {
         
         $command = replace_variables($self, $command, 0);
         
-        my $task = Jael::RealTask->new($self->{current_target}, $command, $self->{current_deps});
-        
         unless ($self->{not_a_target}) {
-            $self->{tasksgraph}->add_task($task);
+            Jael::TasksGraph::add_task($self->{current_target}, $command, $self->{current_deps});
         }
         
         #reset variables
         @{$self->{commands}} = ();
         $self->{not_a_target} = 0;
-        $self->{state} = PARSING_FILES_BEFORE_TARGET;
+        $self->{state} = $PARSING_FILES_BEFORE_TARGET;
     } elsif ($line =~/\t(.+)$/) {
         push @{$self->{commands}}, $1;
     } else {

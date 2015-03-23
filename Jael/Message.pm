@@ -1,3 +1,4 @@
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 package Jael::Message;
 
 #this class provides objects for encoding messages
@@ -11,6 +12,7 @@ package Jael::Message;
 use strict;
 use warnings;
 our (@ISA, @EXPORT);
+
 BEGIN {
     require Exporter;
     @ISA = qw(Exporter);
@@ -21,24 +23,24 @@ use overload '""' => \&stringify;
 
 #all types of messages in protocol
 use constant {
-	TASK_COMPUTATION_COMPLETED => 1,
-	DEPENDENCIES_UPDATE_TASK_COMPLETED => 2,
-	DEPENDENCIES_UPDATE_TASK_READY => 3,
-	DATA_LOCALISATION => 4,
-	DATA_LOCATED => 5,
-	DATA_DUPLICATED => 6,
-	END_ALL => 7,
-	STEAL_REQUEST => 8,
-	STEAL_FAILED => 9,
-	STEAL_SUCCESS => 10,
-	TASK_IS_PUSHED => 11,
-	FORK_REQUEST => 12,
-	FORK_ACCEPTED => 13,
-	FORK_REFUSED => 14,
-	FILE_REQUEST => 15,
-	FILE => 16,
-	TASKGRAPH => 17,
-	LAST_FILE => 18
+    TASK_COMPUTATION_COMPLETED => 1,
+    DEPENDENCIES_UPDATE_TASK_COMPLETED => 2,
+    DEPENDENCIES_UPDATE_TASK_READY => 3,
+    DATA_LOCALISATION => 4,
+    DATA_LOCATED => 5,
+    DATA_DUPLICATED => 6,
+    END_ALL => 7,
+    STEAL_REQUEST => 8,
+    STEAL_FAILED => 9,
+    STEAL_SUCCESS => 10,
+    TASK_IS_PUSHED => 11,
+    FORK_REQUEST => 12,
+    FORK_ACCEPTED => 13,
+    FORK_REFUSED => 14,
+    FILE_REQUEST => 15,
+    FILE => 16,
+    TASKGRAPH => 17,
+    LAST_FILE => 18
 };
 
 my @type_strings = qw(TASK_COMPUTATION_COMPLETED DEPENDENCIES_UPDATE_TASK_COMPLETED DEPENDENCIES_UPDATE_TASK_READY DATA_LOCALISATION DATA_LOCATED DATA_DUPLICATED END_ALL STEAL_REQUEST STEAL_FAILED STEAL_SUCCESS TASK_IS_PUSHED FORK_REQUEST FORK_ACCEPTED FORK_REFUSED FILE_REQUEST FILE TASKGRAPH LAST_FILE);
@@ -176,17 +178,20 @@ sub unpack {
 sub stringify {
     my $self = shift;
     my $string;
+    
     if (defined $self->{sender_id}) {
         $string	= "from: $self->{sender_id}";
     } else {
         $string	= "from: UNSET";
     }
+    
     $string .= ", type: $type_strings[$self->{type}]";
+    
     if ($messages_format[$self->{type}] == TASK_ID) {
         $string .= " : task $self->{task_id}";
     } elsif ($messages_format[$self->{type}] == TASK_ID_AND_MACHINES_LIST) {
         $string .= " : task $self->{task_id}";
-        $string .= " machines [".join(',', @{$self->{machines_ids}})."]";
+        $string .= " machines [" . join(',', @{$self->{machines_ids}}) . "]";
     } elsif ($messages_format[$self->{type}] == LABEL_AND_STRING) {
         $string .= " : label : $self->{label} ; string : $self->{string}"
     } elsif ($messages_format[$self->{type}] != NOTHING) {
@@ -195,4 +200,5 @@ sub stringify {
     
     return $string;
 }
+
 1;

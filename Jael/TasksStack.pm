@@ -7,6 +7,7 @@ use overload '""' => \&stringify;
 use threads;
 use threads::shared;
 
+# Create a new tasks stack
 sub new {
     my $class = shift;
     my $self = {};
@@ -21,6 +22,16 @@ sub new {
     return $self;
 }
 
+sub stringify {
+    my $self = shift;
+    
+    lock($self->{tasks});  
+    print STDERR "Tid " . threads->tid() . ": [" . join(", ", @{$self->{tasks}}) . "]\n";
+
+    return;
+}
+
+# Pop the last task in the stack only is the task's status is READY else return undef
 sub pop_task {
     my $self = shift;
     
@@ -44,10 +55,12 @@ sub pop_task {
     return $selected_task;
 }
 
+# Add one task in the stack
 sub push_task {
     my $self = shift;
 
     lock($self->{tasks});
+    
     for my $task (@_) {
         push @{$self->{tasks}}, shared_clone($task);
     }
@@ -55,6 +68,7 @@ sub push_task {
     return;
 }
 
+# Get the tasks number in the stack
 sub get_size {
     my $self = shift;
     
@@ -72,15 +86,6 @@ sub update_dependencies {
     lock($self->{tasks});
 
     $_->unset_dependency($id) for @{$self->{tasks}};
-
-    return;
-}
-
-sub stringify {
-    my $self = shift;
-    
-    lock($self->{tasks});  
-    print STDERR "Tid " . threads->tid() . ": [" . join(", ", @{$self->{tasks}}) . "]\n";
 
     return;
 }
