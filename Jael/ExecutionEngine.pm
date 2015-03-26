@@ -77,8 +77,10 @@ sub computation_thread {
             # Get tasks to generate
             my $tasks = $task->get_tasks_to_generate(); 
 
-            # For each task, we send to DHT_OWNER($task) : 'We have $task on our stack'
+            # For each real task, we send to DHT_OWNER($task) : 'We have $task on our stack'
             for $task (@{$tasks}) {
+                next if $task->is_virtual();
+                
                 my $message = Jael::Message->new(TASK_IS_PUSHED, $task->get_id());
                 my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
 
@@ -161,13 +163,6 @@ sub bootstrap_system {
     my $init_task = Jael::TasksGraph::get_task($init_task_id);
 
     Jael::Debug::msg("put initial task on task: '$init_task_id'");
-
-    # We send to DHT_OWNER($task) : 'We have $task on our stack'
-    my $message = Jael::Message->new(TASK_IS_PUSHED, $init_task->get_id());
-    my $destination = Jael::Dht::hash_task_id($init_task->get_id());
-
-    # Send to DHT_OWNER($task)
-    $self->{network}->send($destination, $message);
         
     # Put initial task on the stack
     $self->{stack}->push_task($init_task);

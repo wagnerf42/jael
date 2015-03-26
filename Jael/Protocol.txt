@@ -8,6 +8,8 @@ FIN CALCUL TACHE
 
 fin du calcul d'une tache T1 par P_j:
 envoi 'I computed ID_TASK' vers DHT_OWNER(T1)                                       1
+
+A la réception par le DHT_OWNER(T1):
 mise a jour du statut local de T1
 DHT_OWNER(T1) calcule quelles taches (par exemple T2, T3) dependent de T1
 DHT_OWNER(T1) note que P_j possede la donnee associee a T1

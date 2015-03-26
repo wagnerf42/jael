@@ -10,20 +10,20 @@ my $machines_number;
 
 # Status information stored for each task
 # This information is NOT THE SAME is as the more detailed status of a Jael::Task object
-Readonly::Scalar my $DHT_TASK_STATUS_READY     => 1; # All dependencies for this task are completed
-Readonly::Scalar my $DHT_TASK_STATUS_NOT_READY => 2; # Some dependencies for this task are not completed
-Readonly::Scalar my $DHT_TASK_STATUS_FAILED    => 3; # Task executed and failed
-Readonly::Scalar my $DHT_TASK_STATUS_COMPLETED => 4; # Task executed and succeeded
+Readonly::Scalar our $DHT_TASK_STATUS_READY     => 1; # All dependencies for this task are completed
+Readonly::Scalar our $DHT_TASK_STATUS_NOT_READY => 2; # Some dependencies for this task are not completed
+Readonly::Scalar our $DHT_TASK_STATUS_FAILED    => 3; # Task executed and failed
+Readonly::Scalar our $DHT_TASK_STATUS_COMPLETED => 4; # Task executed and succeeded
 
 # Make a new Dht, no parameters
 sub new {
     my $class = shift;
     my $self = {};
     
-    $self->{machine_owner_of_task} = {};       # Update by TASK_IS_PUSHED message
-    $self->{task_status} = {};                 # Update by TASK_COMPUTATION_COMPLETED message
-    $self->{task_forked} = {};                 # Update by FORK_REQUEST message
-    $self->{machines_owner_of_task_data} = {}; # Update by TASK_COMPUTATION_COMPLETED message
+    $self->{machine_owner_of_task} = {};  # Update by TASK_IS_PUSHED
+    $self->{task_status} = {};            # Update by TASK_COMPUTATION_COMPLETED and DEPENDENCIES_UPDATE_TASK_COMPLETED
+    $self->{task_forked} = {};            # Update by FORK_REQUEST
+    $self->{machines_owner_of_data} = {}; # Update by TASK_COMPUTATION_COMPLETED
         
     bless $self, $class;
     
@@ -53,17 +53,18 @@ sub hash_task_id {
     return $hash_value % $machines_number;
 }
 
-# Set machine owning task
+# Set machine owning task, not the DHT_OWNER but the machine's stack using this task.
 sub set_machine_owning {
     my $self = shift;
     my $task_id = shift;
     my $machine_id = shift;
 
     $self->{machine_owner_of_task}->{$task_id} = $machine_id;
+    $self->{task_status}->{$task_id} = $DHT_TASK_STATUS_NOT_READY;
     
     return;
 }
-
+    
 # Update task's status
 sub change_task_status {
     my $self = shift;
@@ -91,6 +92,7 @@ sub fork_request {
     return 1;
 }
 
+# Compute the DHT_OWNERs of reverse depencies of one task id
 sub compute_machines_owning_tasks_depending_on {
     my $self = shift;
     my $task_id = shift;
@@ -110,26 +112,60 @@ sub compute_machines_owning_tasks_depending_on {
 }
 
 # Update the owners list of one task data
-sub add_task_data_owner {
+sub add_data_owner {
     my $self = shift;
     my $task_id = shift;
     my $machine_id = shift;
     
-    push @{$self->{machines_owner_of_task_data}->{$task_id}}, $machine_id;
+    push @{$self->{machines_owner_of_data}->{$task_id}}, $machine_id;
 
     return;
 }
 
-#some task t1 status changed
-#if we own any task t2 depending on t1
-#update dependencies on t2
-#return the list of tasks which turned ready
-sub change_dependencies_status {
+# One task is now completed => Check if we can updating the reverse dependencies in the READY state
+# Return the list of tasks which turned ready
+sub update_reverse_dependencies_status {
+    my $self = shift;
+    my $task_id = shift;    
+
+    # $task_id is now COMPLETED
+    $self->{task_status}->{$task_id} = $DHT_TASK_STATUS_COMPLETED;
+
+    my @ready_tasks = ();    
+
+    # For each reverse dependencies we check if it exists new ready task
+    my $reverse_dependencies = Jael::TasksGraph::get_reverse_dependencies($task_id);
+
+  REV_IDS:
+    for my $reverse_dependency (@{$reverse_dependencies}) {
+        next if not defined $self->{machine_owner_of_task}->{$reverse_dependency}; # We are not DHT_OWNER(reverse_dependency)
+        
+        my $dependencies = Jael::TasksGraph::get_dependencies($reverse_dependency);
+        
+        for my $dependency (@{$dependencies}) {
+            # If one dependency is not completed, we check other task (go to first loop)
+            if (not defined $self->{task_status}->{$dependency} or $self->{task_status}->{$dependency} != $DHT_TASK_STATUS_COMPLETED) {
+                next REV_IDS;
+            }
+        }
+        
+        # All dependencies are completed => New ready task
+        $self->{task_status}->{$reverse_dependency} = $DHT_TASK_STATUS_READY;
+        push @ready_tasks, $reverse_dependency;
+    }
+    
+    Jael::Debug::msg("task $task_id is now completed - new ready tasks: " . join(", ", @ready_tasks));
+    
+    return \@ready_tasks;
 }
 
-#TODO: can the machine change and thus can we send information to bad target ?
-#return machine owning this task
+# Return machine owning task id
 sub get_machine_owning {
+    my $self = shift;
+    my $task_id = shift;
+    
+    die "we are not DHT_OWNER of $task_id" if not defined $self->{machine_owner_of_task}->{$task_id};
+    return $self->{machine_owner_of_task}->{$task_id};
 }
 
 #return list of machines having target
