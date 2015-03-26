@@ -17,6 +17,7 @@ sub new {
     
     $self->{commands} = shift;
     my $dependencies = shift;
+    
     %{$self->{dependencies}} = map { $_ => 1 } @{$dependencies};
     $self->{reverse_dependencies} = shift;
     $self->{reverse_dependencies} = [] if not defined $self->{reverse_dependencies}; # Main task

@@ -18,7 +18,7 @@ use Jael::Message;
 use Jael::MessageBuffers;
 use Jael::Debug;
 
-our @EXPORT = qw(SENDING_PRIORITY_LOW SENDING_PRIORITY_HIGH);
+our @EXPORT = qw($SENDING_PRIORITY_LOW $SENDING_PRIORITY_HIGH);
 
 Readonly::Scalar my $PORT => 23456;
 

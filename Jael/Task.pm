@@ -8,7 +8,7 @@ use base 'Exporter';
 
 # Warning : Task class is abstract, please to use the following classes : VirtualTask & RealTask
 
-our @EXPORT = qw(TASK_STATUS_READY TASK_STATUS_READY_WAITING_FOR_FILES TASK_STATUS_NOT_READY TASK_STATUS_FAILED TASK_STATUS_COMPLETED);
+our @EXPORT = qw($TASK_STATUS_READY $TASK_STATUS_READY_WAITING_FOR_FILES $TASK_STATUS_NOT_READY $TASK_STATUS_FAILED $TASK_STATUS_COMPLETED);
 
 # Once in the system, tasks can be in one of the following states :
 Readonly::Scalar our $TASK_STATUS_READY => 1;                   # All dependencies are ok, all files are here => ready to run

@@ -44,7 +44,7 @@ sub initialize_by_message {
     die "tasksgraph is already defined" if defined $tasksgraph;
 
     die 'TODO';
-   
+    
     bless $self, $class;
     $tasksgraph = $self;
 

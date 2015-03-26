@@ -4,9 +4,12 @@ package Jael::Dht;
 use strict;
 use warnings;
 use Readonly;
+use base 'Exporter';
 
 # Machines number on network
 my $machines_number;
+
+our @EXPORT = qw($DHT_TASK_STATUS_READY $DHT_TASK_STATUS_NOT_READY $DHT_TASK_STATUS_FAILED $DHT_TASK_STATUS_COMPLETED);
 
 # Status information stored for each task
 # This information is NOT THE SAME is as the more detailed status of a Jael::Task object
@@ -168,12 +171,8 @@ sub get_machine_owning {
     return $self->{machine_owner_of_task}->{$task_id};
 }
 
-#return list of machines having target
+# Return list of machines having target
 sub locate {
-}
-
-#add to list of machines having target
-sub update_location {
 }
 
 #return machine id for dht owning this task

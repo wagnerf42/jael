@@ -81,7 +81,7 @@ sub computation_thread {
             for $task (@{$tasks}) {
                 next if $task->is_virtual();
                 
-                my $message = Jael::Message->new(TASK_IS_PUSHED, $task->get_id());
+                my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task->get_id());
                 my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
 
                 # Send to DHT_OWNER($task)
@@ -105,13 +105,13 @@ sub computation_thread {
             # Protocol end
             # Send message to the first process/machine
             if ($main_task_completed) {
-                my $message = Jael::Message->new(END_ALL);
+                my $message = Jael::Message->new($Jael::Message::END_ALL);
                 $self->{network}->send(0, $message);
             } 
 
             # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
             else {
-                my $message = Jael::Message->new(TASK_COMPUTATION_COMPLETED, $task->get_id());
+                my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $task->get_id());
                 my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
 
                 # Send to DHT_OWNER($task)
