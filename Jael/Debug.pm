@@ -7,12 +7,17 @@ my $machine_name;
 sub init {
     $machine_id = shift;
     $machine_name = shift;
+
+    return;
 }
 
 sub msg {
-    return unless exists $ENV{JAEL_DEBUG};
-    my $msg = shift;
-    print STDERR "$machine_id ($machine_name) : $msg\n";
+    if (exists $ENV{JAEL_DEBUG}) {
+        my $msg = shift;
+        print STDERR "$machine_id ($machine_name) : $msg\n";
+    }
+    
+    return;
 }
 
 sub die {

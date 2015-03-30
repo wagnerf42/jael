@@ -31,6 +31,19 @@ sub stringify {
     return;
 }
 
+# Add one task in the stack
+sub push_task {
+    my $self = shift;
+
+    lock($self->{tasks});
+    
+    for my $task (@_) {
+        push @{$self->{tasks}}, shared_clone($task);
+    }
+
+    return;
+}
+
 # Pop the last task in the stack only is the task's status is READY else return undef
 sub pop_task {
     my $self = shift;
@@ -55,17 +68,17 @@ sub pop_task {
     return $selected_task;
 }
 
-# Add one task in the stack
-sub push_task {
+# Try to steal one task (real or virtual)
+# Return undef if the steal isn't possible
+sub steal_task {
     my $self = shift;
-
-    lock($self->{tasks});
+    my $task;
     
-    for my $task (@_) {
-        push @{$self->{tasks}}, shared_clone($task);
-    }
-
-    return;
+    # TODO: Test others algorithms
+    lock($self->{tasks});  
+    $task = shift @{$self->{tasks}} if @{$self->{tasks}} > 1;
+    
+    return $task;
 }
 
 # Get the tasks number in the stack

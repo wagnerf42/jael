@@ -17,8 +17,10 @@ sub new {
     my $self = {};
 
     $self->{dht} = shift;
+    $self->{tasks_stack} = shift;
     $self->{server} = shift;
 
+    die if not defined $self->{dht};
     bless $self, $class;
     
     return $self;
@@ -43,12 +45,12 @@ sub incoming_message {
 
         # $sender_id is an owner of the data's $task_id
         $self->{dht}->add_data_owner($task_id, $sender_id);
-            
+        
         # Get machines depending on $task_id
-        my @machines_to_inform = $self->{dht}->compute_machines_owning_tasks_depending_on($task_id);
+        my @machines_to_inform = $self->{dht}->compute_dht_owners_for_tasks_depending_on($task_id);
 
         # Send to DHT_OWNER($task_id) : 'ID_TASK completed'
-        my $message = new Jael::Message($Jael::Message::DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id);
+        my $message = Jael::Message->new($Jael::Message::DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id);
         
         for my $machine_id (@machines_to_inform) {
             $self->{server}->send($machine_id, $message);
@@ -63,25 +65,38 @@ sub incoming_message {
 
         # We get ready reverse dependencies 
         my $ready_tasks_ids = $self->{dht}->update_reverse_dependencies_status($task_id);
-       
+        
         for my $ready_task_id (@{$ready_tasks_ids}) {
             my $machine_id = $self->{dht}->get_machine_owning($ready_task_id);
-            $self->{server}->send($machine_id, new Jael::Message($Jael::Message::DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
+            $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
         }
     } elsif ($type == $Jael::Message::DEPENDENCIES_UPDATE_TASK_READY) {
         #die 'TODO';
         #$self->{stack}->change_task_status($message->get_task_id(), $Jael::Dht::TASK_STATUS_READY);
-    } elsif ($type == $Jael::Message::DATA_LOCALISATION) {
-        my $task_id = $message->get_task_id();
-        my @machines = $self->{dht}->locate($task_id);
-        $self->{server}->send($message->get_sender_id(), new Jael::Message($Jael::Message::DATA_LOCATED, $task_id, @machines));
-    } elsif ($type == $Jael::Message::DATA_LOCATED) {
-        die 'TODO';
-    } elsif ($type == $Jael::Message::DATA_DUPLICATED) {
+    } 
+
+    # -----------------------------------------------------------------
+    # DHT_OWNER(task_i) gives the data localisation list of task_i
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::DATA_LOCALISATION) {
         my $task_id = $message->get_task_id();
         my $sender_id = $message->get_sender_id();
-        $self->{dht}->update_location($task_id, $sender_id);
+        my $machines = $self->{dht}->get_data_owners($task_id);
+        
+        $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::DATA_LOCATED, $task_id, @{$machines}));
+    } elsif ($type == $Jael::Message::DATA_LOCATED) {
+        die 'TODO';
     } 
+
+    # -----------------------------------------------------------------
+    # process_i says to DHT_OWNER(task_i) 'I have data of task_i'
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::DATA_DUPLICATED) {
+        my $task_id = $message->get_task_id();
+        my $sender_id = $message->get_sender_id();
+        
+        $self->{dht}->add_data_owner($task_id, $sender_id);
+    }
 
     # -----------------------------------------------------------------
     # Computation end : Wait/kill threads & exit
@@ -92,7 +107,7 @@ sub incoming_message {
 
         # Kill threads server
         $self->{server}->kill_sending_threads();
-            
+        
         # Waiting all threads (except server threads)
         for my $thr (threads->list()) {
             $thr->kill('SIGUSR1');
@@ -101,29 +116,38 @@ sub incoming_message {
 
         # Done, main thread
         exit 0;
-    } elsif ($type == $Jael::Message::STEAL_REQUEST) {
-        my $task_id = $self->{task}->steal_task();
+    } 
+
+    # -----------------------------------------------------------------
+    # Process_i try to steal random task on process_j
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::STEAL_REQUEST) {
+        my $task_id = $self->{tasks_stack}->steal_task();
         my $sender_id = $message->get_sender_id();
+        
         if (defined $task_id) {
-            $self->{server}->send($sender_id, new Jael::Message($Jael::Message::STEAL_SUCCESS, $task_id));
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_SUCCESS, $task_id));
         } else {
-            $self->{server}->send($sender_id, new Jael::Message($Jael::Message::STEAL_FAILED));
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_FAILED));
         }
-    } elsif ($type == $Jael::Message::STEAL_SUCCESS) {
+    } 
+
+    # -----------------------------------------------------------------
+    # Process_i steal a new task => Update tasks stack
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::STEAL_SUCCESS) {
         my $task_id = $message->get_task_id();
-        my $machine_id = $self->{dht}->get_dht_id_for_task($task_id);
-        #$self->{server}->send($machine_id, new Jael::Message($Jael::Message::TASK_STOLEN, $task_id));
-        die 'TODO';
+        $self->{tasks_stack}->push($task_id);
     } elsif ($type == $Jael::Message::STEAL_FAILED) {
-        #die 'TODO';
+        die 'TODO';
     }
     
     # -----------------------------------------------------------------
     # DHT_OWNER(task_i) knows task_i is a task of process_j
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::TASK_IS_PUSHED) {
-        my $task_id = $message->get_task_id();     # task_i
-        my $sender_id = $message->get_sender_id(); # process_j
+        my $task_id = $message->get_task_id();
+        my $sender_id = $message->get_sender_id();
 
         Jael::Debug::msg("task $task_id is on the stack of process $sender_id");
         $self->{dht}->set_machine_owning($task_id, $sender_id);
@@ -135,16 +159,16 @@ sub incoming_message {
     elsif ($type == $Jael::Message::FORK_REQUEST) {
         my $task_id = $message->get_task_id();     # task_i
         my $sender_id = $message->get_sender_id(); # process_j
- 
+        
         # Fork success
         if ($self->{dht}->fork_request($task_id, $sender_id)) {
             Jael::Debug::msg("task $task_id is forked by $sender_id");
-            $self->{server}->send($sender_id, new Jael::Message($Jael::Message::FORK_ACCEPTED, $task_id));
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id));
         } 
         # Fork failure
         else {
             Jael::Debug::msg("task $task_id is not forked by $sender_id");
-            $self->{server}->send($sender_id, new Jael::Message($Jael::Message::FORK_REFUSED, $task_id));
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_REFUSED, $task_id));
         }
     }
     
@@ -153,9 +177,10 @@ sub incoming_message {
     } elsif ($type == $Jael::Message::FORK_REFUSED) {
         die 'TODO';
     } elsif ($type == $Jael::Message::FILE_REQUEST) {
-        my $task_id = $message->get_task_id();
-        my $sender_id = $message->get_sender_id();
-        $self->{server}->send_file($sender_id, $task_id);
+        die 'TODO';
+        # my $task_id = $message->get_task_id();
+        # my $sender_id = $message->get_sender_id();
+        # $self->{server}->send_file($sender_id, $task_id);
     } 
 
     # -----------------------------------------------------------------
@@ -171,6 +196,8 @@ sub incoming_message {
     } else {
         die "unknown message $message";
     }
+
+    return;
 }
 
 1;

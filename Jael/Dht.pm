@@ -23,10 +23,10 @@ sub new {
     my $class = shift;
     my $self = {};
     
-    $self->{machine_owner_of_task} = {};  # Update by TASK_IS_PUSHED
-    $self->{task_status} = {};            # Update by TASK_COMPUTATION_COMPLETED and DEPENDENCIES_UPDATE_TASK_COMPLETED
-    $self->{task_forked} = {};            # Update by FORK_REQUEST
-    $self->{machines_owner_of_data} = {}; # Update by TASK_COMPUTATION_COMPLETED
+    $self->{tasks_owners} = {}; # Update by TASK_IS_PUSHED
+    $self->{task_status} = {};  # Update by TASK_COMPUTATION_COMPLETED and DEPENDENCIES_UPDATE_TASK_COMPLETED
+    $self->{task_forked} = {};  # Update by FORK_REQUEST
+    $self->{data_owners} = {};  # Update by TASK_COMPUTATION_COMPLETED
         
     bless $self, $class;
     
@@ -62,7 +62,7 @@ sub set_machine_owning {
     my $task_id = shift;
     my $machine_id = shift;
 
-    $self->{machine_owner_of_task}->{$task_id} = $machine_id;
+    $self->{tasks_owners}->{$task_id} = $machine_id;
     $self->{task_status}->{$task_id} = $DHT_TASK_STATUS_NOT_READY;
     
     return;
@@ -96,7 +96,7 @@ sub fork_request {
 }
 
 # Compute the DHT_OWNERs of reverse depencies of one task id
-sub compute_machines_owning_tasks_depending_on {
+sub compute_dht_owners_for_tasks_depending_on {
     my $self = shift;
     my $task_id = shift;
 
@@ -107,7 +107,7 @@ sub compute_machines_owning_tasks_depending_on {
     
     # Get owners
     for my $son_task_id (@{$sons_task_id}) {
-        my $owner = hash_task_id($son_task_id); # Get DHT_OWNER($son_task_id)
+        my $owner = hash_task_id($son_task_id);
         $owners{$owner} = 1;
     }
 
@@ -120,12 +120,21 @@ sub add_data_owner {
     my $task_id = shift;
     my $machine_id = shift;
     
-    push @{$self->{machines_owner_of_data}->{$task_id}}, $machine_id;
+    push @{$self->{data_owners}->{$task_id}}, $machine_id;
 
     return;
 }
 
-# One task is now completed => Check if we can updating the reverse dependencies in the READY state
+# Return list of machines having data
+sub get_data_owners {
+    my $self = shift;
+    my $task_id = shift;
+
+    return [] if not defined $self->{data_owners}->{$task_id};
+    return $self->{data_owners}->{$task_id};
+}
+
+# One task is now completed => Check if we can updating the reverse dependencies to READY state
 # Return the list of tasks which turned ready
 sub update_reverse_dependencies_status {
     my $self = shift;
@@ -141,7 +150,7 @@ sub update_reverse_dependencies_status {
 
   REV_IDS:
     for my $reverse_dependency (@{$reverse_dependencies}) {
-        next if not defined $self->{machine_owner_of_task}->{$reverse_dependency}; # We are not DHT_OWNER(reverse_dependency)
+        next if not defined $self->{tasks_owners}->{$reverse_dependency}; # We are not DHT_OWNER(reverse_dependency)
         
         my $dependencies = Jael::TasksGraph::get_dependencies($reverse_dependency);
         
@@ -157,7 +166,7 @@ sub update_reverse_dependencies_status {
         push @ready_tasks, $reverse_dependency;
     }
     
-    Jael::Debug::msg("task $task_id is now completed - new ready tasks: " . join(", ", @ready_tasks));
+    Jael::Debug::msg("task $task_id is now completed, new ready tasks: " . join(", ", @ready_tasks));
     
     return \@ready_tasks;
 }
@@ -167,16 +176,8 @@ sub get_machine_owning {
     my $self = shift;
     my $task_id = shift;
     
-    die "we are not DHT_OWNER of $task_id" if not defined $self->{machine_owner_of_task}->{$task_id};
-    return $self->{machine_owner_of_task}->{$task_id};
-}
-
-# Return list of machines having target
-sub locate {
-}
-
-#return machine id for dht owning this task
-sub get_dht_id_for_task {
+    die "we are not DHT_OWNER of $task_id" if not defined $self->{tasks_owners}->{$task_id};
+    return $self->{tasks_owners}->{$task_id};
 }
 
 1;

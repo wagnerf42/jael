@@ -43,14 +43,12 @@ sub new {
     $self->{machines} = $config->{'machines'};
 
     # Set machine number for global data in Dht module and current object
-    $self->{machines_number} = @{$config->{'machines'}};
-    Jael::Dht::set_machines_number($self->{machines_number});
+    Jael::Dht::set_machines_number(scalar @{$config->{'machines'}});
         
     $self->{max_threads} = detect_cores() unless defined $self->{max_threads};
-    $self->{active_threads} = 0;
-    $self->{stack} = Jael::TasksStack->new();
-    $self->{dht} = new Jael::Dht();
-    $self->{network} = new Jael::ServerEngine($self->{dht}, $config->{'id'}, @{$config->{'machines'}});
+    $self->{stack_tasks} = Jael::TasksStack->new();
+    $self->{dht} = Jael::Dht->new();
+    $self->{network} = Jael::ServerEngine->new($self->{dht}, $self->{stack_tasks}, $config->{'id'}, @{$config->{'machines'}});
     
     bless $self, $class;
     
@@ -63,7 +61,7 @@ sub computation_thread {
 
     while(1) {
         # Take task
-        my $task = $self->{stack}->pop_task();
+        my $task = $self->{stack_tasks}->pop_task();
 
         # No tasks
         if(not defined $task) {
@@ -82,14 +80,14 @@ sub computation_thread {
                 next if $task->is_virtual();
                 
                 my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task->get_id());
-                my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
+                my $destination = Jael::Dht::hash_task_id($task->get_id());
 
                 # Send to DHT_OWNER($task)
                 $self->{network}->send($destination, $message);
             }
 
             # Push tasks in stack
-            $self->{stack}->push_task(@$tasks);
+            $self->{stack_tasks}->push_task(@$tasks);
         } 
 
         # Real task
@@ -112,11 +110,11 @@ sub computation_thread {
             # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
             else {
                 my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $task->get_id());
-                my $destination = Jael::Dht::hash_task_id($task->get_id(), $self->{machines_number});
+                my $destination = Jael::Dht::hash_task_id($task->get_id());
 
                 # Send to DHT_OWNER($task)
                 $self->{network}->send($destination, $message);
-                $self->{stack}->update_dependencies($task->get_id());                
+                $self->{stack_tasks}->update_dependencies($task->get_id());                
             }
         }
     }
@@ -165,7 +163,7 @@ sub bootstrap_system {
     Jael::Debug::msg("put initial task on task: '$init_task_id'");
         
     # Put initial task on the stack
-    $self->{stack}->push_task($init_task);
+    $self->{stack_tasks}->push_task($init_task);
 
     return;
 }

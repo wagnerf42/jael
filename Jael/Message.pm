@@ -165,22 +165,22 @@ sub unpack {
     if ($messages_format[$type] == $TASK_ID) {
         my ($size, $sender_id, $type, $task_id) = unpack('N3A*', $string);
         
-        $unpacked_msg = new Jael::Message($type, $task_id);
+        $unpacked_msg = Jael::Message->new($type, $task_id);
     } elsif ($messages_format[$type] == $TASK_ID_AND_MACHINES_LIST) {
         my ($size, $sender, $type, $task_id_size) = unpack('N4', $string);
         my $task_id;
         my @machines;
         
         ($size, $sender, $type, $task_id_size, $task_id, @machines) = unpack("N4A${task_id_size}N*", $string);
-        $unpacked_msg = new Jael::Message($type, $task_id, @machines);
+        $unpacked_msg = Jael::Message->new($type, $task_id, @machines);
     } elsif ($messages_format[$type] == $NOTHING) {
-        $unpacked_msg = new Jael::Message($type);
+        $unpacked_msg = Jael::Message->new($type);
     } elsif ($messages_format[$type] == $LABEL_AND_STRING) {
         my ($size, $sender, $type, $label_size) = unpack('N4', $string);
         my ($label, $content_string);
         
         ($size, $sender, $type, $label_size, $label, $content_string) = unpack("N4A${label_size}A*", $string);
-        $unpacked_msg = new Jael::Message($type, $label, $content_string);
+        $unpacked_msg = Jael::Message->new($type, $label, $content_string);
     } else {
         die "decoding unknown message type";
     }

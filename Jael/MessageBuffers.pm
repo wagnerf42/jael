@@ -39,6 +39,7 @@ sub incoming_data {
             return @incoming_messages;
         }
     }
+    
     return @incoming_messages;
 }
 
