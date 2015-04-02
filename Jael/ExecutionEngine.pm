@@ -19,7 +19,7 @@ use Jael::VirtualTask;
 sub catch_SIGUSR1 {
     Jael::Debug::msg("thread " . threads->tid() . " die");
     threads->exit();
-    
+
     die "unreached";
 }
 
@@ -35,23 +35,24 @@ sub new {
     my $class = shift;
     my $self = {};
     my $config = shift;
-    
+
     Jael::Debug::msg('creating a new execution engine');
-    
+
     $self->{config} = $config;
-    $self->{id} = $config->{'id'};
-    $self->{machines} = $config->{'machines'};
+    $self->{id} = $config->{id};
+    $self->{machines} = $config->{machines};
 
     # Set machine number for global data in Dht module and current object
     Jael::Dht::set_machines_number(scalar @{$config->{'machines'}});
-        
+
     $self->{max_threads} = detect_cores() unless defined $self->{max_threads};
-    $self->{stack_tasks} = Jael::TasksStack->new();
-    $self->{dht} = Jael::Dht->new();
-    $self->{network} = Jael::ServerEngine->new($self->{dht}, $self->{stack_tasks}, $config->{'id'}, @{$config->{'machines'}});
-    
+    $self->{tasks_stack} = Jael::TasksStack->new();
+    $self->{dht} = Jael::Dht->new(); #TODO: for now not needed here -> move creation of dht in Jael::Protocol ???
+	#TODO: give instead of all these args a pointer on execution engine ??
+    $self->{network} = Jael::ServerEngine->new($self->{dht}, $self->{tasks_stack}, $config->{id}, $config->{machines});
+
     bless $self, $class;
-    
+
     return $self;
 }
 
@@ -61,24 +62,24 @@ sub computation_thread {
 
     while(1) {
         # Take task
-        my $task = $self->{stack_tasks}->pop_task();
+        my $task = $self->{tasks_stack}->pop_task();
 
         # No tasks
-        if(not defined $task) {
+        if (not defined $task) {
             sleep(0.2);
-        } 
+        }
 
         # Virtual task
-        elsif($task->is_virtual()) {
+        elsif ($task->is_virtual()) {
             Jael::Debug::msg("tid $tid get virtual task: " . $task->get_id() . " (sons: " . @{$task->get_tasks_to_generate()} . ")");
 
             # Get tasks to generate
-            my $tasks = $task->get_tasks_to_generate(); 
+            my $tasks = $task->get_tasks_to_generate();
 
             # For each real task, we send to DHT_OWNER($task) : 'We have $task on our stack'
-            for $task (@{$tasks}) {
+            for my $task (@{$tasks}) {
                 next if $task->is_virtual();
-                
+
                 my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task->get_id());
                 my $destination = Jael::Dht::hash_task_id($task->get_id());
 
@@ -87,8 +88,8 @@ sub computation_thread {
             }
 
             # Push tasks in stack
-            $self->{stack_tasks}->push_task(@$tasks);
-        } 
+            $self->{tasks_stack}->push_task(@$tasks);
+        }
 
         # Real task
         else {
@@ -99,13 +100,13 @@ sub computation_thread {
             my $main_task_completed = $task->execute();
 
             # TODO: Check if execute returns error !
-            
+
             # Protocol end
             # Send message to the first process/machine
             if ($main_task_completed) {
                 my $message = Jael::Message->new($Jael::Message::END_ALL);
                 $self->{network}->send(0, $message);
-            } 
+            }
 
             # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
             else {
@@ -114,7 +115,7 @@ sub computation_thread {
 
                 # Send to DHT_OWNER($task)
                 $self->{network}->send($destination, $message);
-                $self->{stack_tasks}->update_dependencies($task->get_id());                
+                $self->{tasks_stack}->update_dependencies($task->get_id());
             }
         }
     }
@@ -127,31 +128,32 @@ sub start_server {
     # Make threads for computation
     # It's not needed to wait the end thread (infinite loop)
     Jael::Debug::msg("creating " . $self->{max_threads} . " threads");
-    
-    for my $i (1..$self->{max_threads}) {
+
+	#TODO: fix threads on cores ? (especially communication threads)
+    for (1..$self->{max_threads}) {
         threads->create(\&computation_thread, $self);
     }
-    
+
     $self->{network}->run();
-    
+
     return;
 }
 
 sub bootstrap_system {
     my $self = shift;
-    
+
     Jael::Debug::msg("initialization");
     Jael::Debug::msg("computing tasks graph");
 
     # Initialize and create tasks graph
     Jael::TasksParser::make();
-    
+
     die "missing target" unless defined $self->{config}->{target};
-    
+
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
     Jael::TasksGraph::display() if exists $ENV{JAEL_DEBUG};
-            
+
     # Broadcast the graph to everyone
     # TODO : Send properly tasks graph
     #$self->{network}->broadcast(new Jael::Message(TASKGRAPH, 'taskgraph', $taskgraph));
@@ -161,9 +163,9 @@ sub bootstrap_system {
     my $init_task = Jael::TasksGraph::get_task($init_task_id);
 
     Jael::Debug::msg("put initial task on task: '$init_task_id'");
-        
+
     # Put initial task on the stack
-    $self->{stack_tasks}->push_task($init_task);
+    $self->{tasks_stack}->push_task($init_task);
 
     return;
 }
@@ -172,18 +174,18 @@ sub detect_cores {
     my $os = `uname`;
     chomp($os);
     return 1 unless $os eq 'Linux';
-    
-    open(PROC, '< /proc/cpuinfo') or return 1;
-    
+
+    open(my $proc, '<', '/proc/cpuinfo') or return 1;
+
     my $count = 0;
-    
-    while(<PROC>) {
+
+    while(<$proc>) {
         $count++ if /^processor\s+:\s+\d+/;
     }
-    
-    close(PROC);
+
+    close($proc);
     Jael::Debug::msg("detected $count cores");
-    
+
     return $count;
 }
 

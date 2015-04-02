@@ -7,7 +7,6 @@ my $machine_name;
 sub init {
     $machine_id = shift;
     $machine_name = shift;
-
     return;
 }
 
@@ -16,7 +15,6 @@ sub msg {
         my $msg = shift;
         print STDERR "$machine_id ($machine_name) : $msg\n";
     }
-    
     return;
 }
 

@@ -39,18 +39,19 @@ sub new {
     my $self = {};
 
     bless $self, $class;
- 
+
     # Shared data
     my @sh_messages_low :shared;
     my @sh_messages_high :shared;
 
     my $dht = shift;
     my $tasks_stack = shift;
-    
+
     $self->{id} = shift;
 
-    my @machines_names :shared = @_;
-    
+	my $machines_names = shift;
+    my @machines_names :shared = @$machines_names;
+
     $self->{machines_names} = \@machines_names;
     $self->{machines_number} = @{$self->{machines_names}};
 
@@ -58,18 +59,18 @@ sub new {
     $self->{sending_messages} = [];
     $self->{sending_messages}->[$SENDING_PRIORITY_LOW] = \@sh_messages_low;
     $self->{sending_messages}->[$SENDING_PRIORITY_HIGH] = \@sh_messages_high;
-  
+
     $self->{message_buffers} = Jael::MessageBuffers->new();
     $self->{protocol} = Jael::Protocol->new($dht, $tasks_stack, $self);
 
     # Threads list
     $self->{sending_threads} = [];
-    
+
     # Make threads
-    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
-                                                      \@sh_messages_low, \@machines_names, $SENDING_PRIORITY_LOW);  
-    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}], 
-                                                      \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH); 
+    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
+                                                      \@sh_messages_low, \@machines_names, $SENDING_PRIORITY_LOW);
+    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
+                                                      \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH);
 
     # Init debug infos for the server thread
     Jael::Debug::init($self->{id}, $self->{machines_names}->[$self->{id}]);
@@ -84,10 +85,10 @@ sub run {
     # server port is PORT + id of current server
     $self->{server_socket} = IO::Socket::INET->new(LocalHost => $self->{machines_names}->[$self->{id}],
                                                    LocalPort => $PORT + $self->{id},
-                                                   Listen => 1, 
+                                                   Listen => 1,
                                                    Reuse => 1,
                                                    Proto => 'tcp');
-    
+
     die "Could not create socket: $!\n" unless $self->{server_socket};
 
     # we use select to find non blocking reads
@@ -105,17 +106,17 @@ sub run {
             else {
                 my $buffer;
                 my $size = $max_buffer_reading_size;
-                
+
                 $fh->recv($buffer, $size);
-                
+
                 # Closing connexion
                 if ($size == 0) {
                     Jael::Debug::msg("connection closed");
                     $self->{read_set}->remove($fh);
                     close($fh);
-                } 
+                }
                 # Handle message
-                else {                    
+                else {
                     # We use the message protocol for each received message
                     my @received_messages = $self->{message_buffers}->incoming_data($fh, $buffer);
                     $self->{protocol}->incoming_message($_) for @received_messages;
@@ -123,7 +124,7 @@ sub run {
             }
         }
     }
-    
+
     return;
 }
 
@@ -132,9 +133,9 @@ sub run {
 sub broadcast {
     my $self = shift;
     my $message = shift;
-    
+
     Jael::Debug::msg("broadcasting $message");
-    
+
     for my $machine_id (0..$#{$self->{machines_names}}) {
         next if $machine_id == $self->{id};
         $self->send($machine_id, $message);
@@ -147,12 +148,12 @@ sub broadcast {
 sub th_send_with_priority {
     my $id = shift;
     my $machine_name = shift;
-    
+
     my $sending_sockets = {};     # Thread's sockets
     my $sending_messages = shift; # Messages list for the sockets
     my $machines_names = shift;   # Machines list
     my $priority = shift;         # Thread priority
-    
+
     my $string;            # Message string
     my $target_machine_id; # Message id
 
@@ -161,14 +162,14 @@ sub th_send_with_priority {
 
     while (1) {
         {
-            lock($sending_messages);                                 
+            lock($sending_messages);
             cond_wait($sending_messages) until @{$sending_messages}; # Wait if nothing in messages array
 
             # Get message in the message list
             $target_machine_id = shift @{$sending_messages};
             $string = shift @{$sending_messages};
         }
-        
+
         # Connect if socket doesn't exists
         connect_to($machines_names, $target_machine_id, $sending_sockets)
             unless exists $sending_sockets->{$target_machine_id};
@@ -201,7 +202,7 @@ sub send {
     {
         lock($self->{sending_messages}->[$priority]);
         push @{$self->{sending_messages}->[$priority]}, ($target_machine_id, $message->pack());
-        Jael::Debug::msg("new message in queue (type=" . $message->get_type() . ", id_dest=$target_machine_id, priority=$priority)");        
+        Jael::Debug::msg("new message in queue (type=" . $message->get_type() . ", id_dest=$target_machine_id, priority=$priority)");
         cond_signal($self->{sending_messages}->[$priority]);
     }
 
@@ -212,9 +213,9 @@ sub kill_sending_threads {
     my $self = shift;
 
     Jael::Debug::msg("kill sending threads");
-    
+
     $_->kill('SIGUSR1') for @{$self->{sending_threads}};
-    
+
     for my $priority (@{$self->{sending_messages}}) {
         {
             lock($priority);
@@ -245,7 +246,7 @@ sub connect_to {
 
         sleep(2);
     }
-    
+
     Jael::Debug::msg("opened connection to $machine_id");
 
     return;

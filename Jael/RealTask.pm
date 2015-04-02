@@ -11,24 +11,26 @@ use Jael::Task;
 use parent 'Jael::Task';
 
 # Create a new real task defined by target name, commands, dependencies and reverse dependencies
+# careful, tasks with dependencies are marked as non ready by default
+# you need to update status when creating stolen tasks
 sub new {
     my $class = shift;
     my $self = $class->SUPER::new(shift); # Call Task->new with target name
-    
+
     $self->{commands} = shift;
     my $dependencies = shift;
-    
-    %{$self->{dependencies}} = map { $_ => 1 } @{$dependencies};
+
+	$self->{dependencies}->{$_} = 1 for @$dependencies;
     $self->{reverse_dependencies} = shift;
     $self->{reverse_dependencies} = [] if not defined $self->{reverse_dependencies}; # Main task
-    
+
     # Set the initial task status : Ready or not ready
     if (keys %{$self->{dependencies}}) {
         $self->{status} = $Jael::Task::TASK_STATUS_NOT_READY;
     } else {
         $self->{status} = $Jael::Task::TASK_STATUS_READY;
     }
-    
+
     bless $self, $class;
     return $self;
 }
@@ -71,7 +73,7 @@ sub unset_dependency {
 
     # No checked dependency here
     return if not defined $self->{dependencies}->{$dependency_id};
-    
+
     # No update, the dependency is already unset
     return if $self->{dependencies}->{$dependency_id} == 0;
 
@@ -85,7 +87,7 @@ sub unset_dependency {
 
     # No active dependencies
     $self->{status} = $Jael::Task::TASK_STATUS_READY;
-    
+
     return;
 }
 

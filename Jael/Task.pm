@@ -21,10 +21,10 @@ Readonly::Scalar our $TASK_STATUS_COMPLETED => 5;               # Task executed 
 sub new {
     my $class = shift;
     my $self = {};
-    
+
     $self->{target_name} = shift;
     die "target name is undef" if not defined $self->{target_name};
-    
+
     bless $self, $class;
     return $self;
 }
@@ -45,14 +45,14 @@ sub get_target_name {
 # Get dependencies id
 # Note: use get_task of TaskGraph for the dependencies tasks
 sub get_dependencies {
-    my $self = shift;    
+    my $self = shift;
     return $self->{dependencies};
 }
 
 # Get reverse dependencies id
 # Note: use get_task of TaskGraph for the reverse dependencies tasks
 sub get_reverse_dependencies {
-    my $self = shift;    
+    my $self = shift;
     return $self->{reverse_dependencies};
 }
 

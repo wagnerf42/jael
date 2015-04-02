@@ -11,21 +11,21 @@ use threads::shared;
 sub new {
     my $class = shift;
     my $self = {};
-    
+
     $self->{tasks} = [];
 
     # Ensure array is shared
     share($self->{tasks});
-    
+
     bless $self, $class;
-    
+
     return $self;
 }
 
 sub stringify {
     my $self = shift;
-    
-    lock($self->{tasks});  
+
+    lock($self->{tasks});
     print STDERR "Tid " . threads->tid() . ": [" . join(", ", @{$self->{tasks}}) . "]\n";
 
     return;
@@ -36,10 +36,7 @@ sub push_task {
     my $self = shift;
 
     lock($self->{tasks});
-    
-    for my $task (@_) {
-        push @{$self->{tasks}}, shared_clone($task);
-    }
+	push @{$self->{tasks}}, map {shared_clone($_)} @_;
 
     return;
 }
@@ -47,15 +44,15 @@ sub push_task {
 # Pop the last task in the stack only is the task's status is READY else return undef
 sub pop_task {
     my $self = shift;
-    
-    lock($self->{tasks});  
+
+    lock($self->{tasks});
 
     my $selected_task;
     my @remaining_tasks;
-    
+
     while ((not defined $selected_task) and (@{$self->{tasks}})) {
         my $candidate_task = pop @{$self->{tasks}};
-        
+
         if ($candidate_task->is_ready()) {
             $selected_task = $candidate_task;
         } else {
@@ -64,7 +61,7 @@ sub pop_task {
     }
 
     push @{$self->{tasks}}, @remaining_tasks;
-    
+
     return $selected_task;
 }
 
@@ -73,20 +70,34 @@ sub pop_task {
 sub steal_task {
     my $self = shift;
     my $task;
-    
-    # TODO: Test others algorithms
-    lock($self->{tasks});  
-    $task = shift @{$self->{tasks}} if @{$self->{tasks}} > 1;
-    
-    return $task;
+
+    lock($self->{tasks});
+    my $selected_task;
+    my @remaining_tasks;
+
+	#TODO: there is a risk of stealing several times the same task for now
+	#we could remove problem by refusing to be stolen if only few tasks are ready
+    while ((not defined $selected_task) and (@{$self->{tasks}})) {
+        my $candidate_task = shift @{$self->{tasks}};
+
+        if ($candidate_task->is_ready()) {
+            $selected_task = $candidate_task;
+        } else {
+            push @remaining_tasks, $candidate_task;
+        }
+    }
+
+    unshift @{$self->{tasks}}, @remaining_tasks;
+
+    return $selected_task;
 }
 
 # Get the tasks number in the stack
 sub get_size {
     my $self = shift;
-    
+
     lock($self->{tasks});
-    
+
     # Force scalar, we doesn't return an array copy
     return scalar @{$self->{tasks}};
 }

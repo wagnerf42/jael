@@ -4,15 +4,17 @@ package Jael::Configuration;
 use strict;
 use warnings;
 
+#TODO: jsonify ??
+
 sub new {
     my $class = shift;
     my $self = {};
     my $config_file = "$ENV{HOME}/.jaelrc";
-    
+
     if (-f $config_file) {
         open(CONFIG, "< $config_file") or die 'unable to open configuration file';
         my $key;
-        
+
         while (my $line = <CONFIG>) {
             next if $line =~/^#/;
             if ($line =~ /^machines:\s*$/) {
@@ -24,7 +26,7 @@ sub new {
         }
         close(CONFIG);
     }
-    
+
     bless $self, $class;
     return $self;
 }

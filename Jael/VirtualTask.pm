@@ -24,10 +24,10 @@ sub new {
     # It exists normaly at least one task id (real task)
     $self->{reverse_dependencies} = shift;
     $self->{dependencies} = {}; # No dependencies for virtual task
-    
+
     # Virtual task is always ready
     $self->{status} = $Jael::Task::TASK_STATUS_READY;
-    
+
     bless $self, $class;
     return $self;
 }
@@ -49,18 +49,11 @@ sub get_id {
 }
 
 # Return the tasks to generate:
-# - The 'target name' 
-# - The reverse dependencies of the real task 'target name' with virtual prefix 
+# - The 'target name'
+# - The reverse dependencies of the real task 'target name' with virtual prefix
 sub get_tasks_to_generate {
     my $self = shift;
-
-    my @tasks_to_generate = ();
-    
-    for my $task_id (@{$self->{reverse_dependencies}}) {
-        push @tasks_to_generate, Jael::TasksGraph::get_task($task_id);
-    }
-    
-    return \@tasks_to_generate;
+    return [ map {Jael::TasksGraph::get_task($_)} @{$self->{reverse_dependencies}} ];
 }
 
 1;

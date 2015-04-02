@@ -20,7 +20,7 @@ my @handlers = (\&nothing, \&variables, \&before_target, \&command);
 
 sub make {
     my $self = {};
-    
+
     $self->{vars} = {};
     $self->{not_a_target} = 0;
     $self->{commands} = [];
@@ -31,14 +31,14 @@ sub make {
     Jael::Debug::msg("launching jael_make");
     open(MAKE, JAEL_MAKE . " -t -p |") or die "unable to fork jael_make : $!";
     $self->{state} = $PARSING_NOTHING;
-    
+
     my $line;
-    
+
     while($line = <MAKE>) {
         chomp($line);
         $handlers[$self->{state}]->($self, $line);
     }
-    
+
     close(MAKE);
     Jael::Debug::msg("jael_make completed");
     Jael::Debug::msg("tasks list:\n" . Jael::TasksGraph::stringify());
@@ -47,22 +47,22 @@ sub make {
     if (defined $self->{vars}->{'.DEFAULT_GOAL'}) {
         Jael::TasksGraph::set_main_target($self->{vars}->{'.DEFAULT_GOAL'});
     }
-    
+
     return;
 }
 
 sub nothing {
     my $self = shift;
     my $line = shift;
-    
+
     if ($line =~ /jael_make_wrapper directory is '([^']+)'/) {
         $self->{current_directory} = $1;
     }
-    
+
     if ($line eq '# Variables') {
         $self->{state} = $PARSING_VARIABLES;
     }
-    
+
     if ($line eq '# Files') {
         $self->{state} = $PARSING_FILES_BEFORE_TARGET;
     }
@@ -73,11 +73,11 @@ sub nothing {
 sub variables {
     my $self = shift;
     my $line = shift;
-    
+
     if ($line =~/^(\S+)\s=\s(\S+)/) {
         $self->{vars}->{$1} = $2;
     }
-    
+
     if ($line eq '# variable set hash-table stats:') {
         $self->{state} = $PARSING_NOTHING;
     }
@@ -88,13 +88,13 @@ sub variables {
 sub before_target {
     my $self = shift;
     my $line = shift;
-    
+
     if ($line =~/^(\S+):(.*)?$/) {
         $self->{current_target} = $1;
         $self->{current_deps} = $2;
         $self->{state} = $PARSING_FILES_COMMAND;
     }
-    
+
     if ($line eq '# files hash-table stats:') {
         $self->{state} = $PARSING_NOTHING;
     }
@@ -109,20 +109,20 @@ sub before_target {
 sub command {
     my $self = shift;
     my $line = shift;
-    
+
     if ($line =~ /^#/) {
         return;
     }
-    
+
     if ($line eq '') {
         my $command = join("\n", @{$self->{commands}});
-        
+
         $command = replace_variables($self, $command, 0);
-        
+
         unless ($self->{not_a_target}) {
             Jael::TasksGraph::add_task($self->{current_target}, $command, $self->{current_deps});
         }
-        
+
         #reset variables
         @{$self->{commands}} = ();
         $self->{not_a_target} = 0;
@@ -156,20 +156,20 @@ sub replace_variables {
 		 )
 	/x;
     my @top_substrings = $command =~ m/$regex/g;
-    
+
     for my $substring (@top_substrings) {
         my $substring_content = $substring;
-    
+
         $substring_content =~s/^\$\(//;
         $substring_content =~s/\)$//;
-        
+
         my $substituted_substring = replace_variables($self, $substring_content, $recursion_level+1);
-        
+
         $command =~s/\Q$substring\E/$substituted_substring/;
     }
-    
+
     return $command if $recursion_level == 0;
-    
+
     if (exists $self->{vars}->{$command}) {
         return $self->{vars}->{$command};
     } else {

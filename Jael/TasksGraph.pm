@@ -22,12 +22,12 @@ sub initialize {
     my $self = {};
 
     die "tasksgraph is already defined" if defined $tasksgraph;
-    
+
     # Store all information for REAL TASKS ONLY
     $self->{commands} = {}; # To each task id its command
     $self->{dependencies} = {}; # Store for each task what other tasks we need
     $self->{reverse_dependencies} = {}; # Store for each task by whom we are needed
-    
+
     bless $self, $class;
     $tasksgraph = $self;
 
@@ -41,10 +41,11 @@ sub initialize_by_message {
     my $message = shift;
     my $self = {};
 
+	#TODO: use perl JSON
     die "tasksgraph is already defined" if defined $tasksgraph;
 
     die 'TODO';
-    
+
     bless $self, $class;
     $tasksgraph = $self;
 
@@ -54,14 +55,13 @@ sub initialize_by_message {
 
 # All tasks descriptions
 sub stringify {
-    my $string = "";
-    
-    for my $task_id (keys %{$tasksgraph->{commands}}) {
-        $string .= "TASK '$task_id': " . join(" ", @{$tasksgraph->{dependencies}->{$task_id}}) . "\n";
-        $string .= $tasksgraph->{commands}->{$task_id} . "\n\n";
+	my @strings;
+    for my $task_id (sort keys %{$tasksgraph->{commands}}) {
+        push @strings, "TASK '$task_id': " . join(" ", @{$tasksgraph->{dependencies}->{$task_id}});
+        push @strings, $tasksgraph->{commands}->{$task_id} . "\n";
     }
-    
-    return $string;
+
+    return join("\n", @strings);
 }
 
 # Create one instance of task by task_id
@@ -72,21 +72,21 @@ sub get_task {
     if ($task_id =~ /^$VIRTUAL_TASK_PREFIX(.*)/) {
         my $real_task_id = $1;
         my $dependencies = $tasksgraph->{dependencies}->{$real_task_id};
-        my @reverse_virtual_dependencies = ();
+        my @reverse_virtual_dependencies;
 
         # The reverse dependencies of one virtual task are equivalent to the task's dependencies with virtual task prefix
         if (defined $dependencies) {
-            @reverse_virtual_dependencies = map {$VIRTUAL_TASK_PREFIX . $_} @{$dependencies} 
+            @reverse_virtual_dependencies = map {$VIRTUAL_TASK_PREFIX . $_} @{$dependencies};
         }
 
         return Jael::VirtualTask->new($real_task_id, [$real_task_id, @reverse_virtual_dependencies]);
-    } 
+    }
 
     # Make new real task
-    my $task = Jael::RealTask->new($task_id, $tasksgraph->{commands}->{$task_id}, $tasksgraph->{dependencies}->{$task_id}, 
+    my $task = Jael::RealTask->new($task_id, $tasksgraph->{commands}->{$task_id}, $tasksgraph->{dependencies}->{$task_id},
                                    $tasksgraph->{reverse_dependencies}->{$task_id});
     $task->mark_as_main_task() if $task_id eq $tasksgraph->{main_target};
-    
+
     return $task;
 }
 
@@ -100,15 +100,15 @@ sub add_task {
 
     my $dependencies = shift;
     $tasksgraph->{dependencies}->{$task_id} = [];
-    
+
     if (defined $dependencies) {
         my @dependencies = split(/\s+/, $dependencies);
-        
+
         for my $dependency (grep {$_ ne ''} @dependencies) {
             push @{$tasksgraph->{dependencies}->{$task_id}}, $dependency;
         }
     }
-    
+
     return;
 }
 
@@ -116,17 +116,19 @@ sub add_task {
 sub display {
     # Make new temp file for image graph
     my ($dotfile, $dotfilename) = File::Temp::tempfile();
-    
+
     print $dotfile "digraph g {\n";
 
     my %nums;
     my $current_num = 0;
 
+	#get a unique integer identifier for each task
     for my $id (keys %{$tasksgraph->{commands}}) {
         $nums{$id} = $current_num;
         $current_num++;
     }
 
+	#generate dot content
     for my $id (keys %{$tasksgraph->{commands}}) {
         my $num = $nums{$id};
         print $dotfile "n$num [label=\"$id\"];\n";
@@ -136,19 +138,19 @@ sub display {
             print $dotfile "n$dep_num -> n$num;\n";
         }
     }
-    
+
     print $dotfile "}\n";
     close($dotfile);
 
     # Print image with user viewer
     my $img = "$dotfilename.jpg";
-    
+
     `dot -Tjpg $dotfilename -o $img`;
     `$IMAGE_VIEWER $img`;
-    
+
     unlink $img;
     unlink $dotfilename;
-    
+
     return;
 }
 
@@ -168,13 +170,13 @@ sub get_main_target {
 }
 
 # Compute reverse dependencies for each task
-sub generate_reverse_dependencies {    
+sub generate_reverse_dependencies {
     for my $task_id (keys %{$tasksgraph->{commands}}) {
+		$tasksgraph->{reverse_dependencies}->{$task_id} = [] unless defined $tasksgraph->{reverse_dependencies}->{$task_id};
         for my $dependency (@{$tasksgraph->{dependencies}->{$task_id}}) {
             push @{$tasksgraph->{reverse_dependencies}->{$dependency}}, $task_id;
         }
     }
-    
     return;
 }
 
