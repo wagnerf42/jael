@@ -11,7 +11,7 @@ use Jael::Task;
 use parent 'Jael::Task';
 
 # Create a new real task defined by target name, commands, dependencies and reverse dependencies
-# careful, tasks with dependencies are marked as non ready by default
+# careful, tasks with dependencies are marked as non ready by defaul
 # you need to update status when creating stolen tasks
 sub new {
     my $class = shift;
@@ -20,7 +20,7 @@ sub new {
     $self->{commands} = shift;
     my $dependencies = shift;
 
-	$self->{dependencies}->{$_} = 1 for @$dependencies;
+    $self->{dependencies}->{$_} = 1 for @$dependencies;
     $self->{reverse_dependencies} = shift;
     $self->{reverse_dependencies} = [] if not defined $self->{reverse_dependencies}; # Main task
 
@@ -65,6 +65,22 @@ sub get_id {
     return "$self->{target_name}";
 }
 
+# Update the task's status
+sub update_status {
+    my $self = shift;
+    my $new_status = shift;
+
+    # One completed or failed task can not be updated
+    # Downgrade status is not allowed (TASK_STATUS_READY to READY_WAITING_FOR_FILES for example)
+    return if($self->{status} == $Jael::Task::TASK_STATUS_COMPLETED or $self->{status} == $Jael::Task::TASK_STATUS_FAILED or
+              ($self->{status} == $Jael::Task::TASK_STATUS_READY and $new_status == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES));
+
+    # Update
+    $self->{status} = $new_status;
+
+    return;
+}
+
 # Set one dependency's task to 0 (if exists)
 # Change the task status to STATUS_READY if it is necessary (no more dependencies)
 sub unset_dependency {
@@ -74,7 +90,7 @@ sub unset_dependency {
     # No checked dependency here
     return if not defined $self->{dependencies}->{$dependency_id};
 
-    # No update, the dependency is already unset
+    # No update, the dependency is already unse
     return if $self->{dependencies}->{$dependency_id} == 0;
 
     # Unset dependency

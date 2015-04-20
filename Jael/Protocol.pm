@@ -12,15 +12,16 @@ use Jael::Message;
 use Jael::Task;
 use Jael::Dht;
 
+use Data::Dumper; # TMP
+
 sub new {
     my $class = shift;
     my $self = {};
 
-    $self->{dht} = shift;
+    $self->{dht} = Jael::Dht->new();
     $self->{tasks_stack} = shift;
     $self->{server} = shift;
 
-    die if not defined $self->{dht};
     bless $self, $class;
 
     return $self;
@@ -41,7 +42,7 @@ sub incoming_message {
         my $sender_id = $message->get_sender_id();
 
         # Update local status
-        $self->{dht}->change_task_status($task_id, $Jael::Dht::DHT_TASK_STATUS_COMPLETED);
+        $self->{dht}->change_task_status($task_id, $Jael::Task::TASK_STATUS_COMPLETED);
 
         # $sender_id is an owner of the data's $task_id
         $self->{dht}->add_data_owner($task_id, $sender_id);
@@ -50,7 +51,7 @@ sub incoming_message {
         my @machines_to_inform = $self->{dht}->compute_dht_owners_for_tasks_depending_on($task_id);
 
         # Send to DHT_OWNER($task_id) : 'ID_TASK completed'
-        my $message = Jael::Message->new($Jael::Message::DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id);
+        my $message = Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id);
 
         for my $machine_id (@machines_to_inform) {
             $self->{server}->send($machine_id, $message);
@@ -60,7 +61,7 @@ sub incoming_message {
     # -----------------------------------------------------------------
     # One task completed : Update reverse dependencies status
     # -----------------------------------------------------------------
-    elsif ($type == $Jael::Message::DEPENDENCIES_UPDATE_TASK_COMPLETED) {
+    elsif ($type == $Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED) {
         my $task_id = $message->get_task_id();
 
         # We get ready reverse dependencies
@@ -68,11 +69,16 @@ sub incoming_message {
 
         for my $ready_task_id (@{$ready_tasks_ids}) {
             my $machine_id = $self->{dht}->get_machine_owning($ready_task_id);
-            $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
+            $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
         }
-    } elsif ($type == $Jael::Message::DEPENDENCIES_UPDATE_TASK_READY) {
-        #die 'TODO';
-        #$self->{stack}->change_task_status($message->get_task_id(), $Jael::Task::TASK_STATUS_READY);
+    }
+
+    # -----------------------------------------------------------------
+    # We have a new ready task waiting for files
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY) {
+        # No effects if the task is already ready
+        $self->{tasks_stack}->change_task_status($message->get_task_id(), $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
     }
 
     # -----------------------------------------------------------------
@@ -84,8 +90,19 @@ sub incoming_message {
         my $machines = $self->{dht}->get_data_owners($task_id);
 
         $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::DATA_LOCATED, $task_id, @{$machines}));
-    } elsif ($type == $Jael::Message::DATA_LOCATED) {
-        die 'TODO';
+    }
+
+    # -----------------------------------------------------------------
+    # We received the machines owners of task_i data
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::DATA_LOCATED) {
+        my $task_id = $message->get_task_id();
+        my $machines = $message->get_machines_list();
+        my $destination = ${$machines}[int(rand(scalar @{$machines}))];
+
+        # TODO : Pourquoi choisir une machine plutôt qu'une autre ? Quelle machine choisir ?
+
+        $self->{server}->send($destination, Jael::Message->new($Jael::Message::FILE_REQUEST, $task_id));
     }
 
     # -----------------------------------------------------------------
@@ -114,6 +131,9 @@ sub incoming_message {
             $thr->join();
         }
 
+        # TMP
+        print Data::Dumper->Dump([$self->{dht}]);
+
         # Done, main thread
         exit 0;
     }
@@ -137,8 +157,24 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_SUCCESS) {
         my $task_id = $message->get_task_id();
-        $self->{tasks_stack}->push($task_id);
+        my $task = Jael::TasksGraph::get_task($task_id);
+
+        Jael::Debug::msg("steal success, new task on stack : $task_id");
+
+        # We have stolen one real task
+        unless ($task_id =~ /^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/) {
+            my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
+            my $destination = Jael::Dht::hash_task_id($task_id);
+
+            $self->{network}->send($destination, $message);
+        }
+
+        $self->{tasks_stack}->push_task($task);
     } elsif ($type == $Jael::Message::STEAL_FAILED) {
+        # Idée: Utiliser un tableau désordonné des machines
+        # Enlever une machine, la contacter et attendre sa réponse
+        # Si positive : OK, si STEAL_FAILED alors tenter sur une autre machine
+        # Si plus de machines, recrée un tableau désordonné et réessayer
         die 'TODO';
     }
 
@@ -172,10 +208,17 @@ sub incoming_message {
         }
     }
 
+    # -----------------------------------------------------------------
+    # Virtual task_i is forked by current process
+    # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FORK_ACCEPTED) {
-        die 'TODO';
+        my $task_id = $message->get_task_id();
+        my $task = Jael::TasksGraph::get_task($task_id);
+
+        Jael::Debug::msg("fork accepted, new task on stack : $task_id");
+        $self->{tasks_stack}->push_task($task);
     } elsif ($type == $Jael::Message::FORK_REFUSED) {
-        die 'TODO';
+        #die 'TODO';
     } elsif ($type == $Jael::Message::FILE_REQUEST) {
         die 'TODO';
         # my $task_id = $message->get_task_id();
@@ -188,12 +231,17 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::TASKGRAPH) {
         Jael::Debug::msg("taskgraph is received");
-        Jael::TasksGraph->initialize_by_message($message);
+        Jael::TasksGraph->initialize_by_message($message->get_string());
     } elsif ($type == $Jael::Message::LAST_FILE) {
         # P0 receives the last file
         #TODO
         exit(0);
-    } else {
+    }
+
+    # -----------------------------------------------------------------
+    # UNKNOWN MESSAGE
+    # -----------------------------------------------------------------
+    else {
         die "unknown message $message";
     }
 
@@ -201,3 +249,4 @@ sub incoming_message {
 }
 
 1;
+

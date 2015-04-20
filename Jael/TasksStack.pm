@@ -18,7 +18,6 @@ sub new {
     share($self->{tasks});
 
     bless $self, $class;
-
     return $self;
 }
 
@@ -31,17 +30,17 @@ sub stringify {
     return;
 }
 
-# Add one task in the stack
+# Add many tasks on stack
 sub push_task {
     my $self = shift;
 
     lock($self->{tasks});
-	push @{$self->{tasks}}, map {shared_clone($_)} @_;
+    push @{$self->{tasks}}, map {shared_clone($_)} @_;
 
     return;
 }
 
-# Pop the last task in the stack only is the task's status is READY else return undef
+# Pop the last task in the stack only if the task's status is READY else return undef
 sub pop_task {
     my $self = shift;
 
@@ -55,6 +54,9 @@ sub pop_task {
 
         if ($candidate_task->is_ready()) {
             $selected_task = $candidate_task;
+            push @remaining_tasks, @{$self->{tasks}};
+            undef @{$self->{tasks}};
+            last;
         } else {
             push @remaining_tasks, $candidate_task;
         }
@@ -70,20 +72,24 @@ sub pop_task {
 sub steal_task {
     my $self = shift;
     my $task;
-
-    lock($self->{tasks});
     my $selected_task;
     my @remaining_tasks;
 
-	#TODO: there is a risk of stealing several times the same task for now
-	#we could remove problem by refusing to be stolen if only few tasks are ready
+    lock($self->{tasks});
+
+    # TODO: there is a risk of stealing several times the same task for now
+    # we could remove problem by refusing to be stolen if only few tasks are ready
     while ((not defined $selected_task) and (@{$self->{tasks}})) {
         my $candidate_task = shift @{$self->{tasks}};
+        my $status = $candidate_task->get_status();
 
-        if ($candidate_task->is_ready()) {
+        if ($status == $Jael::Task::TASK_STATUS_READY or $status == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES) {
             $selected_task = $candidate_task;
+            unshift @remaining_tasks, $candidate_task;
+            undef @{$self->{tasks}};
+            last;
         } else {
-            push @remaining_tasks, $candidate_task;
+            unshift @remaining_tasks, $candidate_task;
         }
     }
 
@@ -108,8 +114,24 @@ sub update_dependencies {
     my $id = shift;
 
     lock($self->{tasks});
-
     $_->unset_dependency($id) for @{$self->{tasks}};
+
+    return;
+}
+
+# Change task's status if task exists
+sub change_task_status {
+    my $self = shift;
+    my $id = shift;
+    my $new_status = shift;
+
+    lock($self->{tasks});
+
+    my @tasks = grep { $id eq $_->get_id() } @{$self->{tasks}};
+
+    if (defined $tasks[0]) {
+        $tasks[0]->update_status($new_status);
+    }
 
     return;
 }

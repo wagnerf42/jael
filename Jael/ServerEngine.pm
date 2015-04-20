@@ -10,7 +10,7 @@ use threads::shared;
 use IO::Socket;
 use IO::Select;
 
-# Auto-flush on socket
+# Auto-flush on socke
 $| = 1;
 
 use Jael::Protocol;
@@ -29,7 +29,7 @@ Readonly::Scalar our $SENDING_PRIORITY_HIGH => 1;
 my $max_buffer_reading_size = 1024;
 
 # Make a new server
-# Parameters: Dht, TasksStack, Id, [machine 1, machine 2, ...]
+# Parameters: TasksStack, Id, [machine 1, machine 2, ...]
 
 # Example:
 # 1, [m1, m2, m3, m2]
@@ -44,12 +44,11 @@ sub new {
     my @sh_messages_low :shared;
     my @sh_messages_high :shared;
 
-    my $dht = shift;
     my $tasks_stack = shift;
 
     $self->{id} = shift;
 
-	my $machines_names = shift;
+    my $machines_names = shift;
     my @machines_names :shared = @$machines_names;
 
     $self->{machines_names} = \@machines_names;
@@ -61,9 +60,7 @@ sub new {
     $self->{sending_messages}->[$SENDING_PRIORITY_HIGH] = \@sh_messages_high;
 
     $self->{message_buffers} = Jael::MessageBuffers->new();
-    $self->{protocol} = Jael::Protocol->new($dht, $tasks_stack, $self);
-
-    # Threads list
+    $self->{protocol} = Jael::Protocol->new($tasks_stack, $self);
     $self->{sending_threads} = [];
 
     # Make threads
@@ -128,8 +125,8 @@ sub run {
     return;
 }
 
-#broadcast to everyone but self
-#slow and dumb broadcast with a loop
+# Broadcast to everyone but self
+# slow and dumb broadcast with a loop
 sub broadcast {
     my $self = shift;
     my $message = shift;
@@ -138,6 +135,26 @@ sub broadcast {
 
     for my $machine_id (0..$#{$self->{machines_names}}) {
         next if $machine_id == $self->{id};
+        Jael::Debug::msg("broadcast $machine_id");
+
+        $self->send($machine_id, $message);
+    }
+
+    return;
+}
+
+# Broadcast to everyone except machines list
+sub broadcast_except {
+    my $self = shift;
+    my $message = shift;
+    my $except_list = shift;
+
+    Jael::Debug::msg("broadcasting (except: " . join(",", @{$except_list}) . ") $message");
+
+    for my $machine_id (0..$#{$self->{machines_names}}) {
+        next if grep {$machine_id == $_} @{$except_list};
+        Jael::Debug::msg("broadcast $machine_id");
+
         $self->send($machine_id, $message);
     }
 
@@ -151,7 +168,7 @@ sub th_send_with_priority {
 
     my $sending_sockets = {};     # Thread's sockets
     my $sending_messages = shift; # Messages list for the sockets
-    my $machines_names = shift;   # Machines list
+    my $machines_names = shift;   # Machines lis
     my $priority = shift;         # Thread priority
 
     my $string;            # Message string
@@ -163,6 +180,7 @@ sub th_send_with_priority {
     while (1) {
         {
             lock($sending_messages);
+            cond_signal($sending_messages) unless @{$sending_messages}; # For wait_while_messages_exists
             cond_wait($sending_messages) until @{$sending_messages}; # Wait if nothing in messages array
 
             # Get message in the message list
@@ -184,6 +202,20 @@ sub th_send_with_priority {
     return;
 }
 
+# Wait all messages are sent
+sub wait_while_messages_exists {
+    my $self = shift;
+
+    my @priorities = ($SENDING_PRIORITY_LOW, $SENDING_PRIORITY_HIGH);
+
+    for my $priority (@priorities) {
+        lock($self->{sending_messages}->[$priority]);
+        cond_wait($self->{sending_messages}->[$priority]) while @{$self->{sending_messages}->[$priority]};
+    }
+
+    return;
+}
+
 # Send function (For Server object)
 sub send {
     my $self = shift;
@@ -198,7 +230,7 @@ sub send {
     my $priority = $message->get_priority();
     $priority = $SENDING_PRIORITY_HIGH unless (defined $priority);
 
-    # Add message in the the right messages list
+    # Add message in the the right messages lis
     {
         lock($self->{sending_messages}->[$priority]);
         push @{$self->{sending_messages}->[$priority]}, ($target_machine_id, $message->pack());

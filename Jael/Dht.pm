@@ -4,7 +4,10 @@ package Jael::Dht;
 use strict;
 use warnings;
 
-my $machines_number; #we need to know number of machines in hash function
+use Jael::Task;
+
+# We need to know number of machines in hash function
+my $machines_number;
 
 # Make a new Dht, no parameters
 sub new {

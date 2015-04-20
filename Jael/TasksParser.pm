@@ -43,7 +43,7 @@ sub make {
     Jael::Debug::msg("jael_make completed");
     Jael::Debug::msg("tasks list:\n" . Jael::TasksGraph::stringify());
 
-    # Define the main target
+    # Define the main targe
     if (defined $self->{vars}->{'.DEFAULT_GOAL'}) {
         Jael::TasksGraph::set_main_target($self->{vars}->{'.DEFAULT_GOAL'});
     }

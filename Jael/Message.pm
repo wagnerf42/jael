@@ -15,14 +15,14 @@ use overload '""' => \&stringify;
 use Readonly;
 use base 'Exporter';
 
-our @EXPORT = qw($TASK_COMPUTATION_COMPLETED $DEPENDENCIES_UPDATE_TASK_COMPLETED $DEPENDENCIES_UPDATE_TASK_READY $DATA_LOCALISATION
-                 $DATA_LOCATED $DATA_DUPLICATED $END_ALL $STEAL_REQUEST $STEAL_FAILED $STEAL_SUCCESS $TASK_IS_PUSHED $FORK_REQUEST
-                 $FORK_ACCEPTED $FORK_REFUSED $FILE_REQUEST $FILE $TASKGRAPH $LAST_FILE);
+our @EXPORT = qw($TASK_COMPUTATION_COMPLETED $REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED $REVERSE_DEPENDENCIES_UPDATE_TASK_READY
+                 $DATA_LOCALISATION $DATA_LOCATED $DATA_DUPLICATED $END_ALL $STEAL_REQUEST $STEAL_FAILED $STEAL_SUCCESS $TASK_IS_PUSHED
+                 $FORK_REQUEST $FORK_ACCEPTED $FORK_REFUSED $FILE_REQUEST $FILE $TASKGRAPH $LAST_FILE);
 
 # All types of messages in protocol
 Readonly::Scalar our $TASK_COMPUTATION_COMPLETED => 1;
-Readonly::Scalar our $DEPENDENCIES_UPDATE_TASK_COMPLETED => 2;
-Readonly::Scalar our $DEPENDENCIES_UPDATE_TASK_READY => 3;
+Readonly::Scalar our $REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED => 2;
+Readonly::Scalar our $REVERSE_DEPENDENCIES_UPDATE_TASK_READY => 3;
 Readonly::Scalar our $DATA_LOCALISATION => 4;
 Readonly::Scalar our $DATA_LOCATED => 5;
 Readonly::Scalar our $DATA_DUPLICATED => 6;
@@ -40,9 +40,9 @@ Readonly::Scalar our $TASKGRAPH => 17;
 Readonly::Scalar our $LAST_FILE => 18;
 
 # Type strings for stringify
-my @type_strings = qw(TASK_COMPUTATION_COMPLETED DEPENDENCIES_UPDATE_TASK_COMPLETED DEPENDENCIES_UPDATE_TASK_READY DATA_LOCALISATION
-                      DATA_LOCATED DATA_DUPLICATED END_ALL STEAL_REQUEST STEAL_FAILED STEAL_SUCCESS TASK_IS_PUSHED FORK_REQUEST 
-                      FORK_ACCEPTED FORK_REFUSED FILE_REQUEST FILE TASKGRAPH LAST_FILE);
+my @type_strings = qw(TASK_COMPUTATION_COMPLETED REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED REVERSE_DEPENDENCIES_UPDATE_TASK_READY
+                      DATA_LOCALISATION DATA_LOCATED DATA_DUPLICATED END_ALL STEAL_REQUEST STEAL_FAILED STEAL_SUCCESS TASK_IS_PUSHED
+                      FORK_REQUEST FORK_ACCEPTED FORK_REFUSED FILE_REQUEST FILE TASKGRAPH LAST_FILE);
 unshift @type_strings, '';
 
 # What kind of data are associated to each type of message ?
@@ -51,7 +51,7 @@ Readonly::Scalar our $TASK_ID_AND_MACHINES_LIST => 1;
 Readonly::Scalar our $NOTHING => 2;
 Readonly::Scalar our $LABEL_AND_STRING => 3;
 
-# Links between message type and format
+# Links between message type and forma
 my @messages_format = qw(-1 0 0 0 0 1 0 2 2 2 0 0 0 0 0 0 3 3 3);
 
 sub new {
@@ -116,6 +116,11 @@ sub get_label {
 sub get_string {
     my $self = shift;
     return $self->{string};
+}
+
+sub get_machines_list {
+    my $self = shift;
+    return $self->{machines_ids};
 }
 
 sub pack {

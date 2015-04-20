@@ -53,7 +53,7 @@ sub get_id {
 # - The reverse dependencies of the real task 'target name' with virtual prefix
 sub get_tasks_to_generate {
     my $self = shift;
-    return [ map {Jael::TasksGraph::get_task($_)} @{$self->{reverse_dependencies}} ];
+    return $self->{reverse_dependencies};
 }
 
 1;

@@ -30,7 +30,7 @@ sub incoming_data {
         my $size = unpack('N', $self->{buffers}->{$socket});
 
         if ($size <= length($self->{buffers}->{$socket})) { #message is received in its entirety
-            my $message_string = substr($self->{buffers}->{$socket}, 0, $size, ''); #this removes msg from remaining part
+            my $message_string = substr($self->{buffers}->{$socket}, 0, $size, ''); #this removes msg from remaining par
             my $message = Jael::Message::unpack($message_string);
 
             Jael::Debug::msg("received : $message (size=" . length($message_string) . ")");
