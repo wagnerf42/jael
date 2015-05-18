@@ -29,7 +29,7 @@ Readonly::Scalar our $SENDING_PRIORITY_HIGH => 1;
 my $max_buffer_reading_size = 1024;
 
 # Make a new server
-# Parameters: TasksStack, ForkSet, Id, [machine 1, machine 2, ...]
+# Parameters: TasksStack, ForkSet, Steal, Id, [machine 1, machine 2, ...]
 
 # Example:
 # 1, [m1, m2, m3, m2]
@@ -46,6 +46,7 @@ sub new {
 
     my $tasks_stack = shift;
     my $fork_set = shift;
+    my $steal_activated = shift;
 
     $self->{id} = shift;
 
@@ -61,7 +62,7 @@ sub new {
     $self->{sending_messages}->[$SENDING_PRIORITY_HIGH] = \@sh_messages_high;
 
     $self->{message_buffers} = Jael::MessageBuffers->new();
-    $self->{protocol} = Jael::Protocol->new($tasks_stack, $fork_set, $self);
+    $self->{protocol} = Jael::Protocol->new($tasks_stack, $fork_set, $steal_activated, $self);
     $self->{sending_threads} = [];
 
     # Make threads

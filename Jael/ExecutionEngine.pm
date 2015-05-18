@@ -41,6 +41,8 @@ sub new {
     my $self = {};
     my $config = shift;
 
+    my $steal_activated :shared = 1;
+
     Jael::Debug::msg('creating a new execution engine');
 
     $self->{config} = $config;
@@ -53,8 +55,8 @@ sub new {
     $self->{max_threads} = detect_cores() unless defined $self->{max_threads};
     $self->{tasks_stack} = Jael::TasksStack->new();
     $self->{fork_set} = Jael::ForkSet->new();
-
-    $self->{network} = Jael::ServerEngine->new($self->{tasks_stack}, $self->{fork_set},
+    $self->{steal_activated} = \$steal_activated;
+    $self->{network} = Jael::ServerEngine->new($self->{tasks_stack}, $self->{fork_set}, $self->{steal_activated},
                                                $config->{id}, $config->{machines});
 
     bless $self, $class;
@@ -80,17 +82,17 @@ sub compute_virtual_task {
 
             $self->{network}->send($destination, $message);
         } elsif (Jael::TasksGraph::task_must_be_forked($task_id)) {
-                # check if The task was not already requested by the process
-                if ($self->{fork_set}->set_wait_status($task_id) != -1) {
-                    my $message = Jael::Message->new($Jael::Message::FORK_REQUEST, $task_id);
-                    my $destination = Jael::Dht::hash_task_id($task_id);
+            # check if The task was not already requested by the process
+            if ($self->{fork_set}->set_wait_status($task_id) != -1) {
+                my $message = Jael::Message->new($Jael::Message::FORK_REQUEST, $task_id);
+                my $destination = Jael::Dht::hash_task_id($task_id);
 
-                    Jael::Debug::msg("task $task_id is requested");
+                Jael::Debug::msg("task $task_id is requested");
 
-                    $self->{network}->send($destination, $message);
-                } else {
-                    Jael::Debug::msg("task $task_id was already requested");
-                }
+                $self->{network}->send($destination, $message);
+            } else {
+                Jael::Debug::msg("task $task_id was already requested");
+            }
 
             # Don't push directly one potential virtual forked task
             next;
@@ -160,20 +162,27 @@ sub computation_thread {
         if (not defined $task) {
             # No requests for fork => We can steal
             unless ($self->{fork_set}->get_requests_number()) {
-                my $machine = $self->{last_rand_machine};
-                $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
+                {
+                    lock($self->{steal_activated});
 
-                # TODO steal on machine
+                    if (${$self->{steal_activated}}) {
+                        my $machine_id = ${$self->{rand_machines}}[$self->{last_rand_machine}];
+
+                        $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
+
+                        # Update the next machine for steal request
+                        $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
+                        ${$self->{steal_activated}} = 0;
+                    }
+                }
+
+                sleep(0.2);
             }
-
-            sleep(0.2);
         }
-
         # Virtual task
         elsif ($task->is_virtual()) {
             compute_virtual_task($self, $task);
         }
-
         # Real task
         else {
             compute_real_task($self, $task);

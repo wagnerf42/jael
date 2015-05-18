@@ -15,7 +15,7 @@ use Jael::Dht;
 use Data::Dumper; # TMP
 
 # Make a new protocol
-# Parameters: TasksStack, ForkSet, Server
+# Parameters: TasksStack, ForkSet, Steal, Server
 
 sub new {
     my $class = shift;
@@ -24,6 +24,7 @@ sub new {
     $self->{dht} = Jael::Dht->new();
     $self->{tasks_stack} = shift;
     $self->{fork_set} = shift;
+    $self->{steal_activated} = shift;
     $self->{server} = shift;
 
     bless $self, $class;
@@ -160,10 +161,11 @@ sub incoming_message {
     # Process_i steal a new task => Update tasks stack
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_SUCCESS) {
+        my $sender_id = $message->get_sender_id();
         my $task_id = $message->get_task_id();
         my $task = Jael::TasksGraph::get_task($task_id);
 
-        Jael::Debug::msg("steal success, new task on stack : $task_id");
+        Jael::Debug::msg("steal success on $sender_id, new task on stack : $task_id");
 
         # We have stolen one real task
         unless ($task_id =~ /^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/) {
@@ -174,12 +176,16 @@ sub incoming_message {
         }
 
         $self->{tasks_stack}->push_task($task);
-    } elsif ($type == $Jael::Message::STEAL_FAILED) {
-        # Idée: Utiliser un tableau désordonné des machines
-        # Enlever une machine, la contacter et attendre sa réponse
-        # Si positive : OK, si STEAL_FAILED alors tenter sur une autre machine
-        # Si plus de machines, recrée un tableau désordonné et réessayer
-        die 'TODO';
+        ${$self->{steal_activated}} = 1;
+    }
+
+    # -----------------------------------------------------------------
+    # Process_i failed to steal a new task
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::STEAL_FAILED) {
+        my $sender_id = $message->get_sender_id();
+        Jael::Debug::msg("steal fail on $sender_id");
+        ${$self->{steal_activated}} = 1;
     }
 
     # -----------------------------------------------------------------

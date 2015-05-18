@@ -7,6 +7,8 @@ use Readonly;
 use threads;
 use threads::shared;
 
+our @EXPORT = qw($FORK_REQUEST_WAIT FORK_REQUEST_DONE);
+
 # Fork status for current process
 Readonly::Scalar my $FORK_REQUEST_WAIT => 0; # Wait response
 Readonly::Scalar my $FORK_REQUEST_DONE => 1; # We have response (positive or negative)
@@ -86,6 +88,8 @@ sub get_requests_number {
 
 sub get_status {
     my $self = shift;
+    my $task_id = shift;
+
     lock($self->{requested_tasks});
     return $self->{requested_tasks}->{$task_id};
 }
