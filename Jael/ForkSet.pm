@@ -16,7 +16,7 @@ sub new {
     my $class = shift;
     my $self = {};
 
-    # Multiple threads can requested one task => shared protection
+    # Multiple threads can request one task => shared protection
     my %requested_tasks :shared;
     $self->{requested_tasks} = \%requested_tasks;
 

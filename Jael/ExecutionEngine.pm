@@ -80,7 +80,7 @@ sub compute_virtual_task {
 
             $self->{network}->send($destination, $message);
         } elsif (Jael::TasksGraph::task_must_be_forked($task_id)) {
-                # The task was already requested by the process
+                # check if The task was not already requested by the process
                 if ($self->{fork_set}->set_wait_status($task_id) != -1) {
                     my $message = Jael::Message->new($Jael::Message::FORK_REQUEST, $task_id);
                     my $destination = Jael::Dht::hash_task_id($task_id);
