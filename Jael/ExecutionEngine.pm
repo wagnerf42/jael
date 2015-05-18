@@ -151,7 +151,10 @@ sub computation_thread {
     my $self = shift; # Protocol engine
 
     # Array of random machines for steal requests (no shared, one unique array by thread)
-    $self->{rand_machines} = [shuffle(0..@{$self->{machines}})];
+    # We remove the current machine id of the list
+    $self->{rand_machines} = [grep {$_ ne $self->{id}} (0..@{$self->{machines}}-1)];
+    $self->{rand_machines} = [shuffle(@{$self->{rand_machines}})];
+
     $self->{last_rand_machine} = 0;
 
     while (1) {
@@ -168,16 +171,16 @@ sub computation_thread {
                     if (${$self->{steal_activated}}) {
                         my $machine_id = ${$self->{rand_machines}}[$self->{last_rand_machine}];
 
-                        $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
-
                         # Update the next machine for steal request
                         $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
                         ${$self->{steal_activated}} = 0;
+
+                        $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
                     }
                 }
-
-                sleep(0.2);
             }
+
+            sleep(1.0);
         }
         # Virtual task
         elsif ($task->is_virtual()) {

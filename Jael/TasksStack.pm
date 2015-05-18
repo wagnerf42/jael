@@ -77,6 +77,9 @@ sub steal_task {
 
     lock($self->{tasks});
 
+    # Useless to steal if it's not enough tasks in stack
+    return undef if @{$self->{tasks}} <= 1;
+
     # TODO: there is a risk of stealing several times the same task for now
     # we could remove problem by refusing to be stolen if only few tasks are ready
     while ((not defined $selected_task) and (@{$self->{tasks}})) {

@@ -22,7 +22,7 @@ sub new {
     my %requested_tasks :shared;
     $self->{requested_tasks} = \%requested_tasks;
 
-    my $requested_tasks_number :shared;
+    my $requested_tasks_number :shared = 0;
     $self->{requested_tasks_number} = \$requested_tasks_number;
 
     bless $self, $class;
@@ -83,7 +83,7 @@ sub set_done_status {
 sub get_requests_number {
     my $self = shift;
     lock($self->{requested_tasks_number});
-    return $self->{requested_tasks_number} > 0;
+    return ${$self->{requested_tasks_number}};
 }
 
 sub get_status {

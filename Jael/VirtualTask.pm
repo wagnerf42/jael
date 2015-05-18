@@ -34,7 +34,7 @@ sub new {
 
 sub stringify {
     my $self = shift;
-    return $VIRTUAL_TASK_PREFIX . "$self->{target_name}: " . join(" ", @{$self->{tasks_to_generate}});
+    return $VIRTUAL_TASK_PREFIX . "$self->{target_name}: " . join(" ", @{$self->{reverse_dependencies}});
 }
 
 # Return always 1

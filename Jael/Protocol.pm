@@ -10,6 +10,7 @@ use threads;
 
 use Jael::Message;
 use Jael::Task;
+use Jael::VirtualTask;
 use Jael::Dht;
 
 use Data::Dumper; # TMP
@@ -147,11 +148,12 @@ sub incoming_message {
     # Process_i try to steal random task on process_j
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_REQUEST) {
-        my $task_id = $self->{tasks_stack}->steal_task();
+        my $task = $self->{tasks_stack}->steal_task(); # Get task, NOT task id here
         my $sender_id = $message->get_sender_id();
 
-        if (defined $task_id) {
-            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_SUCCESS, $task_id));
+        if (defined $task) {
+            Jael::Debug::msg("Steal authorized for task " . $task->get_id() . " on machine id " . $sender_id);
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_SUCCESS, $task->get_id()));
         } else {
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_FAILED));
         }
@@ -163,19 +165,22 @@ sub incoming_message {
     elsif ($type == $Jael::Message::STEAL_SUCCESS) {
         my $sender_id = $message->get_sender_id();
         my $task_id = $message->get_task_id();
-        my $task = Jael::TasksGraph::get_task($task_id);
 
         Jael::Debug::msg("steal success on $sender_id, new task on stack : $task_id");
 
+        my $task = Jael::TasksGraph::get_task($task_id);
+
         # We have stolen one real task
-        unless ($task_id =~ /^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/) {
+        unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
             my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
             my $destination = Jael::Dht::hash_task_id($task_id);
 
-            $self->{network}->send($destination, $message);
+            $self->{server}->send($destination, $message);
         }
 
         $self->{tasks_stack}->push_task($task);
+
+        lock($self->{steal_activated});
         ${$self->{steal_activated}} = 1;
     }
 
@@ -185,6 +190,8 @@ sub incoming_message {
     elsif ($type == $Jael::Message::STEAL_FAILED) {
         my $sender_id = $message->get_sender_id();
         Jael::Debug::msg("steal fail on $sender_id");
+
+        lock($self->{steal_activated});
         ${$self->{steal_activated}} = 1;
     }
 
