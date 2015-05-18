@@ -152,13 +152,13 @@ sub display {
     my %nums;
     my $current_num = 0;
 
-    #get a unique integer identifier for each task
+    # Get a unique integer identifier for each task
     for my $id (keys %{$tasksgraph->{commands}}) {
         $nums{$id} = $current_num;
         $current_num++;
     }
 
-    #generate dot conten
+    # Generate dot content
     for my $id (keys %{$tasksgraph->{commands}}) {
         my $num = $nums{$id};
         print $dotfile "n$num [label=\"$id\"];\n";
@@ -184,7 +184,7 @@ sub display {
     return;
 }
 
-# Set the main targe
+# Set the main target
 sub set_main_target {
     die "main target is already defined" if defined $tasksgraph->{main_target};
     $tasksgraph->{main_target} = shift;

@@ -16,7 +16,7 @@ Jael::Debug::init($config->{'id'}, $config->{'machines'}->[$config->{'id'}]);
 Jael::Debug::msg("using machines : @{$config->{'machines'}}");
 
 if (@{$config->{'machines'}} != 1) {
-    if ($config->{'id'} == 0) {        
+    if ($config->{'id'} == 0) {
         #we are master, deploy everyone
         my $taktuk_command = 'taktuk -s';
         my $machines = join(',', @{$config->{'machines'}});
