@@ -21,7 +21,7 @@ use Jael::VirtualTask;
 # Signal handler for all threads in program !
 
 sub catch_SIGUSR1 {
-    Jael::Debug::msg("thread " . threads->tid() . " die");
+    Jael::Debug::msg("die by SIGUSR1");
     threads->exit();
 
     die "unreached";
@@ -54,7 +54,8 @@ sub new {
     $self->{tasks_stack} = Jael::TasksStack->new();
     $self->{fork_set} = Jael::ForkSet->new();
 
-    $self->{network} = Jael::ServerEngine->new($self->{tasks_stack}, $config->{id}, $config->{machines});
+    $self->{network} = Jael::ServerEngine->new($self->{tasks_stack}, $self->{fork_set},
+                                               $config->{id}, $config->{machines});
 
     bless $self, $class;
 
@@ -64,9 +65,8 @@ sub new {
 sub compute_virtual_task {
     my $self = shift;
     my $task = shift;
-    my $tid = threads->tid();
 
-    Jael::Debug::msg("tid $tid get virtual task: " . $task->get_id() . " (sons: " . @{$task->get_tasks_to_generate()} . ")");
+    Jael::Debug::msg("get virtual task: " . $task->get_id() . " (sons: " . @{$task->get_tasks_to_generate()} . ")");
 
     # Get tasks to generate
     my $tasks_ids = $task->get_tasks_to_generate();
@@ -108,10 +108,8 @@ sub compute_virtual_task {
 sub compute_real_task {
     my $self = shift;
     my $task = shift;
-    my $tid = threads->tid();
 
-    Jael::Debug::msg("tid $tid get real task: " . $task->get_id());
-    Jael::Debug::msg("tid $tid execute cmd");
+    Jael::Debug::msg("get real task: " . $task->get_id() . " and execute cmd");
 
     # Execute real task & update dependencies
     my $main_task_completed = $task->execute();

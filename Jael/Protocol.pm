@@ -14,12 +14,16 @@ use Jael::Dht;
 
 use Data::Dumper; # TMP
 
+# Make a new protocol
+# Parameters: TasksStack, ForkSet, Server
+
 sub new {
     my $class = shift;
     my $self = {};
 
     $self->{dht} = Jael::Dht->new();
     $self->{tasks_stack} = shift;
+    $self->{fork_set} = shift;
     $self->{server} = shift;
 
     bless $self, $class;
@@ -216,9 +220,15 @@ sub incoming_message {
         my $task = Jael::TasksGraph::get_task($task_id);
 
         Jael::Debug::msg("fork accepted, new task on stack : $task_id");
+        $self->{fork_set}->set_done_status($task_id);
         $self->{tasks_stack}->push_task($task);
-    } elsif ($type == $Jael::Message::FORK_REFUSED) {
-        #die 'TODO';
+    }
+    # -----------------------------------------------------------------
+    # Virtual task_i is not forked by current process
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::FORK_REFUSED) {
+        my $task_id = $message->get_task_id();
+        $self->{fork_set}->set_done_status($task_id);
     } elsif ($type == $Jael::Message::FILE_REQUEST) {
         die 'TODO';
         # my $task_id = $message->get_task_id();

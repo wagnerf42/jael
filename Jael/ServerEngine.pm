@@ -29,7 +29,7 @@ Readonly::Scalar our $SENDING_PRIORITY_HIGH => 1;
 my $max_buffer_reading_size = 1024;
 
 # Make a new server
-# Parameters: TasksStack, Id, [machine 1, machine 2, ...]
+# Parameters: TasksStack, ForkSet, Id, [machine 1, machine 2, ...]
 
 # Example:
 # 1, [m1, m2, m3, m2]
@@ -45,6 +45,7 @@ sub new {
     my @sh_messages_high :shared;
 
     my $tasks_stack = shift;
+    my $fork_set = shift;
 
     $self->{id} = shift;
 
@@ -60,7 +61,7 @@ sub new {
     $self->{sending_messages}->[$SENDING_PRIORITY_HIGH] = \@sh_messages_high;
 
     $self->{message_buffers} = Jael::MessageBuffers->new();
-    $self->{protocol} = Jael::Protocol->new($tasks_stack, $self);
+    $self->{protocol} = Jael::Protocol->new($tasks_stack, $fork_set, $self);
     $self->{sending_threads} = [];
 
     # Make threads
@@ -175,7 +176,7 @@ sub th_send_with_priority {
     my $target_machine_id; # Message id
 
     # Init the debug infos for the sending thread
-    Jael::Debug::msg("creating sending thread with tid: " . threads->tid());
+    Jael::Debug::msg("creating sending thread");
 
     while (1) {
         {

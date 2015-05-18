@@ -58,11 +58,36 @@ sub set_wait_status {
     return 0;
 }
 
+# Set the done status, returns -1 if FORK_REQUEST_DONE is already set
+sub set_done_status {
+    my $self = shift;
+    my $task_id = shift;
+
+    {
+        lock($self->{requested_tasks});
+        die "$task_id is not defined !" if not defined $self->{requested_tasks}->{$task_id};
+        return -1 if $self->{requested_tasks}->{$task_id} == $FORK_REQUEST_DONE;
+        $self->{requested_tasks}->{$task_id} = $FORK_REQUEST_DONE;
+    }
+
+    {
+        lock($self->{requested_tasks_number});
+        ${$self->{requested_tasks_number}}--;
+    }
+
+    return;
+}
+
 sub get_requests_number {
     my $self = shift;
     lock($self->{requested_tasks_number});
     return $self->{requested_tasks_number} > 0;
 }
 
+sub get_status {
+    my $self = shift;
+    lock($self->{requested_tasks});
+    return $self->{requested_tasks}->{$task_id};
+}
 
 1;
