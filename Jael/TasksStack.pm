@@ -54,8 +54,6 @@ sub pop_task {
 
         if ($candidate_task->is_ready()) {
             $selected_task = $candidate_task;
-            push @remaining_tasks, @{$self->{tasks}};
-            undef @{$self->{tasks}};
             last;
         } else {
             push @remaining_tasks, $candidate_task;
@@ -80,16 +78,12 @@ sub steal_task {
     # Useless to steal if it's not enough tasks in stack
     return undef if @{$self->{tasks}} <= 1;
 
-    # TODO: there is a risk of stealing several times the same task for now
-    # we could remove problem by refusing to be stolen if only few tasks are ready
     while ((not defined $selected_task) and (@{$self->{tasks}})) {
         my $candidate_task = shift @{$self->{tasks}};
         my $status = $candidate_task->get_status();
 
         if ($status == $Jael::Task::TASK_STATUS_READY or $status == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES) {
             $selected_task = $candidate_task;
-            unshift @remaining_tasks, $candidate_task;
-            undef @{$self->{tasks}};
             last;
         } else {
             unshift @remaining_tasks, $candidate_task;

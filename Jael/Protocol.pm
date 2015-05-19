@@ -16,17 +16,19 @@ use Jael::Dht;
 use Data::Dumper; # TMP
 
 # Make a new protocol
-# Parameters: TasksStack, ForkSet, Steal, Server
-
+# Parameters: ExecutionEngine, Server
 sub new {
     my $class = shift;
     my $self = {};
 
+    my $execution_engine = shift;
+    my $server = shift;
+
     $self->{dht} = Jael::Dht->new();
-    $self->{tasks_stack} = shift;
-    $self->{fork_set} = shift;
-    $self->{steal_activated} = shift;
-    $self->{server} = shift;
+    $self->{tasks_stack} = $execution_engine->get_tasks_stack();
+    $self->{fork_set} = $execution_engine->get_fork_set();
+    $self->{steal_activated} = $execution_engine->get_steal_variable();
+    $self->{server} = $server;
 
     bless $self, $class;
 
@@ -84,7 +86,9 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY) {
         # No effects if the task is already ready
-        $self->{tasks_stack}->change_task_status($message->get_task_id(), $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
+        $self->{tasks_stack}->change_task_status($message->get_task_id(), $Jael::Task::TASK_STATUS_READY);
+
+        # TMP: SET TASK_STATUS_READY_WAITING_FOR_FILES when the files messages will be created !
     }
 
     # -----------------------------------------------------------------
@@ -170,6 +174,23 @@ sub incoming_message {
 
         # We have stolen one real task
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
+            my $dependencies = $task->get_dependencies();
+
+            # Set $TASK_STATUS_READY_WAITING_FOR_FILES if necessary
+            for my $dependency (values %{$dependencies}) {
+                # One or more files are missing
+                if (not -e $dependency) {
+                    $task->update_status($Jael::Task::TASK_STATUS_READY);
+                    # TMP: SET TASK_STATUS_READY_WAITING_FOR_FILES when the files messages will be created !
+
+                    # TODO: ask for file
+                }
+            }
+
+            # Set $TASK_STATUS_READY if there is no dependency problems
+            $task->update_status($Jael::Task::TASK_STATUS_READY) if $task->get_status() == $Jael::Task::TASK_STATUS_NOT_READY;
+
+            # Notify DHT 'I have pushed a new task'
             my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
             my $destination = Jael::Dht::hash_task_id($task_id);
 

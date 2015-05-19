@@ -97,10 +97,6 @@ sub get_task {
         $task = Jael::RealTask->new($task_id, $tasksgraph->{commands}->{$task_id}, $tasksgraph->{dependencies}->{$task_id},
                                     $tasksgraph->{reverse_dependencies}->{$task_id});
 
-        print STDERR "task_id NOT DEFINED" if(not defined $task_id);
-        print STDERR "taskgraph NOT DEFINED" if(not defined $tasksgraph);
-        print STDERR "main_target NOT DEFINED" if(not defined $tasksgraph->{main_target});
-
         $task->mark_as_main_task() if $task_id eq $tasksgraph->{main_target};
     }
 

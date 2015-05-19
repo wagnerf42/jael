@@ -7,6 +7,8 @@ use Readonly;
 use threads;
 use threads::shared;
 use List::Util qw/shuffle/;
+use File::Temp qw/tempdir/;
+use Cwd;
 
 use Jael::ServerEngine;
 use Jael::TasksParser;
@@ -50,18 +52,58 @@ sub new {
     $self->{machines} = $config->{machines};
 
     # Set machine number for global data in Dht module and current object
-    Jael::Dht::set_machines_number(scalar @{$config->{'machines'}});
+    Jael::Dht::set_machines_number(scalar @{$config->{machines}});
 
+    # Configure parameters and structures
     $self->{max_threads} = detect_cores() unless defined $self->{max_threads};
     $self->{tasks_stack} = Jael::TasksStack->new();
     $self->{fork_set} = Jael::ForkSet->new();
     $self->{steal_activated} = \$steal_activated;
-    $self->{network} = Jael::ServerEngine->new($self->{tasks_stack}, $self->{fork_set}, $self->{steal_activated},
-                                               $config->{id}, $config->{machines});
+
+    # Init working directory
+    if ($self->{id} == 0) {
+        $self->{working_directory} = getcwd();
+    } else {
+        $self->{working_directory} = tempdir("/tmp/jael_" . $self->{id} . "_XXXXXX");
+        chdir $self->{working_directory} or die "Unable to chdir !";
+    }
 
     bless $self, $class;
 
+    # Init network
+    $self->{network} = Jael::ServerEngine->new($self);
+
     return $self;
+}
+
+sub get_tasks_stack {
+    my $self = shift;
+    return $self->{tasks_stack};
+}
+
+sub get_fork_set {
+    my $self = shift;
+    return $self->{fork_set};
+}
+
+sub get_steal_variable {
+    my $self = shift;
+    return $self->{steal_activated};
+}
+
+sub get_id {
+    my $self = shift;
+    return $self->{id};
+}
+
+sub get_machines {
+    my $self = shift;
+    return $self->{machines};
+}
+
+sub get_working_directory {
+    my $self = shift;
+    return $self->{working_directory};
 }
 
 sub compute_virtual_task {
@@ -173,9 +215,9 @@ sub computation_thread {
 
                         # Update the next machine for steal request
                         $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
-                        #${$self->{steal_activated}} = 0;
+                        ${$self->{steal_activated}} = 0;
 
-                       # $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
+                        $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
                     }
                 }
             }

@@ -72,8 +72,8 @@ sub update_status {
 
     # One completed or failed task can not be updated
     # Downgrade status is not allowed (TASK_STATUS_READY to READY_WAITING_FOR_FILES for example)
-    return if($self->{status} == $Jael::Task::TASK_STATUS_COMPLETED or $self->{status} == $Jael::Task::TASK_STATUS_FAILED or
-              ($self->{status} == $Jael::Task::TASK_STATUS_READY and $new_status == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES));
+    return if ($self->{status} == $Jael::Task::TASK_STATUS_COMPLETED or $self->{status} == $Jael::Task::TASK_STATUS_FAILED or
+               ($self->{status} == $Jael::Task::TASK_STATUS_READY and $new_status == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES));
 
     # Update
     $self->{status} = $new_status;

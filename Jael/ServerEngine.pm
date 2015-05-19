@@ -29,8 +29,8 @@ Readonly::Scalar our $SENDING_PRIORITY_HIGH => 1;
 my $max_buffer_reading_size = 1024;
 
 # Make a new server
-# Parameters: TasksStack, ForkSet, Steal, Id, [machine 1, machine 2, ...]
-
+# Parameters: ExecutionEngine, [machine 1, machine 2, ...]
+#
 # Example:
 # 1, [m1, m2, m3, m2]
 #      0   1   2   3
@@ -44,14 +44,11 @@ sub new {
     my @sh_messages_low :shared;
     my @sh_messages_high :shared;
 
-    my $tasks_stack = shift;
-    my $fork_set = shift;
-    my $steal_activated = shift;
+    my $execution_engine = shift;
 
-    $self->{id} = shift;
+    $self->{id} = $execution_engine->get_id();
 
-    my $machines_names = shift;
-    my @machines_names :shared = @$machines_names;
+    my @machines_names :shared = @{$execution_engine->get_machines()};
 
     $self->{machines_names} = \@machines_names;
     $self->{machines_number} = @{$self->{machines_names}};
@@ -62,7 +59,7 @@ sub new {
     $self->{sending_messages}->[$SENDING_PRIORITY_HIGH] = \@sh_messages_high;
 
     $self->{message_buffers} = Jael::MessageBuffers->new();
-    $self->{protocol} = Jael::Protocol->new($tasks_stack, $fork_set, $steal_activated, $self);
+    $self->{protocol} = Jael::Protocol->new($execution_engine, $self);
     $self->{sending_threads} = [];
 
     # Make threads
@@ -70,9 +67,6 @@ sub new {
                                                       \@sh_messages_low, \@machines_names, $SENDING_PRIORITY_LOW);
     push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
                                                       \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH);
-
-    # Init debug infos for the server thread
-    Jael::Debug::init($self->{id}, $self->{machines_names}->[$self->{id}]);
 
     return $self;
 }
@@ -96,7 +90,7 @@ sub run {
     while(my @ready = $self->{read_set}->can_read()) {
         for my $fh (@ready) {
 	    # New connexion
-            if($fh == $self->{server_socket}) {
+            if ($fh == $self->{server_socket}) {
                 Jael::Debug::msg("new connexion");
                 my $new = $self->{server_socket}->accept;
                 $self->{read_set}->add($new);
