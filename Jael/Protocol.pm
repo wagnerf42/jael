@@ -106,8 +106,6 @@ sub incoming_message {
         my $machines = $message->get_machines_list();
         my $destination = ${$machines}[int(rand(scalar @{$machines}))];
 
-        # TODO : Pourquoi choisir une machine plutôt qu'une autre ? Quelle machine choisir ?
-
         $self->{server}->send($destination, Jael::Message->new($Jael::Message::FILE_REQUEST, $task_id));
     }
 

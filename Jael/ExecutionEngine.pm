@@ -173,9 +173,9 @@ sub computation_thread {
 
                         # Update the next machine for steal request
                         $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
-                        ${$self->{steal_activated}} = 0;
+                        #${$self->{steal_activated}} = 0;
 
-                        $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
+                       # $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
                     }
                 }
             }
@@ -225,10 +225,11 @@ sub bootstrap_system {
 
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
-    Jael::TasksGraph::display() if exists $ENV{JAEL_DEBUG};
+    Jael::TasksGraph::display() if exists $ENV{JAEL_DEBUG} and $Jael::Debug::ENABLE_GRAPHVIEWER;
 
-    # Broadcast the graph to everyone
+    # Broadcast the graph to everyone and wait
     $self->{network}->broadcast(new Jael::Message($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));
+    $self->{network}->wait_while_messages_exists();
 
     # Get initial task
     my $init_task_id = Jael::TasksGraph::get_init_task_id();

@@ -1,10 +1,15 @@
 # vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 package Jael::Debug;
 
+use Readonly;
 use threads;
 
 my $machine_id;
 my $machine_name;
+
+our @EXPORT = qw($ENABLE_GRAPHVIEWER);
+
+Readonly::Scalar our $ENABLE_GRAPHVIEWER => 0;
 
 sub init {
     $machine_id = shift;

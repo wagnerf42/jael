@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use overload '""' => \&stringify;
 use Readonly;
+use threads::shared;
 use File::Temp;
 use JSON;
 
@@ -15,22 +16,18 @@ use Jael::VirtualTask;
 Readonly::Scalar my $IMAGE_VIEWER => 'ristretto';
 
 # Private tasksgraph (singleton)
-my $tasksgraph;
+my $tasksgraph :shared = shared_clone({});
 
 # Initialize the singleton TasksGraph
 sub initialize {
     my $class = shift;
-    my $self = {};
-
-    die "tasksgraph is already defined" if defined $tasksgraph;
 
     # Store all information for REAL TASKS ONLY
-    $self->{commands} = {}; # To each task id its command
-    $self->{dependencies} = {}; # Store for each task what other tasks we need
-    $self->{reverse_dependencies} = {}; # Store for each task by whom we are needed
+    $tasksgraph->{commands} = shared_clone({}); # To each task id its command
+    $tasksgraph->{dependencies} = shared_clone({}); # Store for each task what other tasks we need
+    $tasksgraph->{reverse_dependencies} = shared_clone({}); # Store for each task by whom we are needed
 
-    bless $self, $class;
-    $tasksgraph = $self;
+    bless $tasksgraph, $class;
 
     # No direct access to tasks graph
     return;
@@ -41,12 +38,9 @@ sub initialize_by_message {
     my $class = shift;
     my $message = shift;
 
-    die "tasksgraph is already defined" if defined $tasksgraph;
+    $tasksgraph = unserialize($message);
 
-    my $self = unserialize($message);
-
-    bless $self, $class;
-    $tasksgraph = $self;
+    bless $tasksgraph, $class;
 
     # No direct access to tasks graph
     return;
@@ -64,9 +58,9 @@ sub serialize {
 # Transforms string into tasks graph
 sub unserialize {
     my $string = shift;
-    my $tasksgraph = decode_json($string);
+    my $buf = decode_json($string);
 
-    return $tasksgraph;
+    return shared_clone($buf);
 }
 
 # All tasks descriptions
@@ -102,6 +96,11 @@ sub get_task {
         # Make new real task
         $task = Jael::RealTask->new($task_id, $tasksgraph->{commands}->{$task_id}, $tasksgraph->{dependencies}->{$task_id},
                                     $tasksgraph->{reverse_dependencies}->{$task_id});
+
+        print STDERR "task_id NOT DEFINED" if(not defined $task_id);
+        print STDERR "taskgraph NOT DEFINED" if(not defined $tasksgraph);
+        print STDERR "main_target NOT DEFINED" if(not defined $tasksgraph->{main_target});
+
         $task->mark_as_main_task() if $task_id eq $tasksgraph->{main_target};
     }
 
@@ -129,7 +128,7 @@ sub add_task {
     $tasksgraph->{commands}->{$task_id} = shift;
 
     my $dependencies = shift;
-    $tasksgraph->{dependencies}->{$task_id} = [];
+    $tasksgraph->{dependencies}->{$task_id} = shared_clone([]);
 
     if (defined $dependencies) {
         my @dependencies = split(/\s+/, $dependencies);
@@ -207,8 +206,8 @@ sub get_init_task_id {
 # Compute reverse dependencies for each task
 sub generate_reverse_dependencies {
     for my $task_id (keys %{$tasksgraph->{commands}}) {
-        $tasksgraph->{reverse_dependencies}->{$task_id} = [] unless defined $tasksgraph->{reverse_dependencies}->{$task_id};
         for my $dependency (@{$tasksgraph->{dependencies}->{$task_id}}) {
+            $tasksgraph->{reverse_dependencies}->{$dependency} = shared_clone([]) unless defined $tasksgraph->{reverse_dependencies}->{$dependency};
             push @{$tasksgraph->{reverse_dependencies}->{$dependency}}, $task_id;
         }
     }
