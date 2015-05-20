@@ -43,7 +43,7 @@ sub new {
     my $self = {};
     my $config = shift;
 
-    my $steal_activated :shared = 1;
+    my $steal_authorized :shared = 1;
 
     Jael::Debug::msg('creating a new execution engine');
 
@@ -58,7 +58,7 @@ sub new {
     $self->{max_threads} = detect_cores() unless defined $self->{max_threads};
     $self->{tasks_stack} = Jael::TasksStack->new();
     $self->{fork_set} = Jael::ForkSet->new();
-    $self->{steal_activated} = \$steal_activated;
+    $self->{steal_authorized} = \$steal_authorized;
 
     # Init working directory
     if ($self->{id} == 0) {
@@ -88,7 +88,7 @@ sub get_fork_set {
 
 sub get_steal_variable {
     my $self = shift;
-    return $self->{steal_activated};
+    return $self->{steal_authorized};
 }
 
 sub get_id {
@@ -212,14 +212,14 @@ sub computation_thread {
             # No requests for fork => We can steal
             unless ($self->{fork_set}->get_requests_number()) {
                 {
-                    lock($self->{steal_activated});
+                    lock($self->{steal_authorized});
 
-                    if (${$self->{steal_activated}}) {
+                    if (${$self->{steal_authorized}}) {
                         my $machine_id = ${$self->{rand_machines}}[$self->{last_rand_machine}];
 
                         # Update the next machine for steal request
                         $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
-                        ${$self->{steal_activated}} = 0;
+                        ${$self->{steal_authorized}} = 0;
 
                         $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
                     }
@@ -271,6 +271,7 @@ sub bootstrap_system {
 
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
+	#TODO: use macros to avoid extra debug costs
     Jael::TasksGraph::display() if exists $ENV{JAEL_DEBUG} and $Jael::Debug::ENABLE_GRAPHVIEWER;
 
     # Broadcast the graph to everyone and wait

@@ -219,13 +219,13 @@ sub incoming_message {
             $self->{tasks_stack}->push_task($task);
             $self->{server}->send($destination, $message);
         }
-        # We have stolen one real task
+        # We have stolen one virtual task
         else {
             $self->{tasks_stack}->push_task($task);
         }
 
-        lock($self->{steal_activated});
-        ${$self->{steal_activated}} = 1;
+        lock($self->{steal_authorized});
+        ${$self->{steal_authorized}} = 1;
     }
 
     # -----------------------------------------------------------------
