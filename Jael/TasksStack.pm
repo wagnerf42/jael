@@ -133,4 +133,41 @@ sub change_task_status {
     return;
 }
 
+# Try to change the status for each task (if all dependencies are checked)
+sub set_ready_status_if_necessary {
+    my $self = shift;
+    my $task_id = shift;
+
+    lock($self->{tasks});
+
+  R_TASK:
+    for my $task (@{$self->{tasks}}) {
+        # If the task waiting (it's inevitably one real task)
+        if ($task->get_status() == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES) {
+            my $dependencies = $task->get_dependencies();
+            Jael::Debug::msg("checking $task with dependency " . $task->get_id());
+
+            # If the new file is in the task's dependencies
+            if (defined $dependencies->{$task_id}) {
+                for my $dependency (keys %{$dependencies}) {
+                    # One or more files are missing
+                    if (not -e $dependency) {
+                        Jael::Debug::msg("dependency $dependency is not present");
+                        next R_TASK; # Unable to update status
+                    }
+                }
+            } else {
+                Jael::Debug::msg("undefined $task_id in dependencies of " . $task->get_id());
+            }
+
+            # The real task is now ready
+            $task->update_status($Jael::Task::TASK_STATUS_READY);
+        } else {
+            Jael::Debug::msg("in stack, status of " . $task->get_id() . " is " . $task->get_status());
+        }
+    }
+    
+    return;
+}
+
 1;

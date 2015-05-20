@@ -1,5 +1,8 @@
+output
 test*
-!tests/
+file*
+tests/
+rapport/
 taktuk*
 Makefile*
 TAGS*

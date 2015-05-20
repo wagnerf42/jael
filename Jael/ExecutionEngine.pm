@@ -159,8 +159,9 @@ sub compute_real_task {
     # Execute real task & update dependencies
     my $main_task_completed = $task->execute();
 
+    # TMP
     `touch $task_id`;
-    
+
     # TODO: Check if execute returns error !
 
     # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update

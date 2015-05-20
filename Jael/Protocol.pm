@@ -34,23 +34,25 @@ sub new {
     return $self;
 }
 
-sub ask_for_files_and_update_status {
+sub ask_for_files {
     my $self = shift;
     my $task_id = shift;
     my $dependencies = shift;
+    my $is_ready = 1;
 
     for my $dependency (@{$dependencies}) {
         # One or more files are missing
         if (not -e $dependency) {
             my $dht_owner = Jael::Dht::hash_task_id($dependency);
 
-            # No effects if the task is already ready
-            $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
+            Jael::Debug::msg("Missing dependency for task $task_id : $dependency");
+
             $self->{server}->send($dht_owner, Jael::Message->new($Jael::Message::DATA_LOCALISATION, $dependency));
+            $is_ready = 0;
         }
     }
 
-    return;
+    return $is_ready;
 }
 
 sub incoming_message {
@@ -106,7 +108,14 @@ sub incoming_message {
         my $task_id = $message->get_task_id();
         my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 
-        $self->ask_for_files_and_update_status($task_id, $dependencies);
+        # Set $TASK_STATUS_READY if there is no dependency problems
+        if ($self->ask_for_files($task_id, $dependencies)) {
+            Jael::Debug::msg("task $task_id is now ready");
+            $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY);
+        } else {
+            # No effects if the task is already ready
+            $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
+        }
     }
 
     # -----------------------------------------------------------------
@@ -194,10 +203,14 @@ sub incoming_message {
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
             my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 
-            $self->ask_for_files_and_update_status($task_id, $dependencies);
-
             # Set $TASK_STATUS_READY if there is no dependency problems
-            $task->update_status($Jael::Task::TASK_STATUS_READY) if $task->get_status() == $Jael::Task::TASK_STATUS_NOT_READY;
+            if ($self->ask_for_files($task_id, $dependencies)) {
+                Jael::Debug::msg("task $task_id is now ready");
+                $task->update_status($Jael::Task::TASK_STATUS_READY);
+            } else {
+                # No effects if the task is already ready
+                $task->update_status($Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
+            }
 
             # Notify DHT 'I have pushed a new task'
             my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
@@ -206,7 +219,7 @@ sub incoming_message {
             $self->{tasks_stack}->push_task($task);
             $self->{server}->send($destination, $message);
         }
-        # We have stolen one virtual task
+        # We have stolen one real task
         else {
             $self->{tasks_stack}->push_task($task);
         }
@@ -287,13 +300,13 @@ sub incoming_message {
         my $content = do { local $/; <$fh> };
         close $fh;
 
-        my $message = Jael::Message->new($Jael::Message::DATA_FILE, $filename, $content);
+        my $message = Jael::Message->new($Jael::Message::FILE, $filename, $content);
 
         $message->set_priority($Jael::ServerEngine::SENDING_PRIORITY_LOW);
         $self->{server}->send($sender_id, $message);
     }
 
-    elsif ($type == $Jael::Message::DATA_FILE) {
+    elsif ($type == $Jael::Message::FILE) {
         my $filename = $message->get_label();
         my $content = $message->get_string();
 
@@ -301,9 +314,9 @@ sub incoming_message {
         print $fh $content;
         close $fh;
 
+        # We have data and we try to update the stack's status
         $self->{server}->send(Jael::Dht::hash_task_id($filename), Jael::Message->new($Jael::Message::DATA_DUPLICATED, $filename));
-
-        die "TODO";
+        $self->{tasks_stack}->set_ready_status_if_necessary($filename);
     }
 
     # -----------------------------------------------------------------
