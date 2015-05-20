@@ -7,7 +7,6 @@ package Jael::Protocol;
 use strict;
 use warnings;
 use threads;
-
 use Jael::Message;
 use Jael::Task;
 use Jael::VirtualTask;
@@ -33,6 +32,25 @@ sub new {
     bless $self, $class;
 
     return $self;
+}
+
+sub ask_for_files_and_update_status {
+    my $self = shift;
+    my $task_id = shift;
+    my $dependencies = shift;
+
+    for my $dependency (@{$dependencies}) {
+        # One or more files are missing
+        if (not -e $dependency) {
+            my $dht_owner = Jael::Dht::hash_task_id($dependency);
+
+            # No effects if the task is already ready
+            $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
+            $self->{server}->send($dht_owner, Jael::Message->new($Jael::Message::DATA_LOCALISATION, $dependency));
+        }
+    }
+
+    return;
 }
 
 sub incoming_message {
@@ -85,10 +103,10 @@ sub incoming_message {
     # We have a new ready task waiting for files
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY) {
-        # No effects if the task is already ready
-        $self->{tasks_stack}->change_task_status($message->get_task_id(), $Jael::Task::TASK_STATUS_READY);
+        my $task_id = $message->get_task_id();
+        my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 
-        # TMP: SET TASK_STATUS_READY_WAITING_FOR_FILES when the files messages will be created !
+        $self->ask_for_files_and_update_status($task_id, $dependencies);
     }
 
     # -----------------------------------------------------------------
@@ -174,18 +192,9 @@ sub incoming_message {
 
         # We have stolen one real task
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
-            my $dependencies = $task->get_dependencies();
+            my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 
-            # Set $TASK_STATUS_READY_WAITING_FOR_FILES if necessary
-            for my $dependency (values %{$dependencies}) {
-                # One or more files are missing
-                if (not -e $dependency) {
-                    $task->update_status($Jael::Task::TASK_STATUS_READY);
-                    # TMP: SET TASK_STATUS_READY_WAITING_FOR_FILES when the files messages will be created !
-
-                    # TODO: ask for file
-                }
-            }
+            $self->ask_for_files_and_update_status($task_id, $dependencies);
 
             # Set $TASK_STATUS_READY if there is no dependency problems
             $task->update_status($Jael::Task::TASK_STATUS_READY) if $task->get_status() == $Jael::Task::TASK_STATUS_NOT_READY;
@@ -194,10 +203,13 @@ sub incoming_message {
             my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
             my $destination = Jael::Dht::hash_task_id($task_id);
 
+            $self->{tasks_stack}->push_task($task);
             $self->{server}->send($destination, $message);
         }
-
-        $self->{tasks_stack}->push_task($task);
+        # We have stolen one virtual task
+        else {
+            $self->{tasks_stack}->push_task($task);
+        }
 
         lock($self->{steal_activated});
         ${$self->{steal_activated}} = 1;
@@ -255,17 +267,43 @@ sub incoming_message {
         $self->{fork_set}->set_done_status($task_id);
         $self->{tasks_stack}->push_task($task);
     }
+
     # -----------------------------------------------------------------
     # Virtual task_i is not forked by current process
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FORK_REFUSED) {
         my $task_id = $message->get_task_id();
         $self->{fork_set}->set_done_status($task_id);
-    } elsif ($type == $Jael::Message::FILE_REQUEST) {
-        die 'TODO';
-        # my $task_id = $message->get_task_id();
-        # my $sender_id = $message->get_sender_id();
-        # $self->{server}->send_file($sender_id, $task_id);
+    }
+
+    # -----------------------------------------------------------------
+    # process_j send file for process_i which waiting
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::FILE_REQUEST) {
+        my $filename = $message->get_task_id();
+        my $sender_id = $message->get_sender_id();
+
+        open(my $fh, '<', $filename) or die "Can't open file '$filename' : $!";
+        my $content = do { local $/; <$fh> };
+        close $fh;
+
+        my $message = Jael::Message->new($Jael::Message::DATA_FILE, $filename, $content);
+
+        $message->set_priority($Jael::ServerEngine::SENDING_PRIORITY_LOW);
+        $self->{server}->send($sender_id, $message);
+    }
+
+    elsif ($type == $Jael::Message::DATA_FILE) {
+        my $filename = $message->get_label();
+        my $content = $message->get_string();
+
+        open(my $fh, '>', $filename) or die "Can't open file '$filename' : $!";
+        print $fh $content;
+        close $fh;
+
+        $self->{server}->send(Jael::Dht::hash_task_id($filename), Jael::Message->new($Jael::Message::DATA_DUPLICATED, $filename));
+
+        die "TODO";
     }
 
     # -----------------------------------------------------------------
@@ -274,7 +312,12 @@ sub incoming_message {
     elsif ($type == $Jael::Message::TASKGRAPH) {
         Jael::Debug::msg("taskgraph is received");
         Jael::TasksGraph->initialize_by_message($message->get_string());
-    } elsif ($type == $Jael::Message::LAST_FILE) {
+    }
+
+    # -----------------------------------------------------------------
+    # Last file => DONE
+    # -----------------------------------------------------------------
+    elsif ($type == $Jael::Message::LAST_FILE) {
         # P0 receives the last file
         #TODO
         exit(0);

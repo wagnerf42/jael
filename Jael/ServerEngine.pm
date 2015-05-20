@@ -164,7 +164,7 @@ sub th_send_with_priority {
 
     my $sending_sockets = {};     # Thread's sockets
     my $sending_messages = shift; # Messages list for the sockets
-    my $machines_names = shift;   # Machines lis
+    my $machines_names = shift;   # Machines list
     my $priority = shift;         # Thread priority
 
     my $string;            # Message string

@@ -152,12 +152,15 @@ sub compute_virtual_task {
 sub compute_real_task {
     my $self = shift;
     my $task = shift;
+    my $task_id = $task->get_id();
 
-    Jael::Debug::msg("get real task: " . $task->get_id() . " and execute cmd");
+    Jael::Debug::msg("get real task: " . $task_id . " and execute cmd");
 
     # Execute real task & update dependencies
     my $main_task_completed = $task->execute();
 
+    `touch $task_id`;
+    
     # TODO: Check if execute returns error !
 
     # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
