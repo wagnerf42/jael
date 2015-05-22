@@ -158,7 +158,7 @@ sub update_reverse_dependencies_status {
         push @ready_tasks, $reverse_dependency;
     }
 
-    Jael::Debug::msg("task $task_id is now completed, new ready tasks: " . join(", ", @ready_tasks));
+    Jael::Debug::msg("[Dht]task $task_id is now completed, new ready tasks: " . join(", ", @ready_tasks));
 
     return \@ready_tasks;
 }
@@ -168,7 +168,7 @@ sub get_machine_owning {
     my $self = shift;
     my $task_id = shift;
 
-    die "we are not DHT_OWNER of $task_id" if not defined $self->{tasks_owners}->{$task_id};
+    die "[Dht]we are not DHT_OWNER of $task_id" if not defined $self->{tasks_owners}->{$task_id};
     return $self->{tasks_owners}->{$task_id};
 }
 

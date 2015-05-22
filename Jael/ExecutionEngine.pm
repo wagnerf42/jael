@@ -23,7 +23,7 @@ use Jael::VirtualTask;
 # Signal handler for all threads in program !
 
 sub catch_SIGUSR1 {
-    Jael::Debug::msg("die by SIGUSR1");
+    Jael::Debug::msg("[ExecutionEngine]die by SIGUSR1");
     threads->exit();
 
     die "unreached";
@@ -45,7 +45,7 @@ sub new {
 
     my $steal_authorized :shared = 1;
 
-    Jael::Debug::msg('creating a new execution engine');
+    Jael::Debug::msg('[ExecutionEngine]creating a new execution engine');
 
     $self->{config} = $config;
     $self->{id} = $config->{id};
@@ -110,7 +110,8 @@ sub compute_virtual_task {
     my $self = shift;
     my $task = shift;
 
-    Jael::Debug::msg("get virtual task: " . $task->get_id() . " (sons: " . @{$task->get_tasks_to_generate()} . ")");
+    Jael::Debug::msg("[ExecutionEngine]get virtual task: " . $task->get_id() . " (sons: " .
+                     @{$task->get_tasks_to_generate()} . ")");
 
     # Get tasks to generate
     my $tasks_ids = $task->get_tasks_to_generate();
@@ -129,11 +130,11 @@ sub compute_virtual_task {
                 my $message = Jael::Message->new($Jael::Message::FORK_REQUEST, $task_id);
                 my $destination = Jael::Dht::hash_task_id($task_id);
 
-                Jael::Debug::msg("task $task_id is requested");
+                Jael::Debug::msg("[ExecutionEngine]task $task_id is requested");
 
                 $self->{network}->send($destination, $message);
             } else {
-                Jael::Debug::msg("task $task_id was already requested");
+                Jael::Debug::msg("[ExecutionEngine]task $task_id was already requested");
             }
 
             # Don't push directly one potential virtual forked task
@@ -154,7 +155,7 @@ sub compute_real_task {
     my $task = shift;
     my $task_id = $task->get_id();
 
-    Jael::Debug::msg("get real task: " . $task_id . " and execute cmd");
+    Jael::Debug::msg("[ExecutionEngine]get real task: " . $task_id . " and execute cmd");
 
     # Execute real task & update dependencies
     my $main_task_completed = $task->execute();
@@ -246,7 +247,7 @@ sub start_server {
 
     # Make threads for computation
     # It's not needed to wait the end thread (infinite loop)
-    Jael::Debug::msg("creating " . $self->{max_threads} . " threads");
+    Jael::Debug::msg("[ExecutionEngine]creating " . $self->{max_threads} . " threads");
 
     #TODO: fix threads on cores ? (especially communication threads)
     for (1..$self->{max_threads}) {
@@ -261,8 +262,8 @@ sub start_server {
 sub bootstrap_system {
     my $self = shift;
 
-    Jael::Debug::msg("initialization");
-    Jael::Debug::msg("computing tasks graph");
+    Jael::Debug::msg("[ExecutionEngine]initialization");
+    Jael::Debug::msg("[ExecutionEngine]computing tasks graph");
 
     # Initialize and create tasks graph
     Jael::TasksParser::make();
@@ -282,7 +283,7 @@ sub bootstrap_system {
     my $init_task_id = Jael::TasksGraph::get_init_task_id();
     my $init_task = Jael::TasksGraph::get_task($init_task_id);
 
-    Jael::Debug::msg("put initial task on stack: '$init_task_id'");
+    Jael::Debug::msg("[ExecutionEngine]put initial task on stack: '$init_task_id'");
 
     # Put initial task on the stack
     $self->{tasks_stack}->push_task($init_task);
@@ -304,7 +305,7 @@ sub detect_cores {
     }
 
     close($proc);
-    Jael::Debug::msg("detected $count cores");
+    Jael::Debug::msg("[ExecutionEngine]detected $count cores");
 
     return $count;
 }

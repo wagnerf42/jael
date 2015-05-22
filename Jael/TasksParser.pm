@@ -28,7 +28,7 @@ sub make {
     # Initialize the singleton TasksGraph
     Jael::TasksGraph->initialize();
 
-    Jael::Debug::msg("launching jael_make");
+    Jael::Debug::msg("[TasksParser]launching jael_make");
     open(MAKE, JAEL_MAKE . " -t -p |") or die "unable to fork jael_make : $!";
     $self->{state} = $PARSING_NOTHING;
 
@@ -40,8 +40,8 @@ sub make {
     }
 
     close(MAKE);
-    Jael::Debug::msg("jael_make completed");
-    Jael::Debug::msg("tasks list:\n" . Jael::TasksGraph::stringify());
+    Jael::Debug::msg("[TasksParser]jael_make completed");
+    Jael::Debug::msg("[TasksParser]tasks list:\n" . Jael::TasksGraph::stringify());
 
     # Define the main targe
     if (defined $self->{vars}->{'.DEFAULT_GOAL'}) {
