@@ -1,0 +1,52 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+die 'use : multiply out_file input_file1 input_file2' unless defined $ARGV[2] and -f $ARGV[1] and -f $ARGV[2];
+my ($out, $in1, $in2) = @ARGV;
+
+open(my $input1, '<', $in1);
+open(my $input2, '<', $in2);
+my $header = <$input1>;
+chomp($header);
+my ($m, $n) = split(/ /, $header);
+$header = <$input2>;
+chomp($header);
+my($n2, $o) = split(/ /, $header);
+die "error in sizes" unless $n == $n2;
+my @A;
+while(<$input1>) {
+	chomp();
+	my @line = split / /;
+	push @A, \@line;
+}
+close($input1);
+
+my @B;
+while(<$input2>) {
+	chomp();
+	my @line = split / /;
+	push @B, [@line];
+}
+close($input2);
+
+my @C;
+
+for my $i (0..($m-1)) {
+	push @C, [];
+	for my $j (0..($o-1)) {
+		my $sum = 0;
+		for my $k (0..($n-1)) {
+			$sum += $A[$i][$k] * $B[$k][$j];
+		}
+		$C[$i][$j] = $sum;
+	}
+}
+
+open(my $out_fd, '>', $out);
+print $out_fd "$m $o\n";
+for (@C) {
+	print $out_fd join(" ", @{$_})."\n";
+}
+close($out_fd);
