@@ -117,7 +117,7 @@ sub command {
     if ($line eq '') {
         my $command = join("\n", @{$self->{commands}});
 
-        $command = replace_variables($self, $command, 0);
+        $command = replace_variables($self, $command, 0) if defined $command;
 
         unless ($self->{not_a_target}) {
             Jael::TasksGraph::add_task($self->{current_target}, $command, $self->{current_deps});
@@ -129,8 +129,6 @@ sub command {
         $self->{state} = $PARSING_FILES_BEFORE_TARGET;
     } elsif ($line =~/\t(.+)$/) {
         push @{$self->{commands}}, $1;
-    } else {
-        die "unknown command line $line";
     }
 
     return;

@@ -7,10 +7,12 @@ package Jael::Protocol;
 use strict;
 use warnings;
 use threads;
+
 use Jael::Message;
 use Jael::Task;
 use Jael::VirtualTask;
 use Jael::Dht;
+use Jael::Paje;
 
 use Data::Dumper; # TMP
 
@@ -97,7 +99,8 @@ sub incoming_message {
 
         for my $ready_task_id (@{$ready_tasks_ids}) {
             my $machine_id = $self->{dht}->get_machine_owning($ready_task_id);
-            $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
+            $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY,
+                                                                  $ready_task_id));
         }
     }
 
@@ -168,6 +171,9 @@ sub incoming_message {
 
         # TMP
         print Data::Dumper->Dump([$self->{dht}]);
+
+        Jael::Paje::destroy_thread();
+        Jael::Paje::destroy_process();
 
         # Done, main thread
         exit 0;
@@ -260,6 +266,8 @@ sub incoming_message {
         # Fork success
         if ($self->{dht}->fork_request($task_id, $sender_id)) {
             Jael::Debug::msg("[Protocol]task $task_id is forked by $sender_id");
+            Jael::Paje::create_link($Jael::Message::FORK_ACCEPTED);
+
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id));
         }
         # Fork failure
@@ -277,6 +285,8 @@ sub incoming_message {
         my $task = Jael::TasksGraph::get_task($task_id);
 
         Jael::Debug::msg("[Protocol]fork accepted, new task on stack : $task_id");
+        Jael::Paje::destroy_link($Jael::Message::FORK_ACCEPTED);
+
         $self->{fork_set}->set_done_status($task_id);
         $self->{tasks_stack}->push_task($task);
     }
@@ -331,8 +341,9 @@ sub incoming_message {
     # Last file => DONE
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::LAST_FILE) {
-        # P0 receives the last file
-        #TODO
+        Jael::Paje::destroy_thread();
+        Jael::Paje::destroy_process();
+
         exit(0);
     }
 

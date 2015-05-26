@@ -17,6 +17,7 @@ use Jael::Protocol;
 use Jael::Message;
 use Jael::MessageBuffers;
 use Jael::Debug;
+use Jael::Paje;
 
 our @EXPORT = qw($SENDING_PRIORITY_LOW $SENDING_PRIORITY_HIGH);
 
@@ -63,10 +64,16 @@ sub new {
     $self->{sending_threads} = [];
 
     # Make threads
-    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
+    my $thr_low = threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
                                                       \@sh_messages_low, \@machines_names, $SENDING_PRIORITY_LOW);
-    push @{$self->{sending_threads}}, threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
+    my $thr_high = threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
                                                       \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH);
+
+    push @{$self->{sending_threads}}, $thr_low;
+    push @{$self->{sending_threads}}, $thr_high;
+
+    Jael::Paje::create_thread($thr_low->tid());
+    Jael::Paje::create_thread($thr_high->tid());
 
     return $self;
 }

@@ -9,7 +9,7 @@ my $machine_name;
 
 our @EXPORT = qw($ENABLE_GRAPHVIEWER);
 
-Readonly::Scalar our $ENABLE_GRAPHVIEWER => 0;
+Readonly::Scalar our $ENABLE_GRAPHVIEWER => 1;
 
 sub init {
     $machine_id = shift;

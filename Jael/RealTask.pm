@@ -55,7 +55,7 @@ sub is_virtual {
 # Execute the task's commands and return 1 if it's the main task else 0
 sub execute {
     my $self = shift;
-    system("$self->{commands}");
+    system("$self->{commands}") if defined $self->{commands};
     return (defined $self->{is_main_task});
 }
 

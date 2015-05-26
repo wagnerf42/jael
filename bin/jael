@@ -3,44 +3,53 @@
 
 use strict;
 use warnings;
+use threads;
+
 use Jael::Configuration;
 use Jael::ExecutionEngine;
 use Jael::Debug;
+use Jael::Paje;
 
 my $config = new Jael::Configuration;
 
 parse_command_line($config); #command line overrides configuration
 
-$config->{'machines'} = ['localhost'] unless exists $config->{'machines'};
-$config->{'id'} = 0 unless exists $config->{'id'};
+$config->{machines} = ['localhost'] unless exists $config->{machines};
+$config->{id} = 0 unless exists $config->{'id'};
 
-Jael::Debug::init($config->{'id'}, $config->{'machines'}->[$config->{'id'}]);
-Jael::Debug::msg("using machines : @{$config->{'machines'}}");
+Jael::Debug::init($config->{id}, $config->{machines}->[$config->{id}]);
+Jael::Debug::msg("[jael]using machines : @{$config->{machines}}");
 
-if (@{$config->{'machines'}} != 1) {
+if (@{$config->{machines}} != 1) {
     # If we are master, deploy everyone
-    if ($config->{'id'} == 0) {
+    if ($config->{id} == 0) {
         my $taktuk_command = 'taktuk -s';
-        my $machines = join(',', @{$config->{'machines'}});
+        my $machines = join(',', @{$config->{machines}});
 
-        for my $id (1..$#{$config->{'machines'}}) {
-            my $machine = $config->{'machines'}->[$id];
+        for my $id (1..$#{$config->{machines}}) {
+            my $machine = $config->{machines}->[$id];
             $taktuk_command .= " -m $machine -[ exec [ jael -m $machines -i $id ] -]";
         }
 
-        Jael::Debug::msg("using taktuk : $taktuk_command\n");
+        Jael::Debug::msg("[jael]using taktuk : $taktuk_command\n");
+
+        Jael::Paje::puts_header();
+        Jael::Paje::puts_types();
 
         my $pid = fork(); #TODO: do we really need to fork ?
 
         if ($pid == 0) {
-            Jael::Debug::die("unable to deploy using taktuk\n") if system($taktuk_command) == -1;
+            Jael::Debug::die("[jael]unable to deploy using taktuk\n") if system($taktuk_command) == -1;
             exit(0);
         }
     }
 }
 
+Jael::Paje::create_process($config->{id});
+Jael::Paje::create_thread(0);
+
 my $engine = Jael::ExecutionEngine->new($config);
-$engine->bootstrap_system() if $config->{'id'} == 0;
+$engine->bootstrap_system() if $config->{id} == 0;
 $engine->start_server();
 
 use constant {

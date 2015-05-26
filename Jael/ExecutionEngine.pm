@@ -17,6 +17,7 @@ use Jael::ForkSet;
 use Jael::Message;
 use Jael::Dht;
 use Jael::VirtualTask;
+use Jael::Paje;
 
 # -----------------------------------------------------------------
 
@@ -24,6 +25,8 @@ use Jael::VirtualTask;
 
 sub catch_SIGUSR1 {
     Jael::Debug::msg("[ExecutionEngine]die by SIGUSR1");
+    Jael::Paje::destroy_thread();
+
     threads->exit();
 
     die "unreached";
@@ -176,13 +179,22 @@ sub compute_real_task {
     }
     # Protocol end
     else {
-        # Send end message to all machines (except 0)
+        # Send end message to all machines (except 0 and current process)
         my $message = Jael::Message->new($Jael::Message::END_ALL);
         $self->{network}->broadcast_except($message, [0]);
 
         # Send the last file to first machine
         unless ($self->{id} == 0) {
-            # TODO
+            my $filename = $task->get_task_id();
+
+            open(my $fh, '<', $filename) or die "Can't open file '$filename' : $!";
+            my $content = do { local $/; <$fh> };
+            close $fh;
+
+            my $message = Jael::Message->new($Jael::Message::FILE, $filename, $content);
+
+            $message->set_priority($Jael::ServerEngine::SENDING_PRIORITY_LOW);
+            $self->{server}->send(0, $message);
         }
 
         $self->{network}->wait_while_messages_exists();
@@ -251,7 +263,8 @@ sub start_server {
 
     #TODO: fix threads on cores ? (especially communication threads)
     for (1..$self->{max_threads}) {
-        threads->create(\&computation_thread, $self);
+        my $thr = threads->create(\&computation_thread, $self);
+        Jael::Paje::create_thread($thr->tid());
     }
 
     $self->{network}->run();
@@ -272,7 +285,7 @@ sub bootstrap_system {
 
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
-	#TODO: use macros to avoid extra debug costs
+    #TODO: use macros to avoid extra debug costs
     Jael::TasksGraph::display() if exists $ENV{JAEL_DEBUG} and $Jael::Debug::ENABLE_GRAPHVIEWER;
 
     # Broadcast the graph to everyone and wait
