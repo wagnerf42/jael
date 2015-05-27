@@ -26,11 +26,19 @@ sub initialize {
     $tasksgraph->{commands} = shared_clone({}); # To each task id its command
     $tasksgraph->{dependencies} = shared_clone({}); # Store for each task what other tasks we need
     $tasksgraph->{reverse_dependencies} = shared_clone({}); # Store for each task by whom we are needed
+    $tasksgraph->{colors} = shared_clone({}); # used for animating log files
 
     bless $tasksgraph, $class;
 
     # No direct access to tasks graph
     return;
+}
+
+sub colorize_task {
+	my $task_id = shift;
+	my $color = shift;
+	$tasksgraph->{colors}->{$task_id} = $color;
+	return;
 }
 
 # Initialize the singleton TasksGraph by networking message
@@ -173,7 +181,12 @@ sub display {
 	#continue with tasks and dependencies
     for my $id (keys %{$tasksgraph->{commands}}) {
         my $num = $nums{$id};
-        print $dotfile "n$num [label=\"$id\"];\n";
+		my $color = $tasksgraph->{colors}->{$id};
+		if (defined $color) {
+			print $dotfile "n$num [style=filled,color=$color,label=\"$id\"];\n";
+		} else {
+			print $dotfile "n$num [label=\"$id\"];\n";
+		}
 
         for my $dep (@{$tasksgraph->{dependencies}->{$id}}) {
             my $dep_num = $nums{$dep};

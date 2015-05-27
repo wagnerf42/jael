@@ -162,6 +162,7 @@ sub compute_real_task {
 
     # Execute real task & update dependencies
     my $main_task_completed = $task->execute();
+	Jael::Debug::msg("[ExecutionEngine] completed task '$task_id'");
 
     # TMP
     `touch $task_id`;
