@@ -186,9 +186,15 @@ sub incoming_message {
         my $task = $self->{tasks_stack}->steal_task(); # Get task, NOT task id here
 
         if (defined $task) {
-            Jael::Debug::msg("[Protocol]Steal authorized for task " . $task->get_id() . " on machine id " . $sender_id);
-            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_SUCCESS, $task->get_id()));
+            my $task_id = $task->get_id();
+
+            Jael::Debug::msg("[Protocol]Steal authorized for task " . $task_id . " on machine id " . $sender_id);
+            Jael::Paje::create_link($Jael::Message::STEAL_SUCCESS, $sender_id, $task_id);
+
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_SUCCESS, $task_id));
         } else {
+            Jael::Paje::create_link($Jael::Message::STEAL_FAILED, $sender_id);
+
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_FAILED));
         }
     }
@@ -200,6 +206,7 @@ sub incoming_message {
         my $task_id = $message->get_task_id();
 
         Jael::Debug::msg("[Protocol]steal success on $sender_id, new task on stack : $task_id");
+        Jael::Paje::destroy_link($Jael::Message::STEAL_SUCCESS, $sender_id, $task_id);
 
         my $task = Jael::TasksGraph::get_task($task_id);
 
@@ -237,6 +244,7 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_FAILED) {
         Jael::Debug::msg("[Protocol]steal fail on $sender_id");
+        Jael::Paje::destroy_link($Jael::Message::STEAL_FAILED, $sender_id);
 
         lock($self->{steal_authorized});
         ${$self->{steal_authorized}} = 1;
