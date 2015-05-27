@@ -26,6 +26,7 @@ sub new {
     my $server = shift;
 
     $self->{dht} = Jael::Dht->new();
+    $self->{id} = $execution_engine->get_id();
     $self->{tasks_stack} = $execution_engine->get_tasks_stack();
     $self->{fork_set} = $execution_engine->get_fork_set();
     $self->{steal_authorized} = $execution_engine->get_steal_variable();
@@ -60,7 +61,9 @@ sub ask_for_files {
 sub incoming_message {
     my $self = shift;
     my $message = shift;
+
     my $type = $message->get_type();
+    my $sender_id = $message->get_sender_id();
 
     Jael::Debug::msg("[Protocol]incoming_message type: $type");
 
@@ -69,7 +72,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     if ($type == $Jael::Message::TASK_COMPUTATION_COMPLETED) {
         my $task_id = $message->get_task_id();
-        my $sender_id = $message->get_sender_id();
 
         # Update local status
         $self->{dht}->change_task_status($task_id, $Jael::Task::TASK_STATUS_COMPLETED);
@@ -126,7 +128,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::DATA_LOCALISATION) {
         my $task_id = $message->get_task_id();
-        my $sender_id = $message->get_sender_id();
         my $machines = $self->{dht}->get_data_owners($task_id);
 
         $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::DATA_LOCATED, $task_id, @{$machines}));
@@ -148,7 +149,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::DATA_DUPLICATED) {
         my $task_id = $message->get_task_id();
-        my $sender_id = $message->get_sender_id();
 
         $self->{dht}->add_data_owner($task_id, $sender_id);
     }
@@ -184,7 +184,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_REQUEST) {
         my $task = $self->{tasks_stack}->steal_task(); # Get task, NOT task id here
-        my $sender_id = $message->get_sender_id();
 
         if (defined $task) {
             Jael::Debug::msg("[Protocol]Steal authorized for task " . $task->get_id() . " on machine id " . $sender_id);
@@ -198,7 +197,6 @@ sub incoming_message {
     # Process_i steal a new task => Update tasks stack
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_SUCCESS) {
-        my $sender_id = $message->get_sender_id();
         my $task_id = $message->get_task_id();
 
         Jael::Debug::msg("[Protocol]steal success on $sender_id, new task on stack : $task_id");
@@ -238,7 +236,6 @@ sub incoming_message {
     # Process_i failed to steal a new task
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_FAILED) {
-        my $sender_id = $message->get_sender_id();
         Jael::Debug::msg("[Protocol]steal fail on $sender_id");
 
         lock($self->{steal_authorized});
@@ -250,7 +247,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::TASK_IS_PUSHED) {
         my $task_id = $message->get_task_id();
-        my $sender_id = $message->get_sender_id();
 
         Jael::Debug::msg("[Protocol]task $task_id is on the stack of process $sender_id");
         $self->{dht}->set_machine_owning($task_id, $sender_id);
@@ -261,12 +257,11 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FORK_REQUEST) {
         my $task_id = $message->get_task_id();     # task_i
-        my $sender_id = $message->get_sender_id(); # process_j
 
         # Fork success
         if ($self->{dht}->fork_request($task_id, $sender_id)) {
             Jael::Debug::msg("[Protocol]task $task_id is forked by $sender_id");
-            Jael::Paje::create_link($Jael::Message::FORK_ACCEPTED);
+            Jael::Paje::create_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id));
         }
@@ -285,7 +280,7 @@ sub incoming_message {
         my $task = Jael::TasksGraph::get_task($task_id);
 
         Jael::Debug::msg("[Protocol]fork accepted, new task on stack : $task_id");
-        Jael::Paje::destroy_link($Jael::Message::FORK_ACCEPTED);
+        Jael::Paje::destroy_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
         $self->{fork_set}->set_done_status($task_id);
         $self->{tasks_stack}->push_task($task);
@@ -304,7 +299,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FILE_REQUEST) {
         my $filename = $message->get_task_id();
-        my $sender_id = $message->get_sender_id();
 
         open(my $fh, '<', $filename) or die "Can't open file '$filename' : $!";
         my $content = do { local $/; <$fh> };
