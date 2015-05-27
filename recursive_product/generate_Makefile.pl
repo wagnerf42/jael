@@ -28,11 +28,11 @@ sub compute_product {
 	} else {
 		generate_split_tasks($in1, $targets);
 		generate_split_tasks($in2, $targets);
-		generate_subresult("$out-0", "$in1-0", "$in2-0", "$in1-1", "$in2-2", $recursion_level-1, $targets);
-		generate_subresult("$out-1", "$in1-0", "$in2-1", "$in1-1", "$in2-3", $recursion_level-1, $targets);
-		generate_subresult("$out-2", "$in1-2", "$in2-0", "$in1-3", "$in2-2", $recursion_level-1, $targets);
-		generate_subresult("$out-3", "$in1-2", "$in2-1", "$in1-3", "$in2-3", $recursion_level-1, $targets);
-		my $subfiles = join(' ', map {"$out-$_"} (0..3));
+		generate_subresult("${out}0", "${in1}0", "${in2}0", "${in1}1", "${in2}2", $recursion_level-1, $targets);
+		generate_subresult("${out}1", "${in1}0", "${in2}1", "${in1}1", "${in2}3", $recursion_level-1, $targets);
+		generate_subresult("${out}2", "${in1}2", "${in2}0", "${in1}3", "${in2}2", $recursion_level-1, $targets);
+		generate_subresult("${out}3", "${in1}2", "${in2}1", "${in1}3", "${in2}3", $recursion_level-1, $targets);
+		my $subfiles = join(' ', map {"${out}$_"} (0..3));
 		print "$out: $subfiles\n";
 		print "\tmatrix_fuse.pl $out $subfiles\n";
 	}
@@ -41,11 +41,11 @@ sub compute_product {
 
 sub generate_subresult {
 	my ($target, $a1, $b1, $a2, $b2, $recursion_level, $targets) = @_;
-	compute_product($a1, $b1, "tmp1-$target", $recursion_level, $targets);
-	compute_product($a2, $b2, "tmp2-$target", $recursion_level, $targets);
-	print "$target: tmp1-$target tmp2-$target\n";
+	compute_product($a1, $b1, "t$target", $recursion_level, $targets);
+	compute_product($a2, $b2, "s$target", $recursion_level, $targets);
+	print "$target: t$target s$target\n";
 	$targets->{$target} = 1;
-	print "\tmatrix_add.pl tmp1-$target tmp2-$target $target\n";
+	print "\tmatrix_add.pl t$target s$target $target\n";
 	return;
 }
 
@@ -53,11 +53,11 @@ sub generate_split_tasks {
 	my $big_file = shift;
 	my $targets = shift;
 	return if exists $targets->{"split-$big_file"}; #do not re-split if someone else did it
-	print ".PHONY: split-$big_file\n";
+	#print ".PHONY: split-$big_file\n";
 	print "split-$big_file: $big_file\n";
 	$targets->{"split-$big_file"} = 1;
 	print "\tmatrix_split.pl $big_file\n";
-	my @small_files = map {"$big_file-$_"} (0..3);
+	my @small_files = map {"${big_file}$_"} (0..3);
 	for my $small_file (@small_files) {
 		print "$small_file : split-$big_file\n";
 		$targets->{$small_file} = 1;
