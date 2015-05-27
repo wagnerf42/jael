@@ -65,9 +65,9 @@ sub new {
 
     # Make threads
     my $thr_low = threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
-                                                      \@sh_messages_low, \@machines_names, $SENDING_PRIORITY_LOW);
+                                  \@sh_messages_low, \@machines_names, $SENDING_PRIORITY_LOW);
     my $thr_high = threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
-                                                      \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH);
+                                   \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH);
 
     push @{$self->{sending_threads}}, $thr_low;
     push @{$self->{sending_threads}}, $thr_high;
@@ -169,10 +169,10 @@ sub th_send_with_priority {
     my $id = shift;
     my $machine_name = shift;
 
-    my $sending_sockets = {};     # Thread's sockets
-    my $sending_messages = shift; # Messages list for the sockets
-    my $machines_names = shift;   # Machines list
-    my $priority = shift;         # Thread priority
+    my $sending_sockets = {};
+    my $sending_messages = shift;
+    my $machines_names = shift;
+    my $priority = shift;
 
     my $string;            # Message string
     my $target_machine_id; # Message id
@@ -198,6 +198,7 @@ sub th_send_with_priority {
         # Sending data
         my $socket = $sending_sockets->{$target_machine_id};
         Jael::Debug::msg("[Server]sending message (priority=$priority, target=$target_machine_id)");
+
         $socket->send($string) or die "unable to send to $target_machine_id: $!";
     }
 
@@ -233,7 +234,7 @@ sub send {
     my $priority = $message->get_priority();
     $priority = $SENDING_PRIORITY_HIGH unless (defined $priority);
 
-    # Add message in the the right messages lis
+    # Add message in the the right messages list
     {
         lock($self->{sending_messages}->[$priority]);
         push @{$self->{sending_messages}->[$priority]}, ($target_machine_id, $message->pack());

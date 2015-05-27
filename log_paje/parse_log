@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+unless (@ARGV) {
+    print "usage: <logfile>\n";
+    exit -1;
+}
+
+my $filename = shift;
+open(my $fh, '<', $filename) or die("unable to open '$filename': $!");
+
+while(<$fh>) {
+    print "$1\n" if $_ =~ /\[Paje\](.*)/;
+}
+
+close $fh;

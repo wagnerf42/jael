@@ -4,7 +4,13 @@ package Jael::Paje;
 use strict;
 use warnings;
 use threads;
+use threads::shared;
 use Time::HiRes;
+
+my $pid;
+my $starting_time;
+my $messages_counters_out = shared_clone({});
+my $messages_counters_in = shared_clone({});
 
 sub puts {
     my $message = shift;
@@ -120,9 +126,6 @@ sub puts_types {
     return;
 }
 
-my $pid;
-my $starting_time;
-
 sub get_elapsed_time {
     return Time::HiRes::time() - $starting_time;
 }
@@ -163,22 +166,51 @@ sub destroy_thread {
     return;
 }
 
+sub generate_message_key {
+    my $type = shift;
+    my $sender_id = shift;
+    my $id = shift;
+    my $messages_counters = shift;
+
+    my $message_key = $type . '_' . $sender_id . '_' . $id;
+
+    lock($messages_counters);
+
+    if (not defined $$messages_counters{$message_key}) {
+        $$messages_counters{$message_key} = 0;
+    } else {
+        $$messages_counters{$message_key}++;
+    }
+
+    $message_key .= '_' . $$messages_counters{$message_key};
+
+    return $message_key;
+}
+
 sub create_link {
     my $type = shift;
+    my $sender_id = shift;
+    my $label = shift;
+
     my $tid = threads->tid();
     my $time = get_elapsed_time();
 
-    puts("5 $time P$pid-T$tid A A P$pid-T$tid L$type");
+    $label = "" if not defined $label;
+    puts("5 $time P$pid-T$tid " . generate_message_key($type, $sender_id, $pid, $messages_counters_out) . " \"$label\" P$pid L$type");
 
     return;
 }
 
 sub destroy_link {
     my $type = shift;
+    my $sender_id = shift;
+    my $label = shift;
+
     my $tid = threads->tid();
     my $time = get_elapsed_time();
 
-    puts("6 $time P$pid-T$tid A A P$pid-T$tid L$type");
+    $label = "" if not defined $label;
+    puts("6 $time P$pid-T$tid " . generate_message_key($type, $pid, $sender_id, $messages_counters_in) . " \"$label\" P$sender_id L$type");
 
     return;
 }
