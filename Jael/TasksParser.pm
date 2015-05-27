@@ -20,6 +20,7 @@ my @handlers = (\&nothing, \&variables, \&before_target, \&command);
 
 sub make {
     my $self = {};
+	my $log_file = shift;
 
     $self->{vars} = {};
     $self->{not_a_target} = 0;
@@ -29,7 +30,11 @@ sub make {
     Jael::TasksGraph->initialize();
 
     Jael::Debug::msg("[TasksParser]launching jael_make");
-    open(MAKE, JAEL_MAKE . " -t -p |") or die "unable to fork jael_make : $!";
+	if (defined $log_file) {
+		open(MAKE, '<', $log_file) or die "unable to open log file $log_file : $!";
+	} else {
+		open(MAKE, JAEL_MAKE . " -t -p |") or die "unable to fork jael_make : $!";
+	}
     $self->{state} = $PARSING_NOTHING;
 
     my $line;

@@ -152,15 +152,38 @@ sub display {
         $nums{$id} = $current_num;
         $current_num++;
     }
+	# Get a unique integer identifier for each file
+	$current_num = 0;
+	my %files_num;
+    for my $id (keys %{$tasksgraph->{commands}}) {
+        for my $dep (@{$tasksgraph->{dependencies}->{$id}}) {
+			unless (defined $nums{$dep}) {
+				$files_num{$dep} = $current_num;
+				$current_num++;
+			}
+		}
+	}
 
     # Generate dot content
+	# start with files nodes
+	for my $id (keys %files_num) {
+		print $dotfile "f$files_num{$id}\[color=\"blue\"\, label=\"$id\"];\n";
+	}
+	
+	#continue with tasks and dependencies
     for my $id (keys %{$tasksgraph->{commands}}) {
         my $num = $nums{$id};
         print $dotfile "n$num [label=\"$id\"];\n";
 
         for my $dep (@{$tasksgraph->{dependencies}->{$id}}) {
             my $dep_num = $nums{$dep};
-            print $dotfile "n$dep_num -> n$num;\n";
+			if (defined $dep_num) {
+				#we depend on a task
+				print $dotfile "n$dep_num -> n$num;\n";
+			} else {
+				#we depend on a file
+				print $dotfile "f$files_num{$dep} -> n$num;\n";
+			}
         }
     }
 
@@ -171,7 +194,11 @@ sub display {
     my $img = "$dotfilename.jpg";
 
     `dot -Tjpg $dotfilename -o $img`;
-    `$IMAGE_VIEWER $img`;
+	if (exists $ENV{IMAGE_VIEWER}) {
+		`$ENV{IMAGE_VIEWER} $img`; #security problem
+	} else {
+		`$IMAGE_VIEWER $img`;
+	}
 
     unlink $img;
     unlink $dotfilename;
