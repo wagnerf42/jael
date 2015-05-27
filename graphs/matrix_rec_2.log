@@ -1,0 +1,2786 @@
+touch a0
+touch split-a0
+touch a00
+touch b0
+touch split-b0
+touch b00
+touch ttc00
+touch a01
+touch b02
+touch stc00
+touch tc00
+touch b01
+touch ttc01
+touch b03
+touch stc01
+touch tc01
+touch a02
+touch ttc02
+touch a03
+touch stc02
+touch tc02
+touch ttc03
+touch stc03
+touch tc03
+touch tc0
+touch a1
+touch split-a1
+touch a10
+touch b2
+touch split-b2
+touch b20
+touch tsc00
+touch a11
+touch b22
+touch ssc00
+touch sc00
+touch b21
+touch tsc01
+touch b23
+touch ssc01
+touch sc01
+touch a12
+touch tsc02
+touch a13
+touch ssc02
+touch sc02
+touch tsc03
+touch ssc03
+touch sc03
+touch sc0
+touch c0
+touch b1
+touch split-b1
+touch b10
+touch ttc10
+touch b12
+touch stc10
+touch tc10
+touch b11
+touch ttc11
+touch b13
+touch stc11
+touch tc11
+touch ttc12
+touch stc12
+touch tc12
+touch ttc13
+touch stc13
+touch tc13
+touch tc1
+touch b3
+touch split-b3
+touch b30
+touch tsc10
+touch b32
+touch ssc10
+touch sc10
+touch b31
+touch tsc11
+touch b33
+touch ssc11
+touch sc11
+touch tsc12
+touch ssc12
+touch sc12
+touch tsc13
+touch ssc13
+touch sc13
+touch sc1
+touch c1
+touch a2
+touch split-a2
+touch a20
+touch ttc20
+touch a21
+touch stc20
+touch tc20
+touch ttc21
+touch stc21
+touch tc21
+touch a22
+touch ttc22
+touch a23
+touch stc22
+touch tc22
+touch ttc23
+touch stc23
+touch tc23
+touch tc2
+touch a3
+touch split-a3
+touch a30
+touch tsc20
+touch a31
+touch ssc20
+touch sc20
+touch tsc21
+touch ssc21
+touch sc21
+touch a32
+touch tsc22
+touch a33
+touch ssc22
+touch sc22
+touch tsc23
+touch ssc23
+touch sc23
+touch sc2
+touch c2
+touch ttc30
+touch stc30
+touch tc30
+touch ttc31
+touch stc31
+touch tc31
+touch ttc32
+touch stc32
+touch tc32
+touch ttc33
+touch stc33
+touch tc33
+touch tc3
+touch tsc30
+touch ssc30
+touch sc30
+touch tsc31
+touch ssc31
+touch sc31
+touch tsc32
+touch ssc32
+touch sc32
+touch tsc33
+touch ssc33
+touch sc33
+touch sc3
+touch c3
+touch c
+# GNU Make 4.1
+# Built for x86_64-unknown-linux-gnu
+# Copyright (C) 1988-2014 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Wed May 27 10:46:18 2015
+
+# Variables
+
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# default
+.SHELLFLAGS := -c
+# environment
+GPR_PROJECT_PATH = /home/wagnerf/arch/ada-sdl/src/master-build/Thin/AdaSDL/
+# default
+CWEAVE = cweave
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# environment
+E_IPC_SOCKET = /run/user/1000/e-wagnerf@0/:0.0-326
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+XAUTHORITY = /home/wagnerf/.Xauthority
+# automatic
+@F = $(notdir $@)
+# environment
+HG = /usr/bin/hg
+# makefile
+CURDIR := /home/wagnerf/code/jael/recursive_product
+# makefile
+SHELL = /bin/sh
+# default
+RM = rm -f
+# environment
+LIBRARY_COMBO = gnu-gnu-gnu
+# default
+COMPILE.mod = $(M2C) $(M2FLAGS) $(MODFLAGS) $(TARGET_ARCH)
+# environment
+_ = /usr/bin/make
+# default
+PREPROCESS.F = $(FC) $(FFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -F
+# environment
+GNUSTEP_NETWORK_ROOT = /usr/Network
+# default
+LINK.m = $(OBJC) $(OBJCFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+XDG_CONFIG_DIRS = /usr/etc/xdg:/etc/xdg
+# default
+OUTPUT_OPTION = -o $@
+# environment
+PANTS = ON
+# default
+COMPILE.cpp = $(COMPILE.cc)
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# environment
+E_LIB_DIR = /usr/lib
+# environment
+E_TAINTED = NO
+# environment
+GNUSTEP_HOST_CPU = x86_64
+# 'override' directive
+GNUMAKEFLAGS := 
+# default
+LINK.p = $(PC) $(PFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+XDG_DATA_DIRS = /usr/share/enlightenment:/usr/share:/usr/local/share:/usr/share
+# environment
+DBUS_SESSION_BUS_ADDRESS = unix:abstract=/tmp/dbus-aFAaE0yHm5,guid=1681911c05bae6f1c88ee05e555ae256
+# default
+CC = cc
+# environment
+INFOPATH = /usr/share/info::/home/wagnerf/GNUstep/Library/Documentation/info:
+# default
+CHECKOUT,v = +$(if $(wildcard $@),,$(CO) $(COFLAGS) $< $@)
+# environment
+E_BIN_DIR = /usr/bin
+# default
+CPP = $(CC) -E
+# default
+LINK.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# default
+MAKE_HOST := x86_64-unknown-linux-gnu
+# environment
+PATH = /home/wagnerf/code/jael/recursive_product:/usr/bin:/home/wagnerf/GNUstep/Tools:/usr/local/sbin:/usr/local/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/home/wagnerf/code/tmp/pavage/img2ap/:/home/wagnerf/code/jael/bin
+# default
+LD = ld
+# environment
+LESS_TERMCAP_mb = [01;31m
+# default
+TEXI2DVI = texi2dvi
+# default
+YACC = yacc
+# environment
+GNUSTEP_USER_ROOT = /home/wagnerf/GNUstep
+# environment
+E_ICON_THEME = gnome
+# environment
+LESS_TERMCAP_se = [0m
+# environment
+XDG_RUNTIME_DIR = /run/user/1000
+# environment
+XTERM_256_COLORS = 1
+# default
+LINK.r = $(FC) $(FFLAGS) $(RFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# default
+LINT = lint
+# default
+COMPILE.f = $(FC) $(FFLAGS) $(TARGET_ARCH) -c
+# environment
+GNUSTEP_PATHLIST = /usr/System:/usr/Network:/usr/Local:/home/wagnerf/GNUstep
+# default
+LINT.c = $(LINT) $(LINTFLAGS) $(CPPFLAGS) $(TARGET_ARCH)
+# default
+YACC.m = $(YACC) $(YFLAGS)
+# default
+YACC.y = $(YACC) $(YFLAGS)
+# default
+AR = ar
+# environment
+XDG_MENU_PREFIX = e-
+# environment
+GTK2_RC_FILES = /home/wagnerf/.gtkrc-2.0
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink guile load
+# default
+TANGLE = tangle
+# environment
+LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:
+# default
+GET = get
+# automatic
+%F = $(notdir $%)
+# environment
+DISPLAY = :0.0
+# environment
+LESS_TERMCAP_me = [0m
+# default
+COMPILE.F = $(FC) $(FFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# environment
+E_CONF_PROFILE = tiling
+# default
+CTANGLE = ctangle
+# environment
+IMAGE_VIEWER = tycat
+# default
+.LIBPATTERNS = lib%.so lib%.a
+# default
+LINK.C = $(LINK.cc)
+# environment
+PWD = /home/wagnerf/code/jael/recursive_product
+# default
+LINK.S = $(CC) $(ASFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_MACH)
+# environment
+XDG_SEAT = seat0
+# default
+PREPROCESS.r = $(FC) $(FFLAGS) $(RFLAGS) $(TARGET_ARCH) -F
+# environment
+GNUSTEP_HOST_OS = linux-gnu
+# default
+LINK.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+LESS_TERMCAP_ue = [0m
+# default
+LINK.s = $(CC) $(ASFLAGS) $(LDFLAGS) $(TARGET_MACH)
+# environment
+HOME = /home/wagnerf
+# environment
+LD_LIBRARY_PATH = /home/wagnerf/GNUstep/Library/Libraries:/usr/lib
+# environment
+PERL5LIB = /home/wagnerf/code/jael/recursive_product
+# environment
+LOGNAME = wagnerf
+# environment
+PRINTER = lb110a
+# environment
+GNUSTEP_LOCAL_ROOT = /usr/Local
+# default
+CO = co
+# default
+MAKE_VERSION := 4.1
+# environment
+EMSCRIPTEN = /usr/lib/emscripten
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+LESS_TERMCAP_md = [01;31m
+# environment
+XDG_VTNR = 7
+# environment
+E_RESTART = 1
+# environment
+MAKELEVEL := 0
+# default
+COMPILE.m = $(OBJC) $(OBJCFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# environment
+COLORTERM = yes
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+SHLVL = 1
+# environment
+LESS_TERMCAP_so = [01;44;33m
+# default
+AS = as
+# default
+PREPROCESS.S = $(CC) -E $(CPPFLAGS)
+# environment
+GUILE_LOAD_PATH = /home/wagnerf/GNUstep/Library/Libraries/Guile:/usr/lib/GNUstep/Libraries/Guile
+# environment
+OMP_NUM_THREADS = 4
+# default
+COMPILE.p = $(PC) $(PFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# environment
+XDG_SESSION_ID = c1
+# environment
+USER = wagnerf
+# default
+FC = f77
+# makefile
+.DEFAULT_GOAL := all
+# environment
+E_PREFIX = /usr
+# environment
+CLASSPATH = /home/wagnerf/GNUstep/Library/Libraries/Java:/usr/lib/GNUstep/Libraries/Java
+# environment
+GNUSTEP_SYSTEM_ROOT = /usr/System
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# environment
+E_DATA_DIR = /usr/share/enlightenment
+# default
+ARFLAGS = rv
+# default
+WEAVE = weave
+# default
+MAKE_COMMAND := make
+# default
+LINK.cpp = $(LINK.cc)
+# default
+F77 = $(FC)
+# environment
+OLDPWD = /home/wagnerf/code/jael
+# default
+.VARIABLES := 
+# default
+PC = pc
+# automatic
+*F = $(notdir $*)
+# environment
+E_START_TIME = 1432019546.2
+# default
+COMPILE.def = $(M2C) $(M2FLAGS) $(DEFFLAGS) $(TARGET_ARCH)
+# default
+LEX = lex
+# environment
+GNUSTEP_FLATTENED = yes
+# makefile
+MAKEFLAGS = pt
+# environment
+MFLAGS = -pt
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+MAIL = /var/mail/wagnerf
+# default
+LEX.l = $(LEX) $(LFLAGS) -t
+# default
+LEX.m = $(LEX) $(LFLAGS) -t
+# environment
+LESS_TERMCAP_us = [01;32m
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# default
+COMPILE.r = $(FC) $(FFLAGS) $(RFLAGS) $(TARGET_ARCH) -c
+# automatic
++F = $(notdir $+)
+# default
+M2C = m2c
+# environment
+GNUSTEP_IS_FLATTENED = yes
+# default
+MAKEFILES := 
+# environment
+JAEL_DEBUG = 1
+# default
+COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# automatic
+<F = $(notdir $<)
+# environment
+E_START = enlightenment_start
+# default
+CXX = g++
+# environment
+GNUSTEP_HOST = x86_64-unknown-linux-gnu
+# default
+COFLAGS = 
+# environment
+EDITOR = vim
+# environment
+PAGER = less
+# environment
+TERMINOLOGY = 1
+# default
+COMPILE.C = $(COMPILE.cc)
+# automatic
+^F = $(notdir $^)
+# default
+COMPILE.S = $(CC) $(ASFLAGS) $(CPPFLAGS) $(TARGET_MACH) -c
+# environment
+GNUSTEP_MAKEFILES = /usr/share/GNUstep/Makefiles
+# default
+LINK.F = $(FC) $(FFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# default
+SUFFIXES := .out .a .ln .o .c .cc .C .cpp .p .f .F .m .r .y .l .ym .yl .s .S .mod .sym .def .h .info .dvi .tex .texinfo .texi .txinfo .w .ch .web .sh .elc .el
+# default
+COMPILE.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# default
+COMPILE.s = $(AS) $(ASFLAGS) $(TARGET_MACH)
+# environment
+MOZ_PLUGIN_PATH = /usr/lib/mozilla/plugins
+# default
+.INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
+# default
+.RECIPEPREFIX := 
+# default
+MAKEINFO = makeinfo
+# default
+MAKE_TERMERR := /dev/pts/0
+# default
+OBJC = cc
+# default
+LINK.f = $(FC) $(FFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# default
+TEX = tex
+# environment
+E_SCALE = 1,000
+# environment
+TERM = xterm
+# default
+F77FLAGS = $(FFLAGS)
+# environment
+E_LOCALE_DIR = /usr/share/locale
+# default
+LINK.o = $(CC) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+GNUSTEP_HOST_VENDOR = unknown
+# environment
+DESKTOP = Enlightenment-0.17.0
+# variable set hash-table stats:
+# Load=172/1024=17%, Rehash=0, Collisions=20/198=10%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# SCCS: could not be stat'd.
+# . (device 2051, inode 2842694): 383 files, 76 impossibilities.
+# RCS: could not be stat'd.
+
+# 383 files, 76 impossibilities in 3 directories.
+
+# Implicit Rules
+
+%.out:
+
+%.a:
+
+%.ln:
+
+%.o:
+
+%: %.o
+#  recipe to execute (built-in):
+	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.c:
+
+%: %.c
+#  recipe to execute (built-in):
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.ln: %.c
+#  recipe to execute (built-in):
+	$(LINT.c) -C$* $<
+
+%.o: %.c
+#  recipe to execute (built-in):
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+
+%.cc:
+
+%: %.cc
+#  recipe to execute (built-in):
+	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.cc
+#  recipe to execute (built-in):
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+
+%.C:
+
+%: %.C
+#  recipe to execute (built-in):
+	$(LINK.C) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.C
+#  recipe to execute (built-in):
+	$(COMPILE.C) $(OUTPUT_OPTION) $<
+
+%.cpp:
+
+%: %.cpp
+#  recipe to execute (built-in):
+	$(LINK.cpp) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.cpp
+#  recipe to execute (built-in):
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+
+%.p:
+
+%: %.p
+#  recipe to execute (built-in):
+	$(LINK.p) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.p
+#  recipe to execute (built-in):
+	$(COMPILE.p) $(OUTPUT_OPTION) $<
+
+%.f:
+
+%: %.f
+#  recipe to execute (built-in):
+	$(LINK.f) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.f
+#  recipe to execute (built-in):
+	$(COMPILE.f) $(OUTPUT_OPTION) $<
+
+%.F:
+
+%: %.F
+#  recipe to execute (built-in):
+	$(LINK.F) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.F
+#  recipe to execute (built-in):
+	$(COMPILE.F) $(OUTPUT_OPTION) $<
+
+%.f: %.F
+#  recipe to execute (built-in):
+	$(PREPROCESS.F) $(OUTPUT_OPTION) $<
+
+%.m:
+
+%: %.m
+#  recipe to execute (built-in):
+	$(LINK.m) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.m
+#  recipe to execute (built-in):
+	$(COMPILE.m) $(OUTPUT_OPTION) $<
+
+%.r:
+
+%: %.r
+#  recipe to execute (built-in):
+	$(LINK.r) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.r
+#  recipe to execute (built-in):
+	$(COMPILE.r) $(OUTPUT_OPTION) $<
+
+%.f: %.r
+#  recipe to execute (built-in):
+	$(PREPROCESS.r) $(OUTPUT_OPTION) $<
+
+%.y:
+
+%.ln: %.y
+#  recipe to execute (built-in):
+	$(YACC.y) $< 
+	 $(LINT.c) -C$* y.tab.c 
+	 $(RM) y.tab.c
+
+%.c: %.y
+#  recipe to execute (built-in):
+	$(YACC.y) $< 
+	 mv -f y.tab.c $@
+
+%.l:
+
+%.ln: %.l
+#  recipe to execute (built-in):
+	@$(RM) $*.c
+	 $(LEX.l) $< > $*.c
+	$(LINT.c) -i $*.c -o $@
+	 $(RM) $*.c
+
+%.c: %.l
+#  recipe to execute (built-in):
+	@$(RM) $@ 
+	 $(LEX.l) $< > $@
+
+%.r: %.l
+#  recipe to execute (built-in):
+	$(LEX.l) $< > $@ 
+	 mv -f lex.yy.r $@
+
+%.ym:
+
+%.m: %.ym
+#  recipe to execute (built-in):
+	$(YACC.m) $< 
+	 mv -f y.tab.c $@
+
+%.yl:
+
+%.s:
+
+%: %.s
+#  recipe to execute (built-in):
+	$(LINK.s) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.s
+#  recipe to execute (built-in):
+	$(COMPILE.s) -o $@ $<
+
+%.S:
+
+%: %.S
+#  recipe to execute (built-in):
+	$(LINK.S) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.o: %.S
+#  recipe to execute (built-in):
+	$(COMPILE.S) -o $@ $<
+
+%.s: %.S
+#  recipe to execute (built-in):
+	$(PREPROCESS.S) $< > $@
+
+%.mod:
+
+%: %.mod
+#  recipe to execute (built-in):
+	$(COMPILE.mod) -o $@ -e $@ $^
+
+%.o: %.mod
+#  recipe to execute (built-in):
+	$(COMPILE.mod) -o $@ $<
+
+%.sym:
+
+%.def:
+
+%.sym: %.def
+#  recipe to execute (built-in):
+	$(COMPILE.def) -o $@ $<
+
+%.h:
+
+%.info:
+
+%.dvi:
+
+%.tex:
+
+%.dvi: %.tex
+#  recipe to execute (built-in):
+	$(TEX) $<
+
+%.texinfo:
+
+%.info: %.texinfo
+#  recipe to execute (built-in):
+	$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@
+
+%.dvi: %.texinfo
+#  recipe to execute (built-in):
+	$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<
+
+%.texi:
+
+%.info: %.texi
+#  recipe to execute (built-in):
+	$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@
+
+%.dvi: %.texi
+#  recipe to execute (built-in):
+	$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<
+
+%.txinfo:
+
+%.info: %.txinfo
+#  recipe to execute (built-in):
+	$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@
+
+%.dvi: %.txinfo
+#  recipe to execute (built-in):
+	$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<
+
+%.w:
+
+%.c: %.w
+#  recipe to execute (built-in):
+	$(CTANGLE) $< - $@
+
+%.tex: %.w
+#  recipe to execute (built-in):
+	$(CWEAVE) $< - $@
+
+%.ch:
+
+%.web:
+
+%.p: %.web
+#  recipe to execute (built-in):
+	$(TANGLE) $<
+
+%.tex: %.web
+#  recipe to execute (built-in):
+	$(WEAVE) $<
+
+%.sh:
+
+%: %.sh
+#  recipe to execute (built-in):
+	cat $< >$@ 
+	 chmod a+x $@
+
+%.elc:
+
+%.el:
+
+(%): %
+#  recipe to execute (built-in):
+	$(AR) $(ARFLAGS) $@ $<
+
+%.out: %
+#  recipe to execute (built-in):
+	@rm -f $@ 
+	 cp $< $@
+
+%.c: %.w %.ch
+#  recipe to execute (built-in):
+	$(CTANGLE) $^ $@
+
+%.tex: %.w %.ch
+#  recipe to execute (built-in):
+	$(CWEAVE) $^ $@
+
+%:: %,v
+#  recipe to execute (built-in):
+	$(CHECKOUT,v)
+
+%:: RCS/%,v
+#  recipe to execute (built-in):
+	$(CHECKOUT,v)
+
+%:: RCS/%
+#  recipe to execute (built-in):
+	$(CHECKOUT,v)
+
+%:: s.%
+#  recipe to execute (built-in):
+	$(GET) $(GFLAGS) $(SCCS_OUTPUT_OPTION) $<
+
+%:: SCCS/s.%
+#  recipe to execute (built-in):
+	$(GET) $(GFLAGS) $(SCCS_OUTPUT_OPTION) $<
+
+# 92 implicit rules, 5 (5.4%) terminal.
+
+# Files
+
+sc2: sc20 sc21 sc22 sc23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 264):
+	matrix_fuse.pl sc2 sc20 sc21 sc22 sc23
+
+a32: split-a3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 236):
+	
+
+ttc10: a00 b10
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 130):
+	matrix_multiply.pl a00 b10 ttc10
+
+tsc21: a30 b21
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 246):
+	matrix_multiply.pl a30 b21 tsc21
+
+b32: split-b3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 162):
+	
+
+# Not a target:
+.web.p:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(TANGLE) $<
+
+ssc33: a33 b33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 314):
+	matrix_multiply.pl a33 b33 ssc33
+
+split-b: b
+#  Implicit rule search has not been done.
+#  Last modified 2015-05-27 10:38:17.972811695
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 16):
+	matrix_split.pl b
+
+tsc33: a32 b31
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 312):
+	matrix_multiply.pl a32 b31 tsc33
+
+ssc01: a11 b23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 100):
+	matrix_multiply.pl a11 b23 ssc01
+
+stc02: a03 b02
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 60):
+	matrix_multiply.pl a03 b02 stc02
+
+stc11: a01 b13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 138):
+	matrix_multiply.pl a01 b13 stc11
+
+sc0: sc00 sc01 sc02 sc03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 116):
+	matrix_fuse.pl sc0 sc00 sc01 sc02 sc03
+
+tsc01: a10 b21
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 98):
+	matrix_multiply.pl a10 b21 tsc01
+
+a21: split-a2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 198):
+	
+
+tc0: tc00 tc01 tc02 tc03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 70):
+	matrix_fuse.pl tc0 tc00 tc01 tc02 tc03
+
+# Not a target:
+.l.r:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LEX.l) $< > $@ 
+	 mv -f lex.yy.r $@
+
+ttc11: a00 b11
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 136):
+	matrix_multiply.pl a00 b11 ttc11
+
+# Not a target:
+.dvi:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+split-a1: a1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 72):
+	matrix_split.pl a1
+
+# Not a target:
+.ym:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+ssc10: a11 b32
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 168):
+	matrix_multiply.pl a11 b32 ssc10
+
+sc00: tsc00 ssc00
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 96):
+	matrix_add.pl tsc00 ssc00 sc00
+
+# Not a target:
+.f.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.f) $(OUTPUT_OPTION) $<
+
+tsc10: a10 b30
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 166):
+	matrix_multiply.pl a10 b30 tsc10
+
+# Not a target:
+a:
+#  Implicit rule search has been done.
+#  Last modified 2015-05-27 09:02:51.722604775
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+b:
+#  Implicit rule search has been done.
+#  Last modified 2015-05-27 08:49:59.035910188
+#  File has been updated.
+#  Successfully updated.
+
+c: c0 c1 c2 c3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 322):
+	matrix_fuse.pl c c0 c1 c2 c3
+
+ttc02: a02 b00
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 58):
+	matrix_multiply.pl a02 b00 ttc02
+
+# Not a target:
+.l:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.m:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.m) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+# Not a target:
+.ln:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+# Not a target:
+.y:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+sc33: tsc33 ssc33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 316):
+	matrix_add.pl tsc33 ssc33 sc33
+
+# Not a target:
+.def.sym:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.def) -o $@ $<
+
+tc33: ttc33 stc33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 290):
+	matrix_add.pl ttc33 stc33 tc33
+
+ssc02: a13 b22
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 106):
+	matrix_multiply.pl a13 b22 ssc02
+
+ssc11: a11 b33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 174):
+	matrix_multiply.pl a11 b33 ssc11
+
+sc01: tsc01 ssc01
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 102):
+	matrix_add.pl tsc01 ssc01 sc01
+
+tsc02: a12 b20
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 104):
+	matrix_multiply.pl a12 b20 tsc02
+
+sc1: sc10 sc11 sc12 sc13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 190):
+	matrix_fuse.pl sc1 sc10 sc11 sc12 sc13
+
+a0: split-a
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 8):
+	
+
+b0: split-b
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 18):
+	
+
+c0: tc0 sc0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 118):
+	matrix_add.pl tc0 sc0 c0
+
+tc01: ttc01 stc01
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 56):
+	matrix_add.pl ttc01 stc01 tc01
+
+tc1: tc10 tc11 tc12 tc13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 154):
+	matrix_fuse.pl tc1 tc10 tc11 tc12 tc13
+
+ttc12: a02 b10
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 142):
+	matrix_multiply.pl a02 b10 ttc12
+
+# Not a target:
+.p.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.p) $(OUTPUT_OPTION) $<
+
+# Not a target:
+.p:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.p) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+# Not a target:
+.txinfo.dvi:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<
+
+split-b1: b1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 120):
+	matrix_split.pl b1
+
+# Not a target:
+.a:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+stc20: a21 b02
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 206):
+	matrix_multiply.pl a21 b02 stc20
+
+sc10: tsc10 ssc10
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 170):
+	matrix_add.pl tsc10 ssc10 sc10
+
+a00: split-a0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 28):
+	
+
+b00: split-b0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 38):
+	
+
+# Not a target:
+.yl:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+tc00: ttc00 stc00
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 50):
+	matrix_add.pl ttc00 stc00 tc00
+
+tc10: ttc10 stc10
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 134):
+	matrix_add.pl ttc10 stc10 tc10
+
+# Not a target:
+.l.ln:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	@$(RM) $*.c
+	 $(LEX.l) $< > $*.c
+	$(LINT.c) -i $*.c -o $@
+	 $(RM) $*.c
+
+# Not a target:
+.F.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.F) $(OUTPUT_OPTION) $<
+
+ttc20: a20 b00
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 204):
+	matrix_multiply.pl a20 b00 ttc20
+
+# Not a target:
+.texi.info:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@
+
+# Not a target:
+.w.c:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(CTANGLE) $< - $@
+
+# Not a target:
+.texi.dvi:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<
+
+# Not a target:
+.ch:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+b33: split-b3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 164):
+	
+
+# Not a target:
+.m.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.m) $(OUTPUT_OPTION) $<
+
+stc03: a03 b03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 66):
+	matrix_multiply.pl a03 b03 stc03
+
+# Not a target:
+.cc:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+ssc12: a13 b32
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 180):
+	matrix_multiply.pl a13 b32 ssc12
+
+sc02: tsc02 ssc02
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 108):
+	matrix_add.pl tsc02 ssc02 sc02
+
+sc11: tsc11 ssc11
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 176):
+	matrix_add.pl tsc11 ssc11 sc11
+
+a01: split-a0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 30):
+	
+
+a1: split-a
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 10):
+	
+
+tsc12: a12 b30
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 178):
+	matrix_multiply.pl a12 b30 tsc12
+
+b1: split-b
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 20):
+	
+
+ttc03: a02 b01
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 64):
+	matrix_multiply.pl a02 b01 ttc03
+
+# Not a target:
+.cc.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+
+tc11: ttc11 stc11
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 140):
+	matrix_add.pl ttc11 stc11 tc11
+
+ssc23: a33 b23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 260):
+	matrix_multiply.pl a33 b23 ssc23
+
+ttc21: a20 b01
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 210):
+	matrix_multiply.pl a20 b01 ttc21
+
+# Not a target:
+.def:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.SUFFIXES: .out .a .ln .o .c .cc .C .cpp .p .f .F .m .r .y .l .ym .yl .s .S .mod .sym .def .h .info .dvi .tex .texinfo .texi .txinfo .w .ch .web .sh .elc .el
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+split-a2: a2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 194):
+	matrix_split.pl a2
+
+stc12: a03 b12
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 144):
+	matrix_multiply.pl a03 b12 stc12
+
+# Not a target:
+.c.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+
+ssc20: a31 b22
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 242):
+	matrix_multiply.pl a31 b22 ssc20
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2015-05-27 10:46:07.466161993
+#  File has been updated.
+#  Successfully updated.
+
+tsc11: a10 b31
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 172):
+	matrix_multiply.pl a10 b31 tsc11
+
+a10: split-a1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 74):
+	
+
+ssc22: a33 b22
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 254):
+	matrix_multiply.pl a33 b22 ssc22
+
+b10: split-b1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 122):
+	
+
+tsc20: a30 b20
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 240):
+	matrix_multiply.pl a30 b20 tsc20
+
+# Not a target:
+.r.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.r) $(OUTPUT_OPTION) $<
+
+# Not a target:
+.r:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.r) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+ssc03: a13 b23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 112):
+	matrix_multiply.pl a13 b23 ssc03
+
+tsc03: a12 b21
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 110):
+	matrix_multiply.pl a12 b21 tsc03
+
+stc13: a03 b13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 150):
+	matrix_multiply.pl a03 b13 stc13
+
+a02: split-a0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 32):
+	
+
+b02: split-b0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 42):
+	
+
+a11: split-a1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 76):
+	
+
+# Not a target:
+.ym.m:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(YACC.m) $< 
+	 mv -f y.tab.c $@
+
+b11: split-b1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 124):
+	
+
+# Not a target:
+.y.ln:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(YACC.y) $< 
+	 $(LINT.c) -C$* y.tab.c 
+	 $(RM) y.tab.c
+
+tc12: ttc12 stc12
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 146):
+	matrix_add.pl ttc12 stc12 tc12
+
+tc2: tc20 tc21 tc22 tc23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 228):
+	matrix_fuse.pl tc2 tc20 tc21 tc22 tc23
+
+ttc13: a02 b11
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 148):
+	matrix_multiply.pl a02 b11 ttc13
+
+ttc22: a22 b00
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 216):
+	matrix_multiply.pl a22 b00 ttc22
+
+split-b2: b2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 82):
+	matrix_split.pl b2
+
+# Not a target:
+.elc:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.l.c:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	@$(RM) $@ 
+	 $(LEX.l) $< > $@
+
+tc20: ttc20 stc20
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 208):
+	matrix_add.pl ttc20 stc20 tc20
+
+# Not a target:
+.out:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+a33: split-a3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 238):
+	
+
+all: c check
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Successfully updated.
+
+sc03: tsc03 ssc03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 114):
+	matrix_add.pl tsc03 ssc03 sc03
+
+ssc13: a13 b33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 186):
+	matrix_multiply.pl a13 b33 ssc13
+
+# Not a target:
+.C:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.C) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+a2: split-a
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 12):
+	
+
+a12: split-a1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 78):
+	
+
+tsc13: a12 b31
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 184):
+	matrix_multiply.pl a12 b31 tsc13
+
+b2: split-b
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 22):
+	
+
+# Not a target:
+.r.f:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(PREPROCESS.r) $(OUTPUT_OPTION) $<
+
+tsc22: a32 b20
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 252):
+	matrix_multiply.pl a32 b20 tsc22
+
+tc21: ttc21 stc21
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 214):
+	matrix_add.pl ttc21 stc21 tc21
+
+# Not a target:
+.S:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.S) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+tsc31: a30 b31
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 300):
+	matrix_multiply.pl a30 b31 tsc31
+
+# Not a target:
+.texinfo.info:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@
+
+# Not a target:
+.c:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+# Not a target:
+.w.tex:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(CWEAVE) $< - $@
+
+# Not a target:
+.c.ln:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINT.c) -C$* $<
+
+# Not a target:
+.s.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.s) -o $@ $<
+
+stc21: a21 b03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 212):
+	matrix_multiply.pl a21 b03 stc21
+
+# Not a target:
+.s:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.s) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+b01: split-b0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 40):
+	
+
+tc02: ttc02 stc02
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 62):
+	matrix_add.pl ttc02 stc02 tc02
+
+c1: tc1 sc1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 192):
+	matrix_add.pl tc1 sc1 c1
+
+stc31: a21 b13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 276):
+	matrix_multiply.pl a21 b13 stc31
+
+a03: split-a0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 34):
+	
+
+b03: split-b0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 44):
+	
+
+sc13: tsc13 ssc13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 188):
+	matrix_add.pl tsc13 ssc13 sc13
+
+b21: split-b2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 86):
+	
+
+sc22: tsc22 ssc22
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 256):
+	matrix_add.pl tsc22 ssc22 sc22
+
+stc23: a23 b03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 224):
+	matrix_multiply.pl a23 b03 stc23
+
+tc13: ttc13 stc13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 152):
+	matrix_add.pl ttc13 stc13 tc13
+
+tc22: ttc22 stc22
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 220):
+	matrix_add.pl ttc22 stc22 tc22
+
+# Not a target:
+.texinfo.dvi:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<
+
+# Not a target:
+.el:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+ttc23: a22 b01
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 222):
+	matrix_multiply.pl a22 b01 ttc23
+
+# Not a target:
+.lm.m:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	@$(RM) $@ 
+	 $(LEX.m) $< > $@
+
+# Not a target:
+.y.c:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(YACC.y) $< 
+	 mv -f y.tab.c $@
+
+stc30: a21 b12
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 270):
+	matrix_multiply.pl a21 b12 stc30
+
+# Not a target:
+.web.tex:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(WEAVE) $<
+
+# Not a target:
+.texinfo:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+ttc30: a20 b10
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 268):
+	matrix_multiply.pl a20 b10 ttc30
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.h:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+a13: split-a1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 80):
+	
+
+a22: split-a2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 200):
+	
+
+b13: split-b1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 128):
+	
+
+b22: split-b2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 88):
+	
+
+tsc23: a32 b21
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 258):
+	matrix_multiply.pl a32 b21 tsc23
+
+sc31: tsc31 ssc31
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 304):
+	matrix_add.pl tsc31 ssc31 sc31
+
+ttc31: a20 b11
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 274):
+	matrix_multiply.pl a20 b11 ttc31
+
+c3: tc3 sc3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 320):
+	matrix_add.pl tc3 sc3 c3
+
+split-a3: a3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 230):
+	matrix_split.pl a3
+
+ssc21: a31 b23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 248):
+	matrix_multiply.pl a31 b23 ssc21
+
+# Not a target:
+.tex.dvi:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(TEX) $<
+
+ssc30: a31 b32
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 296):
+	matrix_multiply.pl a31 b32 ssc30
+
+stc22: a23 b02
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 218):
+	matrix_multiply.pl a23 b02 stc22
+
+# Not a target:
+.cpp.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+
+# Not a target:
+.cpp:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.cpp) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 324):
+	rm -f tsc11 sc33 b00 sc03 tsc13 split-a3 sc2 ttc03 ssc32 ssc12 ttc22 stc22 ssc30 sc11 tsc03 sc00 sc32 a02 tsc32 b1 b22 c0 ssc00 sc0 stc11 tc2 c3 stc32 a13 tc33 ssc10 sc31 tsc02 tc30 a22 stc03 sc22 a2 stc01 ssc22 check split-b2 ssc13 a23 ssc33 ssc20 a00 split-a a32 stc20 tsc30 ttc13 tsc10 split-b3 tc03 ttc23 ttc11 stc31 tc32 a31 ttc02 sc21 c1 b10 b23 b11 b13 stc00 stc12 b2 ttc32 tc22 tc23 sc10 split-b0 a3 a21 tc00 split-a0 sc23 stc10 ttc20 b20 ttc30 tc31 c tc1 tsc20 sc20 ttc01 ttc33 b12 stc30 tc02 ttc10 sc13 ssc02 ssc03 b01 sc02 split-a1 c2 tc3 a12 sc3 tsc22 stc23 b03 tc13 tc11 b33 tsc21 split-b tsc12 a10 b31 ssc23 tc01 split-b1 tc20 tc21 sc30 tsc01 ssc11 split-a2 b0 tsc33 ttc31 stc21 a33 tsc31 ssc21 sc12 a03 b21 ttc00 ssc31 b30 stc13 b3 ttc21 sc1 ssc01 stc33 a20 sc01 a0 b32 tsc00 tc0 a1 tc10 a11 a01 a30 b02 tc12 ttc12 tsc23 stc02
+
+# Not a target:
+.C.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.C) $(OUTPUT_OPTION) $<
+
+# Not a target:
+.texi:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+tsc30: a30 b30
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 294):
+	matrix_multiply.pl a30 b30 tsc30
+
+# Not a target:
+.txinfo:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.tex:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+ssc31: a31 b33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 302):
+	matrix_multiply.pl a31 b33 ssc31
+
+sc3: sc30 sc31 sc32 sc33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 318):
+	matrix_fuse.pl sc3 sc30 sc31 sc32 sc33
+
+stc32: a23 b12
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 282):
+	matrix_multiply.pl a23 b12 stc32
+
+sc23: tsc23 ssc23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 262):
+	matrix_add.pl tsc23 ssc23 sc23
+
+split-b0: b0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 36):
+	matrix_split.pl b0
+
+tc3: tc30 tc31 tc32 tc33
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 292):
+	matrix_fuse.pl tc3 tc30 tc31 tc32 tc33
+
+# Not a target:
+.txinfo.info:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@
+
+tc23: ttc23 stc23
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 226):
+	matrix_add.pl ttc23 stc23 tc23
+
+ttc32: a22 b10
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 280):
+	matrix_multiply.pl a22 b10 ttc32
+
+split-b3: b3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 156):
+	matrix_split.pl b3
+
+sc20: tsc20 ssc20
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 244):
+	matrix_add.pl tsc20 ssc20 sc20
+
+sc30: tsc30 ssc30
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 298):
+	matrix_add.pl tsc30 ssc30 sc30
+
+tc30: ttc30 stc30
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 272):
+	matrix_add.pl ttc30 stc30 tc30
+
+# Not a target:
+.sh:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	cat $< >$@ 
+	 chmod a+x $@
+
+stc00: a01 b02
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 48):
+	matrix_multiply.pl a01 b02 stc00
+
+a3: split-a
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 14):
+	
+
+b3: split-b
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 24):
+	
+
+ssc32: a33 b32
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 308):
+	matrix_multiply.pl a33 b32 ssc32
+
+a23: split-a2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 202):
+	
+
+b23: split-b2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 90):
+	
+
+tsc32: a32 b30
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 306):
+	matrix_multiply.pl a32 b30 tsc32
+
+tc31: ttc31 stc31
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 278):
+	matrix_add.pl ttc31 stc31 tc31
+
+# Not a target:
+.S.s:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(PREPROCESS.S) $< > $@
+
+# Not a target:
+.mod:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.mod) -o $@ -e $@ $^
+
+# Not a target:
+.mod.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.mod) -o $@ $<
+
+# Not a target:
+.F.f:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(PREPROCESS.F) $(OUTPUT_OPTION) $<
+
+a30: split-a3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 232):
+	
+
+tc03: ttc03 stc03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 68):
+	matrix_add.pl ttc03 stc03 tc03
+
+sc21: tsc21 ssc21
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 250):
+	matrix_add.pl tsc21 ssc21 sc21
+
+b30: split-b3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 158):
+	
+
+b12: split-b1
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 126):
+	
+
+# Not a target:
+.w:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+c2: tc2 sc2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 266):
+	matrix_add.pl tc2 sc2 c2
+
+# Not a target:
+.S.o:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(COMPILE.S) -o $@ $<
+
+check: a b
+#  Implicit rule search has not been done.
+#  Last modified 2015-05-27 10:41:26.369485169
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 4):
+	matrix_multiply.pl a b check
+
+a31: split-a3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 234):
+	
+
+ttc00: a00 b00
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 46):
+	matrix_multiply.pl a00 b00 ttc00
+
+b31: split-b3
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 160):
+	
+
+sc32: tsc32 ssc32
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 310):
+	matrix_add.pl tsc32 ssc32 sc32
+
+stc33: a23 b13
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 288):
+	matrix_multiply.pl a23 b13 stc33
+
+tc32: ttc32 stc32
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 284):
+	matrix_add.pl ttc32 stc32 tc32
+
+split-a: a
+#  Implicit rule search has not been done.
+#  Last modified 2015-05-27 10:38:17.972811695
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 6):
+	matrix_split.pl a
+
+ttc33: a22 b11
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 286):
+	matrix_multiply.pl a22 b11 ttc33
+
+stc01: a01 b03
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 54):
+	matrix_multiply.pl a01 b03 stc01
+
+# Not a target:
+.F:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.F) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+a20: split-a2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 196):
+	
+
+ttc01: a00 b01
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 52):
+	matrix_multiply.pl a00 b01 ttc01
+
+b20: split-b2
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 84):
+	
+
+# Not a target:
+.web:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.sym:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.f:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (built-in):
+	$(LINK.f) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+split-a0: a0
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	matrix_split.pl a0
+
+# Not a target:
+.info:
+#  Builtin rule
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+ssc00: a11 b22
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 94):
+	matrix_multiply.pl a11 b22 ssc00
+
+stc10: a01 b12
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 132):
+	matrix_multiply.pl a01 b12 stc10
+
+tsc00: a10 b20
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 92):
+	matrix_multiply.pl a10 b20 tsc00
+
+sc12: tsc12 ssc12
+#  Implicit rule search has not been done.
+#  Last modified 2514-05-30 03:53:03.107374182
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 182):
+	matrix_add.pl tsc12 ssc12 sc12
+
+# files hash-table stats:
+# Load=237/1024=23%, Rehash=0, Collisions=1230/2395=51%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 2 (1) / strings = 1134 / storage = 10165 B / avg = 8 B
+# current buf: size = 8162 B / used = 2010 B / count = 249 / avg = 8 B
+# other used: total = 2003 B / count = 885 / avg = 2 B
+# other free: total = 7 B / max = 7 B / min = 7 B / avg = 7 B
+
+# strcache performance: lookups = 1992 / hit rate = 43%
+# hash-table stats:
+# Load=1134/8192=14%, Rehash=0, Collisions=684/1992=34%
+# Finished Make data base on Wed May 27 10:46:18 2015
+
