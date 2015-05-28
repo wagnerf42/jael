@@ -38,7 +38,6 @@ sub enable_graph_viewer {
 
 sub logs_activated_for {
 	my $tag = shift;
-	print STDERR "logs for $tag is $displayed_tags{$tag}\n";
 	return (defined $displayed_tags{$tag});
 }
 

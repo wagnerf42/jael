@@ -14,6 +14,7 @@ use warnings;
 use overload '""' => \&stringify;
 use Readonly;
 use base 'Exporter';
+use Jael::ServerEngine;
 
 our @EXPORT = qw($TASK_COMPUTATION_COMPLETED $REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED $REVERSE_DEPENDENCIES_UPDATE_TASK_READY
                  $DATA_LOCALISATION $DATA_LOCATED $DATA_DUPLICATED $END_ALL $STEAL_REQUEST $STEAL_FAILED $STEAL_SUCCESS $TASK_IS_PUSHED
@@ -73,6 +74,18 @@ sub new {
     bless $self, $class;
 
     return $self;
+}
+
+sub new_file {
+	my $class = shift;
+	my $filename = shift;
+	open(my $fh, '<', $filename) or die "Can't open file '$filename' : $!";
+	my $content = do { local $/; <$fh> };
+	close($fh);
+
+	my $message = $class->new($FILE, $filename, $content);
+	$message->set_priority($Jael::ServerEngine::SENDING_PRIORITY_LOW);
+	return $message;
 }
 
 sub set_sender_id {

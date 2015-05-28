@@ -256,7 +256,7 @@ sub incoming_message {
     elsif ($type == $Jael::Message::TASK_IS_PUSHED) {
         my $task_id = $message->get_task_id();
 
-        Jael::Debug::msg('task', "[Protocol]task $task_id is on the stack of process $sender_id");
+        Jael::Debug::msg('dht', "[Protocol]task $task_id is on the stack of process $sender_id");
         $self->{dht}->set_machine_owning($task_id, $sender_id);
     }
 
@@ -308,13 +308,8 @@ sub incoming_message {
     elsif ($type == $Jael::Message::FILE_REQUEST) {
         my $filename = $message->get_task_id();
 
-        open(my $fh, '<', $filename) or die "Can't open file '$filename' : $!";
-        my $content = do { local $/; <$fh> };
-        close $fh;
+        my $message = Jael::Message->new_file($filename);
 
-        my $message = Jael::Message->new($Jael::Message::FILE, $filename, $content);
-
-        $message->set_priority($Jael::ServerEngine::SENDING_PRIORITY_LOW);
         $self->{server}->send($sender_id, $message);
     }
 

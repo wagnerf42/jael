@@ -170,17 +170,8 @@ sub compute_real_task {
 
     # TODO: Check if execute returns error !
 
-    # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
-    unless ($main_task_completed) {
-        my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $task->get_id());
-        my $destination = Jael::Dht::hash_task_id($task->get_id());
-
-        # Send to DHT_OWNER($task)
-        $self->{network}->send($destination, $message);
-        $self->{tasks_stack}->update_dependencies($task->get_id());
-    }
     # Protocol end
-    else {
+    if ($main_task_completed) {
 		Jael::Debug::msg('big_event', 'main task completed');
         # Send end message to all machines (except 0 and current process)
         my $message = Jael::Message->new($Jael::Message::END_ALL);
@@ -189,14 +180,7 @@ sub compute_real_task {
         # Send the last file to first machine
         unless ($self->{id} == 0) {
             my $filename = $task->get_task_id();
-
-            open(my $fh, '<', $filename) or die "Can't open file '$filename' : $!";
-            my $content = do { local $/; <$fh> };
-            close $fh;
-
-            my $message = Jael::Message->new($Jael::Message::FILE, $filename, $content);
-
-            $message->set_priority($Jael::ServerEngine::SENDING_PRIORITY_LOW);
+			my $message = Jael::Message->new_file($filename);
             $self->{server}->send(0, $message);
         }
 
@@ -204,6 +188,14 @@ sub compute_real_task {
 
         # Kill current process
         $self->{network}->send($self->{id}, $message);
+    } else {
+		# We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
+        my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $task->get_id());
+        my $destination = Jael::Dht::hash_task_id($task->get_id());
+
+        # Send to DHT_OWNER($task)
+        $self->{network}->send($destination, $message);
+        $self->{tasks_stack}->update_dependencies($task->get_id());
     }
 
     return;

@@ -40,7 +40,7 @@ sub stats {
 		}
 	}
 	Jael::Debug::msg('stack', "stack now contains $ready ready tasks and $not_ready non-ready tasks");
-	return;
+	return ($ready, $not_ready);
 }
 
 # Add many tasks on stack

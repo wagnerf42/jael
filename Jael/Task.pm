@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Readonly;
 use base 'Exporter';
+use Jael::Debug;
 
 # Warning : Task class is abstract, please to use the following classes : VirtualTask & RealTask
 

@@ -29,6 +29,7 @@ sub new {
     $self->{status} = $Jael::Task::TASK_STATUS_READY;
 
     bless $self, $class;
+	Jael::Debug::msg('task', "created task $self");
     return $self;
 }
 

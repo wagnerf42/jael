@@ -21,6 +21,7 @@ sub new {
     my $dependencies = shift;
 
     $self->{dependencies}->{$_} = 1 for @$dependencies;
+	$self->{remaining_unfilled_dependencies} = scalar @$dependencies; #count how many deps we are still waiting for
     $self->{reverse_dependencies} = shift;
     $self->{reverse_dependencies} = [] if not defined $self->{reverse_dependencies}; # Main task
 
@@ -32,6 +33,7 @@ sub new {
     }
 
     bless $self, $class;
+	Jael::Debug::msg('task', "created task $self");
     return $self;
 }
 
@@ -90,19 +92,22 @@ sub unset_dependency {
     # No checked dependency here
     return if not defined $self->{dependencies}->{$dependency_id};
 
-    # No update, the dependency is already unse
+    # No update, the dependency is already unset
     return if $self->{dependencies}->{$dependency_id} == 0;
 
     # Unset dependency
     $self->{dependencies}->{$dependency_id} = 0;
+	$self->{remaining_unfilled_dependencies}--;
 
+	my @still_needed;
+	for my $id (keys %{$self->{dependencies}}) {
+		push @still_needed, $id if $self->{dependencies}->{$id};
+	}
+	Jael::Debug::msg('stack', "task $self->{target_name} still needs @still_needed");
     # Update status
-    for (values %{$self->{dependencies}}) {
-        return if $_ != 0; # It exists one active dependency
-    }
-
-    # No active dependencies
-    $self->{status} = $Jael::Task::TASK_STATUS_READY;
+	if ($self->{remaining_unfilled_dependencies} == 0) {
+		$self->{status} = $Jael::Task::TASK_STATUS_READY;
+	}
 
     return;
 }
