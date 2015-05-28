@@ -29,7 +29,7 @@ sub new {
     $self->{status} = $Jael::Task::TASK_STATUS_READY;
 
     bless $self, $class;
-	Jael::Debug::msg('task', "created task $self");
+    Jael::Debug::msg('task', "created task $self");
     return $self;
 }
 
@@ -58,8 +58,8 @@ sub get_tasks_to_generate {
 }
 
 sub unset_dependency {
-	#nothing to do for us
-	return;
+    #nothing to do for us
+    return;
 }
 
 1;

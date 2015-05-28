@@ -69,11 +69,7 @@ sub new {
     my $thr_high = threads->create(\&th_send_with_priority, $self->{id}, $self->{machines_names}->[$self->{id}],
                                    \@sh_messages_high, \@machines_names, $SENDING_PRIORITY_HIGH);
 
-    push @{$self->{sending_threads}}, $thr_low;
-    push @{$self->{sending_threads}}, $thr_high;
-
-    Jael::Paje::create_thread($thr_low->tid());
-    Jael::Paje::create_thread($thr_high->tid());
+    push @{$self->{sending_threads}}, ($thr_low, $thr_high);
 
     return $self;
 }
@@ -179,12 +175,22 @@ sub th_send_with_priority {
 
     # Init the debug infos for the sending thread
     Jael::Debug::msg('network', "[Server]creating sending thread");
+    Jael::Paje::create_thread(threads->tid());
+    Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_EXECUTING);
 
     while (1) {
         {
+            Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_BLOCKED);
             lock($sending_messages);
             cond_signal($sending_messages) unless @{$sending_messages}; # For wait_while_messages_exists
-            cond_wait($sending_messages) until @{$sending_messages}; # Wait if nothing in messages array
+
+            # Wait if nothing in messages array
+            until (@{$sending_messages}) {
+                Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_WAITING);
+                cond_wait($sending_messages)
+            }
+
+            Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_EXECUTING);
 
             # Get message in the message list
             $target_machine_id = shift @{$sending_messages};

@@ -3,9 +3,17 @@ package Jael::Paje;
 
 use strict;
 use warnings;
+use Readonly;
+use base 'Exporter';
 use threads;
 use threads::shared;
 use Time::HiRes;
+
+our @EXPORT = qw($THREAD_STATUS_EXECUTING $THREAD_STATUS_BLOCKED $THREAD_STATUS_WAITING);
+
+Readonly::Scalar our $THREAD_STATUS_EXECUTING => "SE";
+Readonly::Scalar our $THREAD_STATUS_BLOCKED => "SB";
+Readonly::Scalar our $THREAD_STATUS_WAITING => "SW";
 
 my $pid;
 my $starting_time;
@@ -14,7 +22,7 @@ my $messages_counters_in = shared_clone({});
 
 sub puts {
     my $message = shift;
-	return unless $ENV{JAEL_DEBUG}=~/paje/;
+    return unless $ENV{JAEL_DEBUG} =~ /paje/;
     print("[Paje]$message\n");
     return;
 }
@@ -78,15 +86,22 @@ sub puts_header {
     puts('%  Alias string');
     puts('%EndEventDef');
 
-    # State's value
     puts('%EventDef PajeDefineEntityValue 8');
     puts('%  Name string');
     puts('%  EntityType string');
+    puts('%  Color color');
     puts('%  Alias string');
     puts('%EndEventDef');
 
+    puts('%EventDef PajeSetState 9');
+    puts('%  Time date');
+    puts('%  Value string');
+    puts('%  Container string');
+    puts('%  Type string');
+    puts('%EndEventDef');
+
     # Event type
-    puts('%EventDef PajeDefineEventType 9');
+    puts('%EventDef PajeDefineEventType 10');
     puts('%  Name string');
     puts('%  ContainerType string');
     puts('%  Alias string');
@@ -99,6 +114,8 @@ sub puts_types {
     # Types
     puts('1 "Process" 0 P');
     puts('1 "Thread" P T');
+
+    # Links
     puts('4 "Task Computation Completed" T T P L1');
     puts('4 "Reverse Dependencies Update Task Completed" T T P L2');
     puts('4 "Reverse Dependencies Update Task Ready" T T P L3');
@@ -117,12 +134,13 @@ sub puts_types {
     puts('4 "File" T T P L16');
     puts('4 "Taskgraph" T T P L17');
     puts('4 "Last File" T T P L18');
-    puts('7 "Thread State" T TS');
 
     # Thread's states
-    puts('8 "Executing" TS SE');
-    puts('8 "Blocked" TS SB');
-    puts('8 "Waiting" TS SW');
+    puts('7 "Thread State" T TS');
+
+    puts("8 \"Executing\" TS \"0.0 1.0 0.0\" $THREAD_STATUS_EXECUTING");
+    puts("8 \"Blocked\" TS \"0.0 0.0 1.0\" $THREAD_STATUS_BLOCKED");
+    puts("8 \"Waiting\" TS \"1.0 0.0 0.0\" $THREAD_STATUS_WAITING");
 
     return;
 }
@@ -212,6 +230,16 @@ sub destroy_link {
 
     $label = "" if not defined $label;
     puts("6 $time P$pid-T$tid " . generate_message_key($type, $pid, $sender_id, $messages_counters_in) . " \"$label\" P$sender_id L$type");
+
+    return;
+}
+
+sub set_thread_status {
+    my $status = shift;
+    my $tid = threads->tid();
+    my $time = get_elapsed_time();
+
+    puts("9 $time $status P$pid-T$tid TS");
 
     return;
 }
