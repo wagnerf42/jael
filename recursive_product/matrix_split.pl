@@ -19,5 +19,5 @@ my @columns_numbers = ($big_columns, $small_columns, $big_columns, $small_column
 my @j_offsets = (0, $big_columns, 0, $big_columns);
 
 for my $index (0..3) {
-	$m->save_submatrix($i_offsets[$index], $j_offsets[$index], $lines_numbers[$index], $columns_numbers[$index], "$ARGV[0]-$index");
+	$m->save_submatrix($i_offsets[$index], $j_offsets[$index], $lines_numbers[$index], $columns_numbers[$index], "$ARGV[0]$index");
 }

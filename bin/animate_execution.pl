@@ -6,7 +6,7 @@ use Jael::TasksParser;
 
 die 'needed_args: graph_log_file events_log_file' unless defined $ARGV[1] and -f $ARGV[0] and -f $ARGV[1];
 
-my $tasks = Jael::TasksParser::make($ARGV[0]);
+Jael::TasksParser::make($ARGV[0]);
 
 my $events = parse_events($ARGV[1]);
 

@@ -53,6 +53,7 @@ sub new {
     $self->{config} = $config;
     $self->{id} = $config->{id};
     $self->{machines} = $config->{machines};
+	$self->{max_threads} = $config->{max_threads} if defined $config->{max_threads};
 
     # Set machine number for global data in Dht module and current object
     Jael::Dht::set_machines_number(scalar @{$config->{machines}});
@@ -67,7 +68,7 @@ sub new {
     if ($self->{id} == 0) {
         $self->{working_directory} = getcwd();
     } else {
-        $self->{working_directory} = tempdir("/tmp/jael_" . $self->{id} . "_XXXXXX");
+        $self->{working_directory} = tempdir("/tmp/jael_$self->{id}_XXXXXX");
         chdir $self->{working_directory} or die "Unable to chdir !";
     }
 
