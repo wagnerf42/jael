@@ -56,4 +56,9 @@ sub get_tasks_to_generate {
     return $self->{reverse_dependencies};
 }
 
+sub unset_dependency {
+	#nothing to do for us
+	return;
+}
+
 1;

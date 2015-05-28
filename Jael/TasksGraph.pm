@@ -156,15 +156,15 @@ sub display {
     my $current_num = 0;
 
     # Get a unique integer identifier for each task
-    for my $id (keys %{$tasksgraph->{commands}}) {
+    for my $id (sort keys %{$tasksgraph->{commands}}) {
         $nums{$id} = $current_num;
         $current_num++;
     }
 	# Get a unique integer identifier for each file
 	$current_num = 0;
 	my %files_num;
-    for my $id (keys %{$tasksgraph->{commands}}) {
-        for my $dep (@{$tasksgraph->{dependencies}->{$id}}) {
+    for my $id (sort keys %{$tasksgraph->{commands}}) {
+        for my $dep (sort @{$tasksgraph->{dependencies}->{$id}}) {
 			unless (defined $nums{$dep}) {
 				$files_num{$dep} = $current_num;
 				$current_num++;
@@ -174,12 +174,12 @@ sub display {
 
     # Generate dot content
 	# start with files nodes
-	for my $id (keys %files_num) {
+	for my $id (sort keys %files_num) {
 		print $dotfile "f$files_num{$id}\[color=\"blue\"\, label=\"$id\"];\n";
 	}
-	
+
 	#continue with tasks and dependencies
-    for my $id (keys %{$tasksgraph->{commands}}) {
+    for my $id (sort keys %{$tasksgraph->{commands}}) {
         my $num = $nums{$id};
 		my $color = $tasksgraph->{colors}->{$id};
 		if (defined $color) {
@@ -188,7 +188,7 @@ sub display {
 			print $dotfile "n$num [label=\"$id\"];\n";
 		}
 
-        for my $dep (@{$tasksgraph->{dependencies}->{$id}}) {
+        for my $dep (sort @{$tasksgraph->{dependencies}->{$id}}) {
             my $dep_num = $nums{$dep};
 			if (defined $dep_num) {
 				#we depend on a task
