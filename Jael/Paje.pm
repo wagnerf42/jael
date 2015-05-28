@@ -9,11 +9,15 @@ use threads;
 use threads::shared;
 use Time::HiRes;
 
-our @EXPORT = qw($THREAD_STATUS_EXECUTING $THREAD_STATUS_BLOCKED $THREAD_STATUS_WAITING);
+our @EXPORT = qw($THREAD_STATUS_EXECUTING $THREAD_STATUS_BLOCKED $THREAD_STATUS_WAITING $THREAD_STATUS_FORKING $THREAD_STATUS_STEALING $THREAD_STATUS_COMPUTING);
 
 Readonly::Scalar our $THREAD_STATUS_EXECUTING => "SE";
 Readonly::Scalar our $THREAD_STATUS_BLOCKED => "SB";
 Readonly::Scalar our $THREAD_STATUS_WAITING => "SW";
+
+Readonly::Scalar our $THREAD_STATUS_FORKING => "SF";
+Readonly::Scalar our $THREAD_STATUS_STEALING => "SS";
+Readonly::Scalar our $THREAD_STATUS_COMPUTING => "SC";
 
 my $pid;
 my $starting_time;
@@ -141,6 +145,10 @@ sub puts_types {
     puts("8 \"Executing\" TS \"0.0 1.0 0.0\" $THREAD_STATUS_EXECUTING");
     puts("8 \"Blocked\" TS \"0.0 0.0 1.0\" $THREAD_STATUS_BLOCKED");
     puts("8 \"Waiting\" TS \"1.0 0.0 0.0\" $THREAD_STATUS_WAITING");
+
+    puts("8 \"Computing\" TS \"0.0 1.0 0.0\" $THREAD_STATUS_COMPUTING");
+    puts("8 \"Forking\" TS \"0.0 0.0 1.0\" $THREAD_STATUS_FORKING");
+    puts("8 \"Stealing\" TS \"1.0 0.0 0.0\" $THREAD_STATUS_STEALING");
 
     return;
 }

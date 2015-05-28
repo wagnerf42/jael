@@ -170,7 +170,7 @@ sub incoming_message {
         }
 
         # TMP
-		Jael::Debug::msg('dht', Data::Dumper->Dump([$self->{dht}]));
+        Jael::Debug::msg('dht', Data::Dumper->Dump([$self->{dht}]));
 
         Jael::Paje::destroy_thread();
         Jael::Paje::destroy_process();
@@ -307,7 +307,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FILE_REQUEST) {
         my $filename = $message->get_task_id();
-
         my $message = Jael::Message->new_file($filename);
 
         $self->{server}->send($sender_id, $message);

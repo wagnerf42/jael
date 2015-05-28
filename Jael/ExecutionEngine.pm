@@ -53,7 +53,7 @@ sub new {
     $self->{config} = $config;
     $self->{id} = $config->{id};
     $self->{machines} = $config->{machines};
-	$self->{max_threads} = $config->{max_threads} if defined $config->{max_threads};
+    $self->{max_threads} = $config->{max_threads} if defined $config->{max_threads};
 
     # Set machine number for global data in Dht module and current object
     Jael::Dht::set_machines_number(scalar @{$config->{machines}});
@@ -135,6 +135,7 @@ sub compute_virtual_task {
                 my $destination = Jael::Dht::hash_task_id($task_id);
 
                 Jael::Debug::msg('fork', "[ExecutionEngine]task $task_id is requested");
+                Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_FORKING);
 
                 $self->{network}->send($destination, $message);
             } else {
@@ -163,7 +164,7 @@ sub compute_real_task {
 
     # Execute real task & update dependencies
     my $main_task_completed = $task->execute();
-	Jael::Debug::msg('task', "[ExecutionEngine] completed task '$task_id'");
+    Jael::Debug::msg('task', "[ExecutionEngine] completed task '$task_id'");
 
     # TMP
     `touch $task_id`;
@@ -172,7 +173,7 @@ sub compute_real_task {
 
     # Protocol end
     if ($main_task_completed) {
-		Jael::Debug::msg('big_event', 'main task completed');
+        Jael::Debug::msg('big_event', 'main task completed');
         # Send end message to all machines (except 0 and current process)
         my $message = Jael::Message->new($Jael::Message::END_ALL);
         $self->{network}->broadcast_except($message, [0]);
@@ -180,7 +181,7 @@ sub compute_real_task {
         # Send the last file to first machine
         unless ($self->{id} == 0) {
             my $filename = $task->get_task_id();
-			my $message = Jael::Message->new_file($filename);
+            my $message = Jael::Message->new_file($filename);
             $self->{server}->send(0, $message);
         }
 
@@ -189,7 +190,7 @@ sub compute_real_task {
         # Kill current process
         $self->{network}->send($self->{id}, $message);
     } else {
-		# We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
+        # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
         my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $task->get_id());
         my $destination = Jael::Dht::hash_task_id($task->get_id());
 
@@ -208,8 +209,9 @@ sub computation_thread {
     # We remove the current machine id of the list
     $self->{rand_machines} = [grep {$_ ne $self->{id}} (0..@{$self->{machines}}-1)];
     $self->{rand_machines} = [shuffle(@{$self->{rand_machines}})];
-
     $self->{last_rand_machine} = 0;
+
+    Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_COMPUTING);
 
     while (1) {
         # Take task
@@ -223,9 +225,11 @@ sub computation_thread {
                     lock($self->{steal_authorized});
 
                     if (${$self->{steal_authorized}} and @{$self->{rand_machines}}) {
-						#TODO: we continue stealing after last task is finished
-						#TODO: is it ok ???
+                        #TODO: we continue stealing after last task is finished
+                        #TODO: is it ok ???
                         my $machine_id = ${$self->{rand_machines}}[$self->{last_rand_machine}];
+
+                        Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_STEALING);
 
                         # Update the next machine for steal request
                         $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
@@ -240,10 +244,12 @@ sub computation_thread {
         }
         # Virtual task
         elsif ($task->is_virtual()) {
+            Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_COMPUTING);
             compute_virtual_task($self, $task);
         }
         # Real task
         else {
+            Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_COMPUTING);
             compute_real_task($self, $task);
         }
     }
