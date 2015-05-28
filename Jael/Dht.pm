@@ -158,7 +158,7 @@ sub update_reverse_dependencies_status {
         push @ready_tasks, $reverse_dependency;
     }
 
-    Jael::Debug::msg("[Dht]task $task_id is now completed, new ready tasks: " . join(", ", @ready_tasks));
+    Jael::Debug::msg('dht', "[Dht]task $task_id is now completed, new ready tasks: " . join(", ", @ready_tasks));
 
     return \@ready_tasks;
 }

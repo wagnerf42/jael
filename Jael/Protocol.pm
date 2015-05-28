@@ -48,7 +48,7 @@ sub ask_for_files {
         if (not -e $dependency) {
             my $dht_owner = Jael::Dht::hash_task_id($dependency);
 
-            Jael::Debug::msg("[Protocol]Missing dependency for task $task_id : $dependency");
+            Jael::Debug::msg('protocol', "[Protocol]Missing dependency for task $task_id : $dependency");
 
             $self->{server}->send($dht_owner, Jael::Message->new($Jael::Message::DATA_LOCALISATION, $dependency));
             $is_ready = 0;
@@ -65,7 +65,7 @@ sub incoming_message {
     my $type = $message->get_type();
     my $sender_id = $message->get_sender_id();
 
-    Jael::Debug::msg("[Protocol]incoming_message type: $type");
+    Jael::Debug::msg('network', "[Protocol]incoming_message type: $type");
 
     # -----------------------------------------------------------------
     # Task computation ok : Update Dht status and inform machines
@@ -115,7 +115,7 @@ sub incoming_message {
 
         # Set $TASK_STATUS_READY if there is no dependency problems
         if ($self->ask_for_files($task_id, $dependencies)) {
-            Jael::Debug::msg("[Protocol]task $task_id is now ready");
+            Jael::Debug::msg('task', "[Protocol]task $task_id is now ready");
             $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY);
         } else {
             # No effects if the task is already ready
@@ -158,7 +158,7 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::END_ALL) {
         # There are no more tasks, exiting process
-        Jael::Debug::msg('[Protocol]we stop now');
+        Jael::Debug::msg('big_event', '[Protocol]we stop now');
 
         # Kill threads server
         $self->{server}->kill_sending_threads();
@@ -170,7 +170,7 @@ sub incoming_message {
         }
 
         # TMP
-        print Data::Dumper->Dump([$self->{dht}]);
+		Jael::Debug::msg('dht', Data::Dumper->Dump([$self->{dht}]));
 
         Jael::Paje::destroy_thread();
         Jael::Paje::destroy_process();
@@ -188,7 +188,7 @@ sub incoming_message {
         if (defined $task) {
             my $task_id = $task->get_id();
 
-            Jael::Debug::msg("[Protocol]Steal authorized for task " . $task_id . " on machine id " . $sender_id);
+            Jael::Debug::msg('protocol', "[Protocol]Steal authorized for task $task_id on machine id $sender_id");
             Jael::Paje::create_link($Jael::Message::STEAL_SUCCESS, $sender_id, $task_id);
 
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_SUCCESS, $task_id));
@@ -205,7 +205,7 @@ sub incoming_message {
     elsif ($type == $Jael::Message::STEAL_SUCCESS) {
         my $task_id = $message->get_task_id();
 
-        Jael::Debug::msg("[Protocol]steal success on $sender_id, new task on stack : $task_id");
+        Jael::Debug::msg('protocol', "[Protocol]steal success on $sender_id, new task on stack : $task_id");
         Jael::Paje::destroy_link($Jael::Message::STEAL_SUCCESS, $sender_id, $task_id);
 
         my $task = Jael::TasksGraph::get_task($task_id);
@@ -216,7 +216,7 @@ sub incoming_message {
 
             # Set $TASK_STATUS_READY if there is no dependency problems
             if ($self->ask_for_files($task_id, $dependencies)) {
-                Jael::Debug::msg("[Protocol]task $task_id is now ready");
+                Jael::Debug::msg('task', "[Protocol]task $task_id is now ready");
                 $task->update_status($Jael::Task::TASK_STATUS_READY);
             } else {
                 # No effects if the task is already ready
@@ -243,7 +243,7 @@ sub incoming_message {
     # Process_i failed to steal a new task
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::STEAL_FAILED) {
-        Jael::Debug::msg("[Protocol]steal fail on $sender_id");
+        Jael::Debug::msg('protocol', "[Protocol]steal fail on $sender_id");
         Jael::Paje::destroy_link($Jael::Message::STEAL_FAILED, $sender_id);
 
         lock($self->{steal_authorized});
@@ -256,7 +256,7 @@ sub incoming_message {
     elsif ($type == $Jael::Message::TASK_IS_PUSHED) {
         my $task_id = $message->get_task_id();
 
-        Jael::Debug::msg("[Protocol]task $task_id is on the stack of process $sender_id");
+        Jael::Debug::msg('task', "[Protocol]task $task_id is on the stack of process $sender_id");
         $self->{dht}->set_machine_owning($task_id, $sender_id);
     }
 
@@ -268,14 +268,14 @@ sub incoming_message {
 
         # Fork success
         if ($self->{dht}->fork_request($task_id, $sender_id)) {
-            Jael::Debug::msg("[Protocol]task $task_id is forked by $sender_id");
+            Jael::Debug::msg('fork', "[Protocol]task $task_id is forked by $sender_id");
             Jael::Paje::create_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id));
         }
         # Fork failure
         else {
-            Jael::Debug::msg("[Protocol]task $task_id is not forked by $sender_id");
+            Jael::Debug::msg('fork', "[Protocol]task $task_id is not forked by $sender_id");
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_REFUSED, $task_id));
         }
     }
@@ -287,7 +287,7 @@ sub incoming_message {
         my $task_id = $message->get_task_id();
         my $task = Jael::TasksGraph::get_task($task_id);
 
-        Jael::Debug::msg("[Protocol]fork accepted, new task on stack : $task_id");
+        Jael::Debug::msg('fork', "[Protocol]fork accepted, new task on stack : $task_id");
         Jael::Paje::destroy_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
         $self->{fork_set}->set_done_status($task_id);
@@ -335,7 +335,7 @@ sub incoming_message {
     # Taskgraph is received
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::TASKGRAPH) {
-        Jael::Debug::msg("[Protocol]taskgraph is received");
+        Jael::Debug::msg('big_event', "[Protocol]taskgraph is received");
         Jael::TasksGraph->initialize_by_message($message->get_string());
     }
 

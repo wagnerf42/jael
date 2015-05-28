@@ -25,9 +25,22 @@ sub stringify {
     my $self = shift;
 
     lock($self->{tasks});
-    print STDERR "Tid " . threads->tid() . ": [" . join(", ", @{$self->{tasks}}) . "]\n";
+    return "Tid " . threads->tid() . ": [" . join(", ", @{$self->{tasks}}) . "]\n";
+}
 
-    return;
+#precondition : stack is locked
+sub stats {
+	my $self = shift;
+	my ($ready, $not_ready) = (0, 0);
+	for my $task (@{$self->{tasks}}) {
+		if ($task->is_ready()) {
+			$ready++;
+		} else {
+			$not_ready++;
+		}
+	}
+	Jael::Debug::msg('stack', "stack now contains $ready ready tasks and $not_ready non-ready tasks");
+	return;
 }
 
 # Add many tasks on stack
@@ -36,6 +49,7 @@ sub push_task {
 
     lock($self->{tasks});
     push @{$self->{tasks}}, map {shared_clone($_)} @_;
+	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return;
 }
@@ -61,6 +75,7 @@ sub pop_task {
     }
 
     push @{$self->{tasks}}, @remaining_tasks;
+	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return $selected_task;
 }
@@ -91,6 +106,7 @@ sub steal_task {
     }
 
     unshift @{$self->{tasks}}, @remaining_tasks;
+	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return $selected_task;
 }
@@ -106,6 +122,7 @@ sub get_size {
 }
 
 # Unset task id in all tasks dependencies
+# TODO: name is not clear
 sub update_dependencies {
     my $self = shift;
     my $id = shift;
@@ -117,6 +134,7 @@ sub update_dependencies {
 }
 
 # Change task's status if task exists
+# TODO: name is not clear
 sub change_task_status {
     my $self = shift;
     my $id = shift;
@@ -129,11 +147,13 @@ sub change_task_status {
     if (defined $tasks[0]) {
         $tasks[0]->update_status($new_status);
     }
+	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return;
 }
 
 # Try to change the status for each task (if all dependencies are checked)
+# TODO: name is not clear
 sub set_ready_status_if_necessary {
     my $self = shift;
     my $task_id = shift;
@@ -145,27 +165,28 @@ sub set_ready_status_if_necessary {
         # If the task waiting (it's inevitably one real task)
         if ($task->get_status() == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES) {
             my $dependencies = $task->get_dependencies();
-            Jael::Debug::msg("[TasksStack]checking $task with dependency " . $task->get_id());
+            Jael::Debug::msg('task', "[TasksStack]checking $task with dependency " . $task->get_id());
 
             # If the new file is in the task's dependencies
             if (defined $dependencies->{$task_id}) {
                 for my $dependency (keys %{$dependencies}) {
                     # One or more files are missing
                     if (not -e $dependency) {
-                        Jael::Debug::msg("[TasksStack]dependency $dependency is not present (for " . $task->get_id() . ")");
+                        Jael::Debug::msg('task', "[TasksStack]dependency $dependency is not present (for " . $task->get_id() . ")");
                         next R_TASK; # Unable to update status
                     }
                 }
             } else {
-                Jael::Debug::msg("[TasksStack]undefined $task_id in dependencies of " . $task->get_id());
+                Jael::Debug::msg('task', "[TasksStack]undefined $task_id in dependencies of " . $task->get_id());
             }
 
             # The real task is now ready
             $task->update_status($Jael::Task::TASK_STATUS_READY);
         } else {
-            Jael::Debug::msg("[TasksStack]in stack, status of " . $task->get_id() . " is " . $task->get_status());
+            Jael::Debug::msg('task', "[TasksStack]in stack, status of " . $task->get_id() . " is " . $task->get_status());
         }
     }
+	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return;
 }

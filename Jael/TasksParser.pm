@@ -29,7 +29,7 @@ sub make {
     # Initialize the singleton TasksGraph
     Jael::TasksGraph->initialize();
 
-    Jael::Debug::msg("[TasksParser]launching jael_make");
+    Jael::Debug::msg('big_event', "[TasksParser]launching jael_make");
 	if (defined $log_file) {
 		open(MAKE, '<', $log_file) or die "unable to open log file $log_file : $!";
 	} else {
@@ -45,8 +45,8 @@ sub make {
     }
 
     close(MAKE);
-    Jael::Debug::msg("[TasksParser]jael_make completed");
-    Jael::Debug::msg("[TasksParser]tasks list:\n" . Jael::TasksGraph::stringify());
+    Jael::Debug::msg('big_event', "[TasksParser]jael_make completed");
+    Jael::Debug::msg('task', "[TasksParser]tasks list:\n" . Jael::TasksGraph::stringify());
 
     # Define the main targe
     if (defined $self->{vars}->{'.DEFAULT_GOAL'}) {

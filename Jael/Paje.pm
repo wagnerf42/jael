@@ -14,6 +14,7 @@ my $messages_counters_in = shared_clone({});
 
 sub puts {
     my $message = shift;
+	return unless $ENV{JAEL_DEBUG}=~/paje/;
     print("[Paje]$message\n");
     return;
 }

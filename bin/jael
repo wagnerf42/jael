@@ -18,7 +18,7 @@ $config->{machines} = ['localhost'] unless exists $config->{machines};
 $config->{id} = 0 unless exists $config->{'id'};
 
 Jael::Debug::init($config->{id}, $config->{machines}->[$config->{id}]);
-Jael::Debug::msg("[jael]using machines : @{$config->{machines}}");
+Jael::Debug::msg('big_event', "[jael]using machines : @{$config->{machines}}");
 
 if (@{$config->{machines}} != 1) {
     # If we are master, deploy everyone
@@ -31,7 +31,7 @@ if (@{$config->{machines}} != 1) {
             $taktuk_command .= " -m $machine -[ exec [ jael -m $machines -i $id ] -]";
         }
 
-        Jael::Debug::msg("[jael]using taktuk : $taktuk_command\n");
+        Jael::Debug::msg('big_event', "[jael]using taktuk : $taktuk_command\n");
 
         Jael::Paje::puts_header();
         Jael::Paje::puts_types();

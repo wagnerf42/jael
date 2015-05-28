@@ -33,7 +33,7 @@ sub incoming_data {
             my $message_string = substr($self->{buffers}->{$socket}, 0, $size, ''); #this removes msg from remaining par
             my $message = Jael::Message::unpack($message_string);
 
-            Jael::Debug::msg("[Message]received : $message (size=" . length($message_string) . ")");
+            Jael::Debug::msg('network', "[Message]received : $message (size=" . length($message_string) . ")");
             push @incoming_messages, $message;
         } else {
             return @incoming_messages;

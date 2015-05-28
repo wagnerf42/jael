@@ -1,0 +1,12 @@
+the following events can be filtered in logging system :
+
+- big_event : concerning startup and life of processes
+- dht : dht events
+- task : task-related (tasks stacks and executions)
+- fork : fork-requests related
+- network : messages
+- protocol
+- stack
+
+export JAEL_DEBUG to ':' separated list of tags
+example : export JAEL_DEBUG='big_event:task'

@@ -3,9 +3,11 @@
 use strict;
 use warnings;
 use Jael::TasksParser;
+use Jael::Debug;
 
 die 'needed_args: graph_log_file events_log_file' unless defined $ARGV[1] and -f $ARGV[0] and -f $ARGV[1];
-delete $ENV{JAEL_DEBUG};
+Jael::Debug::enable_graph_viewer(); #enable graph display
+delete $ENV{JAEL_DEBUG}; #disable additional debug messages
 
 Jael::TasksParser::make($ARGV[0]);
 

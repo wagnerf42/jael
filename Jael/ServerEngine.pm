@@ -80,7 +80,7 @@ sub new {
 
 sub run {
     my $self = shift;
-    Jael::Debug::msg("[Server]starting new server (port=" . ($PORT + $self->{id}) . ", id=$self->{id})");
+    Jael::Debug::msg('big_event', "[Server]starting new server (port=" . ($PORT + $self->{id}) . ", id=$self->{id})");
 
     # server port is PORT + id of current server
     $self->{server_socket} = IO::Socket::INET->new(LocalHost => $self->{machines_names}->[$self->{id}],
@@ -98,7 +98,7 @@ sub run {
         for my $fh (@ready) {
 	    # New connexion
             if ($fh == $self->{server_socket}) {
-                Jael::Debug::msg("[Server]new connexion");
+                Jael::Debug::msg('network', "[Server]new connexion");
                 my $new = $self->{server_socket}->accept;
                 $self->{read_set}->add($new);
             }
@@ -111,7 +111,7 @@ sub run {
 
                 # Closing connexion
                 if ($size == 0) {
-                    Jael::Debug::msg("[Server]connection closed");
+                    Jael::Debug::msg('network', "[Server]connection closed");
                     $self->{read_set}->remove($fh);
                     close($fh);
                 }
@@ -134,11 +134,11 @@ sub broadcast {
     my $self = shift;
     my $message = shift;
 
-    Jael::Debug::msg("[Server]broadcasting $message");
+    Jael::Debug::msg('network', "[Server]broadcasting $message");
 
     for my $machine_id (0..$#{$self->{machines_names}}) {
         next if $machine_id == $self->{id};
-        Jael::Debug::msg("[Server]broadcast $machine_id");
+        Jael::Debug::msg('network', "[Server]broadcast $machine_id");
 
         $self->send($machine_id, $message);
     }
@@ -152,11 +152,11 @@ sub broadcast_except {
     my $message = shift;
     my $except_list = shift;
 
-    Jael::Debug::msg("[Server]broadcasting (except: " . join(",", @{$except_list}) . ") $message");
+    Jael::Debug::msg('network', "[Server]broadcasting (except: " . join(",", @{$except_list}) . ") $message");
 
     for my $machine_id (0..$#{$self->{machines_names}}) {
         next if grep {$machine_id == $_} @{$except_list};
-        Jael::Debug::msg("[Server]broadcast $machine_id");
+        Jael::Debug::msg('network', "[Server]broadcast $machine_id");
 
         $self->send($machine_id, $message);
     }
@@ -178,7 +178,7 @@ sub th_send_with_priority {
     my $target_machine_id; # Message id
 
     # Init the debug infos for the sending thread
-    Jael::Debug::msg("[Server]creating sending thread");
+    Jael::Debug::msg('network', "[Server]creating sending thread");
 
     while (1) {
         {
@@ -197,7 +197,7 @@ sub th_send_with_priority {
 
         # Sending data
         my $socket = $sending_sockets->{$target_machine_id};
-        Jael::Debug::msg("[Server]sending message (priority=$priority, target=$target_machine_id)");
+        Jael::Debug::msg('network', "[Server]sending message (priority=$priority, target=$target_machine_id)");
 
         $socket->send($string) or die "unable to send to $target_machine_id: $!";
     }
@@ -238,7 +238,7 @@ sub send {
     {
         lock($self->{sending_messages}->[$priority]);
         push @{$self->{sending_messages}->[$priority]}, ($target_machine_id, $message->pack());
-        Jael::Debug::msg("[Server]new message in queue (type=" . $message->get_type() .
+        Jael::Debug::msg('network', "[Server]new message in queue (type=" . $message->get_type() .
                          ", id_dest=$target_machine_id, priority=$priority)");
         cond_signal($self->{sending_messages}->[$priority]);
     }
@@ -249,7 +249,7 @@ sub send {
 sub kill_sending_threads {
     my $self = shift;
 
-    Jael::Debug::msg("[Server]kill sending threads");
+    Jael::Debug::msg('network', "[Server]kill sending threads");
 
     $_->kill('SIGUSR1') for @{$self->{sending_threads}};
 
@@ -273,7 +273,7 @@ sub connect_to {
     my $machine = $machines_names->[$machine_id];
 
     while (not defined $sending_sockets->{$machine_id}) {
-        Jael::Debug::msg("[Server]connect_to (machine_addr=$machine, port=$port)");
+        Jael::Debug::msg('network', "[Server]connect_to (machine_addr=$machine, port=$port)");
 
         $sending_sockets->{$machine_id} = IO::Socket::INET->new(
             PeerAddr => $machine,
@@ -284,7 +284,7 @@ sub connect_to {
         sleep(2);
     }
 
-    Jael::Debug::msg("[Server]opened connection to $machine_id");
+    Jael::Debug::msg('network', "[Server]opened connection to $machine_id");
 
     return;
 }
