@@ -20,7 +20,7 @@ sub new {
             if ($line =~ /^machines:\s*$/) {
                 $key = 'machines';
                 $self->{$key} = [];
-            } elsif ($line =~ /\t\s*-\s*(\S+)$/) {
+            } elsif ($line =~ /\s*-\s*(\S+)$/) {
                 push @{$self->{$key}}, $1;
             } elsif ($line =~ /^max_threads:\s*(\d+)$/) {
 				$self->{max_threads} = $1;

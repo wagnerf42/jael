@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+if (@ARGV < 2) {
+    print "usage: <logfile><flag>\n";
+    exit -1;
+}
+
+my $filename = shift;
+my $flag = shift;
+
+open(my $fh, '<', $filename) or die("unable to open '$filename': $!");
+
+my $regex = '\[' . $flag . '\](.*)';
+
+while(<$fh>) {
+    print "$_" if $_ =~ /$regex/;
+}
+
+close $fh;

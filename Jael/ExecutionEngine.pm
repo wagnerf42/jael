@@ -110,6 +110,18 @@ sub get_working_directory {
     return $self->{working_directory};
 }
 
+sub fork_task {
+    my $self = shift;
+    my $task_id = shift;
+    my $message = Jael::Message->new($Jael::Message::FORK_REQUEST, $task_id);
+    my $destination = Jael::Dht::hash_task_id($task_id);
+
+    Jael::Debug::msg('fork', "[ExecutionEngine]task $task_id is requested");
+    $self->{network}->send($destination, $message);
+
+    return;
+}
+
 sub compute_virtual_task {
     my $self = shift;
     my $task = shift;
@@ -119,38 +131,27 @@ sub compute_virtual_task {
 
     # Get tasks to generate
     my $tasks_ids = $task->get_tasks_to_generate();
-    my @tasks;
 
     for my $task_id (@{$tasks_ids}) {
-        # For each real task, we send to DHT_OWNER($task) : 'We have $task on our stack'
+        # For each real task, we send to DHT_OWNER($task) one fork request
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
-            my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
-            my $destination = Jael::Dht::hash_task_id($task_id);
-
-            $self->{network}->send($destination, $message);
-        } elsif (Jael::TasksGraph::task_must_be_forked($task_id)) {
-            # check if The task was not already requested by the process
+            $self->{fork_set}->set_wait_status($task_id);
+            $self->fork_task($task_id);
+        }
+        # For each virtual task, we do the same request only if it is necessary (one virtual task with > 1 parents)
+        elsif (Jael::TasksGraph::task_must_be_forked($task_id)) {
+            # Check if the task was not already requested by the process
             if ($self->{fork_set}->set_wait_status($task_id) != -1) {
-                my $message = Jael::Message->new($Jael::Message::FORK_REQUEST, $task_id);
-                my $destination = Jael::Dht::hash_task_id($task_id);
-
-                Jael::Debug::msg('fork', "[ExecutionEngine]task $task_id is requested");
-                Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_FORKING);
-
-                $self->{network}->send($destination, $message);
+                $self->fork_task($task_id);
             } else {
                 Jael::Debug::msg('fork', "[ExecutionEngine]task $task_id was already requested");
             }
-
-            # Don't push directly one potential virtual forked task
-            next;
         }
-
-        push @tasks, Jael::TasksGraph::get_task($task_id);
+        # It's a virtual task wich can be pushed directly
+        else {
+            $self->{tasks_stack}->push_task(Jael::TasksGraph::get_task($task_id));
+        }
     }
-
-    # Push tasks in stack
-    $self->{tasks_stack}->push_task(@tasks);
 
     return;
 }
@@ -244,13 +245,13 @@ sub computation_thread {
         }
         # Virtual task
         elsif ($task->is_virtual()) {
-            Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_COMPUTING);
-            compute_virtual_task($self, $task);
+            Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_FORKING);
+            $self->compute_virtual_task($task);
         }
         # Real task
         else {
             Jael::Paje::set_thread_status($Jael::Paje::THREAD_STATUS_COMPUTING);
-            compute_real_task($self, $task);
+            $self->compute_real_task($task);
         }
     }
 
@@ -289,7 +290,7 @@ sub bootstrap_system {
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
     #TODO: use macros to avoid extra debug costs
-    Jael::TasksGraph::display() if exists $ENV{JAEL_DEBUG} and $Jael::Debug::ENABLE_GRAPHVIEWER;
+    Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
 
     # Broadcast the graph to everyone and wait
     $self->{network}->broadcast(new Jael::Message($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));

@@ -53,7 +53,7 @@ Readonly::Scalar our $NOTHING => 2;
 Readonly::Scalar our $LABEL_AND_STRING => 3;
 
 # Links between message type and forma
-my @messages_format = qw(-1 0 0 0 0 1 0 2 2 2 0 0 0 0 0 0 3 3 3);
+my @messages_format = qw(-1 0 0 0 0 1 0 2 2 2 0 0 0 1 0 0 3 3 3);
 
 sub new {
     my $class = shift;

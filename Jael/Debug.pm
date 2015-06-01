@@ -14,7 +14,7 @@ my $starting_time;
 
 our @EXPORT = qw($ENABLE_GRAPHVIEWER);
 
-my $ENABLE_GRAPHVIEWER = 0;
+my $ENABLE_GRAPHVIEWER = 1;
 
 my %displayed_tags;
 

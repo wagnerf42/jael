@@ -264,14 +264,16 @@ sub incoming_message {
     # process_j fork request task_i to DHT_OWNER(task_i)
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FORK_REQUEST) {
-        my $task_id = $message->get_task_id();     # task_i
+        my $task_id = $message->get_task_id(); # task_i
 
         # Fork success
         if ($self->{dht}->fork_request($task_id, $sender_id)) {
             Jael::Debug::msg('fork', "[Protocol]task $task_id is forked by $sender_id");
             Jael::Paje::create_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
-            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id));
+            my $completed_dependencies = $self->{dht}->get_completed_dependencies($task_id, $sender_id);
+
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id, @{$completed_dependencies}));
         }
         # Fork failure
         else {
@@ -281,7 +283,7 @@ sub incoming_message {
     }
 
     # -----------------------------------------------------------------
-    # Virtual task_i is forked by current process
+    # Virtual/Real task_i is forked by current process
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FORK_ACCEPTED) {
         my $task_id = $message->get_task_id();
@@ -289,6 +291,17 @@ sub incoming_message {
 
         Jael::Debug::msg('fork', "[Protocol]fork accepted, new task on stack : $task_id");
         Jael::Paje::destroy_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
+
+        # Real task case
+        unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
+            my $completed_dependencies = $message->get_machines_list();
+
+            print STDERR "DEPS of $task_id: " . join(",", @{$completed_dependencies}) . "\n";
+
+            for my $dependency (@{$completed_dependencies}) {
+                $task->unset_dependency($dependency);
+            }
+        }
 
         $self->{fork_set}->set_done_status($task_id);
         $self->{tasks_stack}->push_task($task);
