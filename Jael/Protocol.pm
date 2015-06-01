@@ -188,13 +188,13 @@ sub incoming_message {
         if (defined $task) {
             my $task_id = $task->get_id();
 
-            Jael::Debug::msg('protocol', "[Protocol] we authorize $sender_id to steal us of task $task_id");
+            Jael::Debug::msg('protocol', "[Protocol]we authorize $sender_id to steal us of task $task_id");
             Jael::Paje::create_link($Jael::Message::STEAL_SUCCESS, $sender_id, $task_id);
 
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_SUCCESS, $task_id));
         } else {
             Jael::Paje::create_link($Jael::Message::STEAL_FAILED, $sender_id);
-            Jael::Debug::msg('protocol', "[Protocol] we don't authorize $sender_id to steal us");
+            Jael::Debug::msg('protocol', "[Protocol]we don't authorize $sender_id to steal us");
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::STEAL_FAILED));
         }
     }
@@ -220,6 +220,7 @@ sub incoming_message {
                 $task->update_status($Jael::Task::TASK_STATUS_READY);
             } else {
                 # No effects if the task is already ready
+                Jael::Debug::msg('task', "[Protocol]task $task_id is now ready waiting for files");
                 $task->update_status($Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
             }
 
@@ -272,8 +273,8 @@ sub incoming_message {
             Jael::Paje::create_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
             my $completed_dependencies = $self->{dht}->get_completed_dependencies($task_id, $sender_id);
-			#TODO: clarify delimiter and escape codes
-			my $dependencies = join('&', @$completed_dependencies);
+            #TODO: clarify delimiter and escape codes
+            my $dependencies = join('&', @$completed_dependencies);
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id, $dependencies));
         }
         # Fork failure
@@ -293,16 +294,19 @@ sub incoming_message {
         Jael::Debug::msg('fork', "[Protocol]fork accepted, new task on stack : $task_id");
         Jael::Paje::destroy_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
-		my $completed_dependencies = [split('&', $message->get_string())];
-		my $tasks_inside_forked_virtual = $task->generate_tasks($completed_dependencies);
+        my $completed_dependencies = [split('&', $message->get_string())];
+        my $tasks_inside_forked_virtual = $task->generate_tasks($completed_dependencies);
 
         $self->{fork_set}->set_done_status($task_id);
         $self->{tasks_stack}->push_task(@$tasks_inside_forked_virtual);
 
         # Notify if we have one real task on stack
-		# TODO: can we avoid this message ?
-		my $real_task_created = $tasks_inside_forked_virtual->[-1];
-        $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $real_task_created->get_id()));
+        # TODO: can we avoid this message ?
+        my $real_task_created = $tasks_inside_forked_virtual->[-1];
+        my $real_task_id = $real_task_created->get_id();
+        my $dht_owner = Jael::Dht::hash_task_id($real_task_id);
+
+        $self->{server}->send($dht_owner, Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $real_task_id));
     }
 
     # -----------------------------------------------------------------
