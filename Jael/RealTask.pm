@@ -39,7 +39,9 @@ sub new {
 
 sub stringify {
     my $self = shift;
-    return "TASK: " . $self->{target_name} . ": " . join(" ", keys %{$self->{dependencies}}) . "\n" . $self->{commands} . "\n";
+	my $command = $self->{commands};
+	$command = '' unless defined $command;
+    return "TASK: " . $self->{target_name} . ": " . join(" ", keys %{$self->{dependencies}}) . "\n command : $command\n";
 }
 
 # Set the main task flag

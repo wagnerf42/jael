@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Jael::Task;
+use Jael::VirtualTask qw($VIRTUAL_TASK_PREFIX);
 
 # We need to know number of machines in hash function
 my $machines_number;
@@ -163,13 +164,16 @@ sub update_reverse_dependencies_status {
     return \@ready_tasks;
 }
 
-# Return one list of completed dependencies for one task id
+# Return one list of completed dependencies 
+# for the real task corresponding to the given virtual task
 sub get_completed_dependencies {
     my $self = shift;
-    my $task_id = shift;
+    my $virtual_task_id = shift;
+	die "not virtual : '$virtual_task_id'" unless $virtual_task_id=~/$VIRTUAL_TASK_PREFIX(\S+)/;
+	my $real_task_id = $1;
     my @completed_tasks_ids;
 
-    my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
+    my $dependencies = Jael::TasksGraph::get_dependencies($real_task_id);
 
     for my $dependency (@{$dependencies}) {
         if (defined $self->{task_status}->{$dependency} and $self->{task_status}->{$dependency} == $TASK_STATUS_COMPLETED) {

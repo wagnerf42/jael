@@ -89,14 +89,14 @@ sub get_task {
     my $task;
 
     # Make new virtual task
-    if ($task_id =~ /^$VIRTUAL_TASK_PREFIX(.*)/) {
+    if ($task_id =~ /^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/) {
         my $real_task_id = $1;
         my $dependencies = $tasksgraph->{dependencies}->{$real_task_id};
         my @reverse_virtual_dependencies;
 
         # The reverse dependencies of one virtual task are equivalent to the task's dependencies with virtual task prefix
         if (defined $dependencies) {
-            @reverse_virtual_dependencies = map {$VIRTUAL_TASK_PREFIX . $_} @{$dependencies};
+            @reverse_virtual_dependencies = map {$Jael::VirtualTask::VIRTUAL_TASK_PREFIX . $_} @{$dependencies};
         }
 
         $task = Jael::VirtualTask->new($real_task_id, [$real_task_id, @reverse_virtual_dependencies]);
@@ -115,7 +115,7 @@ sub get_task {
 sub task_must_be_forked {
     my $task_id = shift;
 
-    if ($task_id =~ /^$VIRTUAL_TASK_PREFIX(.*)/) {
+    if ($task_id =~ /^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/) {
         # One virtual task must be forked if the linked real task has more one reserve dependency
         return (scalar @{$tasksgraph->{reverse_dependencies}->{$1}}) > 1;
     }
@@ -236,7 +236,7 @@ sub get_main_target {
 
 # Return the init task id (One virtual task)
 sub get_init_task_id {
-    return $VIRTUAL_TASK_PREFIX . $tasksgraph->{main_target};
+    return $Jael::VirtualTask::VIRTUAL_TASK_PREFIX . $tasksgraph->{main_target};
 }
 
 # Compute reverse dependencies for each task

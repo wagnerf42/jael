@@ -1,4 +1,4 @@
-# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
+#vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 package Jael::ExecutionEngine;
 
 use strict;
@@ -125,33 +125,13 @@ sub fork_task {
 sub compute_virtual_task {
     my $self = shift;
     my $task = shift;
+	my $task_id = $task->get_id();
 
-    Jael::Debug::msg('task', "[ExecutionEngine]get virtual task: " . $task->get_id() . " (sons: " .
+    Jael::Debug::msg('task', "[ExecutionEngine]get virtual task: $task_id (sons: " .
                      @{$task->get_tasks_to_generate()} . ")");
 
-    # Get tasks to generate
-    my $tasks_ids = $task->get_tasks_to_generate();
-
-    for my $task_id (@{$tasks_ids}) {
-        # For each real task, we send to DHT_OWNER($task) one fork request
-        unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
-            $self->{fork_set}->set_wait_status($task_id);
-            $self->fork_task($task_id);
-        }
-        # For each virtual task, we do the same request only if it is necessary (one virtual task with > 1 parents)
-        elsif (Jael::TasksGraph::task_must_be_forked($task_id)) {
-            # Check if the task was not already requested by the process
-            if ($self->{fork_set}->set_wait_status($task_id) != -1) {
-                $self->fork_task($task_id);
-            } else {
-                Jael::Debug::msg('fork', "[ExecutionEngine]task $task_id was already requested");
-            }
-        }
-        # It's a virtual task wich can be pushed directly
-        else {
-            $self->{tasks_stack}->push_task(Jael::TasksGraph::get_task($task_id));
-        }
-    }
+	$self->{fork_set}->set_wait_status($task_id);
+	$self->fork_task($task_id);
 
     return;
 }
@@ -236,6 +216,7 @@ sub computation_thread {
                         $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
                         ${$self->{steal_authorized}} = 0;
 
+						Jael::Debug::msg('protocol', "sending steal request to $machine_id");
                         $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
                     }
                 }
@@ -290,7 +271,7 @@ sub bootstrap_system {
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
     #TODO: use macros to avoid extra debug costs
-   # Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
+    Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
 
     # Broadcast the graph to everyone and wait
     $self->{network}->broadcast(new Jael::Message($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));

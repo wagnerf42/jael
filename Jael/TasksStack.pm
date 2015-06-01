@@ -89,9 +89,10 @@ sub steal_task {
     my @remaining_tasks;
 
     lock($self->{tasks});
+	my ($ready, $not_ready) = $self->stats();
 
-    # Useless to steal if it's not enough tasks in stack
-    return undef if @{$self->{tasks}} <= 1;
+    # Useless to steal if there are not enough tasks in stack
+    return undef unless $ready > 1;
 
     while ((not defined $selected_task) and (@{$self->{tasks}})) {
         my $candidate_task = shift @{$self->{tasks}};

@@ -16,6 +16,8 @@ our @EXPORT = qw($VIRTUAL_TASK_PREFIX);
 
 Readonly::Scalar our $VIRTUAL_TASK_PREFIX => 'virtual//';
 
+use Jael::TasksGraph;
+
 # Create a new virtual task defined by one target name and reverse dependencies
 sub new {
     my $class = shift;
@@ -55,6 +57,27 @@ sub get_id {
 sub get_tasks_to_generate {
     my $self = shift;
     return $self->{reverse_dependencies};
+}
+
+#generate all tasks inside virtual one
+#returns list of created tasks with real one as last one
+sub generate_tasks {
+	my $self = shift;
+	my $completed_dependencies = shift;
+	my @tasks;
+	my $real_task;
+	for my $task_id (@{$self->get_tasks_to_generate()}) {
+		my $task = Jael::TasksGraph::get_task($task_id);
+		if ($task->is_virtual()) {
+			push @tasks, $task;
+		} else {
+			$task->unset_dependency($_) for @$completed_dependencies;
+			$real_task = $task;
+		}
+	}
+	push @tasks, $real_task;
+	Jael::Debug::msg('task', "executed ".$self->get_id()." ; we generated : ".join(' ', map {$_->get_id()} @tasks));
+	return \@tasks;
 }
 
 sub unset_dependency {

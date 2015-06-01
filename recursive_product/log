@@ -1,0 +1,826 @@
+0 : logs are activated for big_event task stack fork protocol
+0 (localhost, tid=0) [time : 0.000752925872802734]: [jael]using machines : localhost localhost
+0 (localhost, tid=0) [time : 0.000784873962402344]: [jael]using taktuk : taktuk -s -m localhost -[ exec [ jael -m localhost,localhost -i 1 ] -]
+
+0 (localhost, tid=0) [time : 0.0016169548034668]: [ExecutionEngine]creating a new execution engine
+Possible precedence issue with control flow operator at /usr/bin/taktuk line 940.
+0 (localhost, tid=0) [time : 0.0282390117645264]: [ExecutionEngine]initialization
+0 (localhost, tid=0) [time : 0.0283119678497314]: [ExecutionEngine]computing tasks graph
+0 (localhost, tid=0) [time : 0.0285139083862305]: [TasksParser]launching jael_make
+0 (localhost, tid=0) [time : 0.0749340057373047]: [TasksParser]jael_make completed
+0 (localhost, tid=0) [time : 0.0754499435424805]: [TasksParser]tasks list:
+TASK 'a0': split-a
+
+
+TASK 'a1': split-a
+
+
+TASK 'a2': split-a
+
+
+TASK 'a3': split-a
+
+
+TASK 'all': c check
+
+
+TASK 'b0': split-b
+
+
+TASK 'b1': split-b
+
+
+TASK 'b2': split-b
+
+
+TASK 'b3': split-b
+
+
+TASK 'c': c0 c1 c2 c3
+matrix_fuse.pl c c0 c1 c2 c3
+
+TASK 'c0': tc0 sc0
+matrix_add.pl tc0 sc0 c0
+
+TASK 'c1': tc1 sc1
+matrix_add.pl tc1 sc1 c1
+
+TASK 'c2': tc2 sc2
+matrix_add.pl tc2 sc2 c2
+
+TASK 'c3': tc3 sc3
+matrix_add.pl tc3 sc3 c3
+
+TASK 'check': a b
+matrix_multiply.pl a b check
+
+TASK 'clean': 
+rm -f a3 a0 c sc3 c0 tc2 c1 tc0 b0 sc2 sc1 a1 c3 sc0 split-b split-a a2 tc3 check b2 b3 tc1 b1 c2
+
+TASK 'sc0': a1 b2
+matrix_multiply.pl a1 b2 sc0
+
+TASK 'sc1': a1 b3
+matrix_multiply.pl a1 b3 sc1
+
+TASK 'sc2': a3 b2
+matrix_multiply.pl a3 b2 sc2
+
+TASK 'sc3': a3 b3
+matrix_multiply.pl a3 b3 sc3
+
+TASK 'split-a': a
+matrix_split.pl a
+
+TASK 'split-b': b
+matrix_split.pl b
+
+TASK 'tc0': a0 b0
+matrix_multiply.pl a0 b0 tc0
+
+TASK 'tc1': a0 b1
+matrix_multiply.pl a0 b1 tc1
+
+TASK 'tc2': a2 b0
+matrix_multiply.pl a2 b0 tc2
+
+TASK 'tc3': a2 b1
+matrix_multiply.pl a2 b1 tc3
+
+0 (localhost, tid=0) [time : 0.24985408782959]: created task {virtual//c: c virtual//c0 virtual//c1 virtual//c2 virtual//c3}
+0 (localhost, tid=0) [time : 0.249897003173828]: [ExecutionEngine]put initial task on stack: 'virtual//c'
+0 (localhost, tid=0) [time : 0.250144004821777]: stack now contains 1 ready tasks and 0 non-ready tasks
+0 (localhost, tid=0) [time : 0.250185012817383]: [ExecutionEngine]creating 1 threads
+0 (localhost, tid=0) [time : 0.260921955108643]: [Server]starting new server (port=23456, id=0)
+havasupai: localhost (14100): connector > Possible precedence issue with control flow operator at - line 940.
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 : logs are activated for big_event task stack fork protocol
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 4.1961669921875e-05]: [jael]using machines : localhost localhost
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 0.000108003616333008]: [ExecutionEngine]creating a new execution engine
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 0.0193331241607666]: [ExecutionEngine]creating 1 threads
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 0.0292141437530518]: [Server]starting new server (port=23457, id=1)
+0 (localhost, tid=0) [time : 2.49026894569397]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=0) [time : 2.49034810066223]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 3.79391813278198]: [Protocol]taskgraph is received
+0 (localhost, tid=0) [time : 6.25840187072754]: [Protocol]task virtual//c is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 5.79937696456909]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 6.26083493232727]: created task {virtual//c: c virtual//c0 virtual//c1 virtual//c2 virtual//c3}
+0 (localhost, tid=0) [time : 6.2609269618988]: [Protocol]fork accepted, new task on stack : virtual//c
+0 (localhost, tid=0) [time : 6.26120209693909]: created task {TASK: c: c1 c0 c2 c3
+ command : matrix_fuse.pl c c0 c1 c2 c3
+}
+0 (localhost, tid=0) [time : 6.26131987571716]: created task {virtual//c0: c0 virtual//tc0 virtual//sc0}
+0 (localhost, tid=0) [time : 6.2613959312439]: created task {virtual//c1: c1 virtual//tc1 virtual//sc1}
+0 (localhost, tid=0) [time : 6.26147294044495]: created task {virtual//c2: c2 virtual//tc2 virtual//sc2}
+0 (localhost, tid=0) [time : 6.26154589653015]: created task {virtual//c3: c3 virtual//tc3 virtual//sc3}
+0 (localhost, tid=0) [time : 6.2616069316864]: executed virtual//c ; we generated : virtual//c0 virtual//c1 virtual//c2 virtual//c3 c
+0 (localhost, tid=0) [time : 6.26199698448181]: stack now contains 4 ready tasks and 1 non-ready tasks
+0 (localhost, tid=0) [time : 6.27008509635925]: created task {virtual//c3: c3 virtual//tc3 virtual//sc3}
+0 (localhost, tid=0) [time : 6.27024006843567]: [Protocol]fork accepted, new task on stack : virtual//c3
+0 (localhost, tid=0) [time : 6.27037286758423]: created task {TASK: c3: tc3 sc3
+ command : matrix_add.pl tc3 sc3 c3
+}
+0 (localhost, tid=0) [time : 6.2704770565033]: created task {virtual//tc3: tc3 virtual//a2 virtual//b1}
+0 (localhost, tid=0) [time : 6.27054905891418]: created task {virtual//sc3: sc3 virtual//a3 virtual//b3}
+0 (localhost, tid=0) [time : 6.27060389518738]: executed virtual//c3 ; we generated : virtual//tc3 virtual//sc3 c3
+0 (localhost, tid=0) [time : 6.2708580493927]: stack now contains 2 ready tasks and 2 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 5.80923008918762]: [Protocol]task virtual//c3 is forked by 0
+0 (localhost, tid=0) [time : 6.27238988876343]: created task {virtual//c1: c1 virtual//tc1 virtual//sc1}
+0 (localhost, tid=0) [time : 6.27253198623657]: [Protocol]fork accepted, new task on stack : virtual//c1
+0 (localhost, tid=0) [time : 6.27267003059387]: created task {TASK: c1: sc1 tc1
+ command : matrix_add.pl tc1 sc1 c1
+}
+0 (localhost, tid=0) [time : 6.27276492118835]: created task {virtual//tc1: tc1 virtual//a0 virtual//b1}
+0 (localhost, tid=0) [time : 6.27283906936646]: created task {virtual//sc1: sc1 virtual//a1 virtual//b3}
+0 (localhost, tid=0) [time : 6.27289390563965]: executed virtual//c1 ; we generated : virtual//tc1 virtual//sc1 c1
+0 (localhost, tid=0) [time : 6.27316093444824]: stack now contains 4 ready tasks and 3 non-ready tasks
+0 (localhost, tid=0) [time : 6.27350807189941]: [Protocol]task virtual//c2 is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 5.81189608573914]: [Protocol]task virtual//c1 is forked by 0
+0 (localhost, tid=0) [time : 6.28486204147339]: [Protocol]task virtual//c0 is forked by 0
+0 (localhost, tid=0) [time : 6.28515696525574]: created task {virtual//c2: c2 virtual//tc2 virtual//sc2}
+0 (localhost, tid=0) [time : 6.28518199920654]: [Protocol]fork accepted, new task on stack : virtual//c2
+0 (localhost, tid=0) [time : 6.28527808189392]: created task {TASK: c2: tc2 sc2
+ command : matrix_add.pl tc2 sc2 c2
+}
+0 (localhost, tid=0) [time : 6.2853319644928]: created task {virtual//tc2: tc2 virtual//a2 virtual//b0}
+0 (localhost, tid=0) [time : 6.28537392616272]: created task {virtual//sc2: sc2 virtual//a3 virtual//b2}
+0 (localhost, tid=0) [time : 6.28539896011353]: executed virtual//c2 ; we generated : virtual//tc2 virtual//sc2 c2
+0 (localhost, tid=0) [time : 6.28565406799316]: stack now contains 6 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 6.28582501411438]: created task {virtual//c0: c0 virtual//tc0 virtual//sc0}
+0 (localhost, tid=0) [time : 6.28584408760071]: [Protocol]fork accepted, new task on stack : virtual//c0
+0 (localhost, tid=0) [time : 6.28591895103455]: created task {TASK: c0: sc0 tc0
+ command : matrix_add.pl tc0 sc0 c0
+}
+0 (localhost, tid=0) [time : 6.28596997261047]: created task {virtual//tc0: tc0 virtual//a0 virtual//b0}
+0 (localhost, tid=0) [time : 6.28601002693176]: created task {virtual//sc0: sc0 virtual//a1 virtual//b2}
+0 (localhost, tid=0) [time : 6.28603196144104]: executed virtual//c0 ; we generated : virtual//tc0 virtual//sc0 c0
+0 (localhost, tid=0) [time : 6.28630590438843]: stack now contains 8 ready tasks and 5 non-ready tasks
+0 (localhost, tid=0) [time : 6.49129509925842]: stack now contains 8 ready tasks and 5 non-ready tasks
+0 (localhost, tid=0) [time : 6.49146795272827]: stack now contains 7 ready tasks and 5 non-ready tasks
+0 (localhost, tid=0) [time : 6.49149394035339]: [Protocol] we authorize 1 to steal us of task virtual//tc3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 6.03209710121155]: [Protocol]steal success on 0, new task on stack : virtual//tc3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 6.03229594230652]: created task {virtual//tc3: tc3 virtual//a2 virtual//b1}
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 6.03243613243103]: stack now contains 1 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 6.80970096588135]: [Protocol]task virtual//sc0 is forked by 0
+0 (localhost, tid=0) [time : 7.27034187316895]: created task {virtual//sc0: sc0 virtual//a1 virtual//b2}
+0 (localhost, tid=0) [time : 7.27036309242249]: [Protocol]fork accepted, new task on stack : virtual//sc0
+0 (localhost, tid=0) [time : 7.27047395706177]: created task {TASK: sc0: a1 b2
+ command : matrix_multiply.pl a1 b2 sc0
+}
+0 (localhost, tid=0) [time : 7.27052593231201]: created task {virtual//a1: a1 virtual//split-a}
+0 (localhost, tid=0) [time : 7.27056503295898]: created task {virtual//b2: b2 virtual//split-b}
+0 (localhost, tid=0) [time : 7.27058887481689]: executed virtual//sc0 ; we generated : virtual//a1 virtual//b2 sc0
+0 (localhost, tid=0) [time : 7.27081298828125]: stack now contains 2 ready tasks and 6 non-ready tasks
+0 (localhost, tid=0) [time : 7.27096199989319]: [Protocol]task virtual//sc1 is forked by 0
+0 (localhost, tid=0) [time : 7.27106189727783]: [Protocol]task virtual//tc1 is forked by 0
+0 (localhost, tid=0) [time : 7.27115392684937]: [Protocol]task virtual//sc3 is forked by 0
+0 (localhost, tid=0) [time : 7.27132487297058]: created task {virtual//sc1: sc1 virtual//a1 virtual//b3}
+0 (localhost, tid=0) [time : 7.27134108543396]: [Protocol]fork accepted, new task on stack : virtual//sc1
+0 (localhost, tid=0) [time : 7.27140998840332]: created task {TASK: sc1: b3 a1
+ command : matrix_multiply.pl a1 b3 sc1
+}
+0 (localhost, tid=0) [time : 7.27145600318909]: created task {virtual//a1: a1 virtual//split-a}
+0 (localhost, tid=0) [time : 7.27149295806885]: created task {virtual//b3: b3 virtual//split-b}
+0 (localhost, tid=0) [time : 7.27151489257812]: executed virtual//sc1 ; we generated : virtual//a1 virtual//b3 sc1
+0 (localhost, tid=0) [time : 7.27173900604248]: stack now contains 4 ready tasks and 7 non-ready tasks
+0 (localhost, tid=0) [time : 7.2724609375]: created task {virtual//tc1: tc1 virtual//a0 virtual//b1}
+0 (localhost, tid=0) [time : 7.27248597145081]: [Protocol]fork accepted, new task on stack : virtual//tc1
+0 (localhost, tid=0) [time : 7.2725670337677]: created task {TASK: tc1: a0 b1
+ command : matrix_multiply.pl a0 b1 tc1
+}
+0 (localhost, tid=0) [time : 7.27261710166931]: created task {virtual//a0: a0 virtual//split-a}
+0 (localhost, tid=0) [time : 7.27265596389771]: created task {virtual//b1: b1 virtual//split-b}
+0 (localhost, tid=0) [time : 7.27267909049988]: executed virtual//tc1 ; we generated : virtual//a0 virtual//b1 tc1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 6.81229615211487]: [Protocol]task virtual//tc0 is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 6.81249713897705]: [Protocol]task virtual//sc2 is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 6.8126380443573]: [Protocol]task virtual//tc2 is forked by 0
+0 (localhost, tid=0) [time : 7.27294087409973]: stack now contains 6 ready tasks and 8 non-ready tasks
+0 (localhost, tid=0) [time : 7.27326202392578]: created task {virtual//tc0: tc0 virtual//a0 virtual//b0}
+0 (localhost, tid=0) [time : 7.2732789516449]: [Protocol]fork accepted, new task on stack : virtual//tc0
+0 (localhost, tid=0) [time : 7.2733519077301]: created task {TASK: tc0: a0 b0
+ command : matrix_multiply.pl a0 b0 tc0
+}
+0 (localhost, tid=0) [time : 7.27339887619019]: created task {virtual//a0: a0 virtual//split-a}
+0 (localhost, tid=0) [time : 7.27343606948853]: created task {virtual//b0: b0 virtual//split-b}
+0 (localhost, tid=0) [time : 7.2734580039978]: executed virtual//tc0 ; we generated : virtual//a0 virtual//b0 tc0
+0 (localhost, tid=0) [time : 7.27371191978455]: stack now contains 8 ready tasks and 9 non-ready tasks
+0 (localhost, tid=0) [time : 7.27379989624023]: created task {virtual//sc2: sc2 virtual//a3 virtual//b2}
+0 (localhost, tid=0) [time : 7.27381491661072]: [Protocol]fork accepted, new task on stack : virtual//sc2
+0 (localhost, tid=0) [time : 7.2738790512085]: created task {TASK: sc2: a3 b2
+ command : matrix_multiply.pl a3 b2 sc2
+}
+0 (localhost, tid=0) [time : 7.27392387390137]: created task {virtual//a3: a3 virtual//split-a}
+0 (localhost, tid=0) [time : 7.27396202087402]: created task {virtual//b2: b2 virtual//split-b}
+0 (localhost, tid=0) [time : 7.2739839553833]: executed virtual//sc2 ; we generated : virtual//a3 virtual//b2 sc2
+0 (localhost, tid=0) [time : 7.27425789833069]: stack now contains 10 ready tasks and 10 non-ready tasks
+0 (localhost, tid=0) [time : 7.27433705329895]: created task {virtual//tc2: tc2 virtual//a2 virtual//b0}
+0 (localhost, tid=0) [time : 7.27435302734375]: [Protocol]fork accepted, new task on stack : virtual//tc2
+0 (localhost, tid=0) [time : 7.27441596984863]: created task {TASK: tc2: a2 b0
+ command : matrix_multiply.pl a2 b0 tc2
+}
+0 (localhost, tid=0) [time : 7.27446103096008]: created task {virtual//a2: a2 virtual//split-a}
+0 (localhost, tid=0) [time : 7.27451109886169]: created task {virtual//b0: b0 virtual//split-b}
+0 (localhost, tid=0) [time : 7.27453398704529]: executed virtual//tc2 ; we generated : virtual//a2 virtual//b0 tc2
+0 (localhost, tid=0) [time : 7.27481603622437]: stack now contains 12 ready tasks and 11 non-ready tasks
+0 (localhost, tid=0) [time : 7.27496099472046]: created task {virtual//sc3: sc3 virtual//a3 virtual//b3}
+0 (localhost, tid=0) [time : 7.27497696876526]: [Protocol]fork accepted, new task on stack : virtual//sc3
+0 (localhost, tid=0) [time : 7.27504205703735]: created task {TASK: sc3: b3 a3
+ command : matrix_multiply.pl a3 b3 sc3
+}
+0 (localhost, tid=0) [time : 7.27508807182312]: created task {virtual//a3: a3 virtual//split-a}
+0 (localhost, tid=0) [time : 7.27512502670288]: created task {virtual//b3: b3 virtual//split-b}
+0 (localhost, tid=0) [time : 7.27514600753784]: executed virtual//sc3 ; we generated : virtual//a3 virtual//b3 sc3
+0 (localhost, tid=0) [time : 7.27544403076172]: stack now contains 14 ready tasks and 12 non-ready tasks
+0 (localhost, tid=0) [time : 7.49166107177734]: [Protocol]task virtual//tc3 is forked by 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.03240203857422]: created task {virtual//tc3: tc3 virtual//a2 virtual//b1}
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.03242206573486]: [Protocol]fork accepted, new task on stack : virtual//tc3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.03258609771729]: created task {TASK: tc3: b1 a2
+localhost-1: jael -m localhost,localhost -i 1 (14107): error >  command : matrix_multiply.pl a2 b1 tc3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > }
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.03263211250305]: created task {virtual//a2: a2 virtual//split-a}
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.03266501426697]: created task {virtual//b1: b1 virtual//split-b}
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.03268694877625]: executed virtual//tc3 ; we generated : virtual//a2 virtual//b1 tc3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.03289914131165]: stack now contains 2 ready tasks and 1 non-ready tasks
+0 (localhost, tid=3) [time : 0.26675009727478]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=3) [time : 0.266793966293335]: [ExecutionEngine]get virtual task: virtual//c (sons: 5)
+0 (localhost, tid=3) [time : 0.266849040985107]: [ExecutionEngine]task virtual//c is requested
+0 (localhost, tid=3) [time : 0.266908884048462]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=3) [time : 1.26704597473145]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=3) [time : 2.26720690727234]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=3) [time : 3.26737999916077]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=3) [time : 4.26753997802734]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=3) [time : 5.26771306991577]: stack now contains 0 ready tasks and 0 non-ready tasks
+0 (localhost, tid=3) [time : 6.26810503005981]: stack now contains 3 ready tasks and 1 non-ready tasks
+0 (localhost, tid=3) [time : 6.26816606521606]: [ExecutionEngine]get virtual task: virtual//c3 (sons: 3)
+0 (localhost, tid=3) [time : 6.26820802688599]: [ExecutionEngine]task virtual//c3 is requested
+0 (localhost, tid=3) [time : 6.26830792427063]: stack now contains 2 ready tasks and 1 non-ready tasks
+0 (localhost, tid=3) [time : 6.2683310508728]: [ExecutionEngine]get virtual task: virtual//c2 (sons: 3)
+0 (localhost, tid=3) [time : 6.26835608482361]: [ExecutionEngine]task virtual//c2 is requested
+0 (localhost, tid=3) [time : 6.26841592788696]: stack now contains 1 ready tasks and 1 non-ready tasks
+0 (localhost, tid=3) [time : 6.26843810081482]: [ExecutionEngine]get virtual task: virtual//c1 (sons: 3)
+0 (localhost, tid=3) [time : 6.26846194267273]: [ExecutionEngine]task virtual//c1 is requested
+0 (localhost, tid=3) [time : 6.26851606369019]: stack now contains 0 ready tasks and 1 non-ready tasks
+0 (localhost, tid=3) [time : 6.26853799819946]: [ExecutionEngine]get virtual task: virtual//c0 (sons: 3)
+0 (localhost, tid=3) [time : 6.26856088638306]: [ExecutionEngine]task virtual//c0 is requested
+0 (localhost, tid=3) [time : 6.26860690116882]: stack now contains 0 ready tasks and 1 non-ready tasks
+0 (localhost, tid=3) [time : 7.26895308494568]: stack now contains 6 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 7.26900792121887]: [ExecutionEngine]get virtual task: virtual//sc0 (sons: 3)
+0 (localhost, tid=3) [time : 7.26904988288879]: [ExecutionEngine]task virtual//sc0 is requested
+0 (localhost, tid=3) [time : 7.26920795440674]: stack now contains 5 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 7.26923298835754]: [ExecutionEngine]get virtual task: virtual//tc0 (sons: 3)
+0 (localhost, tid=3) [time : 7.26925802230835]: [ExecutionEngine]task virtual//tc0 is requested
+0 (localhost, tid=3) [time : 7.26937103271484]: stack now contains 4 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 7.26939487457275]: [ExecutionEngine]get virtual task: virtual//sc2 (sons: 3)
+0 (localhost, tid=3) [time : 7.26942300796509]: [ExecutionEngine]task virtual//sc2 is requested
+0 (localhost, tid=3) [time : 7.26952409744263]: stack now contains 3 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 7.26954698562622]: [ExecutionEngine]get virtual task: virtual//tc2 (sons: 3)
+0 (localhost, tid=3) [time : 7.26957297325134]: [ExecutionEngine]task virtual//tc2 is requested
+0 (localhost, tid=3) [time : 7.2696750164032]: stack now contains 2 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 7.26969790458679]: [ExecutionEngine]get virtual task: virtual//sc1 (sons: 3)
+0 (localhost, tid=3) [time : 7.2697229385376]: [ExecutionEngine]task virtual//sc1 is requested
+0 (localhost, tid=3) [time : 7.26981902122498]: stack now contains 1 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 7.26984190940857]: [ExecutionEngine]get virtual task: virtual//tc1 (sons: 3)
+0 (localhost, tid=3) [time : 7.26986598968506]: [ExecutionEngine]task virtual//tc1 is requested
+0 (localhost, tid=3) [time : 7.26996493339539]: stack now contains 0 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 7.26998996734619]: [ExecutionEngine]get virtual task: virtual//sc3 (sons: 3)
+0 (localhost, tid=3) [time : 7.270015001297]: [ExecutionEngine]task virtual//sc3 is requested
+0 (localhost, tid=3) [time : 7.27011799812317]: stack now contains 0 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 8.27051210403442]: stack now contains 13 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27056694030762]: [ExecutionEngine]get virtual task: virtual//b3 (sons: 2)
+0 (localhost, tid=3) [time : 8.27060890197754]: [ExecutionEngine]task virtual//b3 is requested
+0 (localhost, tid=3) [time : 8.27084589004517]: stack now contains 12 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27087092399597]: [ExecutionEngine]get virtual task: virtual//a3 (sons: 2)
+0 (localhost, tid=3) [time : 8.27089691162109]: [ExecutionEngine]task virtual//a3 is requested
+0 (localhost, tid=3) [time : 8.2710919380188]: stack now contains 11 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.2711169719696]: [ExecutionEngine]get virtual task: virtual//b0 (sons: 2)
+0 (localhost, tid=3) [time : 8.27115488052368]: [ExecutionEngine]task virtual//b0 is requested
+0 (localhost, tid=3) [time : 8.27133703231812]: stack now contains 10 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27136206626892]: [ExecutionEngine]get virtual task: virtual//a2 (sons: 2)
+0 (localhost, tid=3) [time : 8.27138996124268]: [ExecutionEngine]task virtual//a2 is requested
+0 (localhost, tid=3) [time : 8.27157402038574]: stack now contains 9 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27159905433655]: [ExecutionEngine]get virtual task: virtual//b2 (sons: 2)
+0 (localhost, tid=3) [time : 8.27162408828735]: [ExecutionEngine]task virtual//b2 is requested
+0 (localhost, tid=3) [time : 8.27184009552002]: stack now contains 8 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27186393737793]: [ExecutionEngine]get virtual task: virtual//a3 (sons: 2)
+0 (localhost, tid=3) [time : 8.2718870639801]: [ExecutionEngine]task virtual//a3 is requested
+0 (localhost, tid=3) [time : 8.27206301689148]: stack now contains 7 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27208590507507]: [ExecutionEngine]get virtual task: virtual//b0 (sons: 2)
+0 (localhost, tid=3) [time : 8.27210688591003]: [ExecutionEngine]task virtual//b0 is requested
+0 (localhost, tid=3) [time : 8.2722749710083]: stack now contains 6 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27229809761047]: [ExecutionEngine]get virtual task: virtual//a0 (sons: 2)
+0 (localhost, tid=3) [time : 8.27232193946838]: [ExecutionEngine]task virtual//a0 is requested
+0 (localhost, tid=3) [time : 8.2724940776825]: stack now contains 5 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27251696586609]: [ExecutionEngine]get virtual task: virtual//b1 (sons: 2)
+0 (localhost, tid=3) [time : 8.27254104614258]: [ExecutionEngine]task virtual//b1 is requested
+0 (localhost, tid=3) [time : 8.27270603179932]: stack now contains 4 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27272987365723]: [ExecutionEngine]get virtual task: virtual//a0 (sons: 2)
+0 (localhost, tid=3) [time : 8.27274990081787]: [ExecutionEngine]task virtual//a0 is requested
+0 (localhost, tid=3) [time : 8.27291798591614]: stack now contains 3 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27294087409973]: [ExecutionEngine]get virtual task: virtual//b3 (sons: 2)
+0 (localhost, tid=3) [time : 8.27296209335327]: [ExecutionEngine]task virtual//b3 is requested
+0 (localhost, tid=3) [time : 8.27312302589417]: stack now contains 2 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27314686775208]: [ExecutionEngine]get virtual task: virtual//a1 (sons: 2)
+0 (localhost, tid=3) [time : 8.27317094802856]: [ExecutionEngine]task virtual//a1 is requested
+0 (localhost, tid=3) [time : 8.27333307266235]: stack now contains 1 ready localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.81125998497009]: [Protocol]task virtual//b3 is forked by 0
+0 (localhost, tid=0) [time : 8.27449893951416]: created task {virtual//b3: b3 virtual//split-b}
+0 (localhost, tid=0) [time : 8.27452802658081]: [Protocol]fork accepted, new task on stack : virtual//b3
+0 (localhost, tid=0) [time : 8.27462100982666]: created task {TASK: b3: split-b
+ command : 
+}
+0 (localhost, tid=0) [time : 8.27466893196106]: created task {virtual//split-b: split-b virtual//b}
+0 (localhost, tid=0) [time : 8.27469205856323]: executed virtual//b3 ; we generated : virtual//split-b b3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.8145580291748]: [Protocol]task virtual//a3 is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.81505608558655]: [Protocol]task virtual//a3 is not forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.81528902053833]: [Protocol]task virtual//b1 is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.81553506851196]: [Protocol]task virtual//b3 is not forked by 0
+0 (localhost, tid=0) [time : 8.27575588226318]: stack now contains 1 ready tasks and 13 non-ready tasks
+0 (localhost, tid=0) [time : 8.27594089508057]: created task {virtual//a3: a3 virtual//split-a}
+0 (localhost, tid=0) [time : 8.27595806121826]: [Protocol]fork accepted, new task on stack : virtual//a3
+0 (localhost, tid=0) [time : 8.27637410163879]: created task {TASK: a3: split-a
+ command : 
+}
+0 (localhost, tid=0) [time : 8.27645087242126]: created task {virtual//split-a: split-a virtual//a}
+0 (localhost, tid=0) [time : 8.27648687362671]: executed virtual//a3 ; we generated : virtual//split-a a3
+0 (localhost, tid=0) [time : 8.27671694755554]: stack now contains 1 ready tasks and 14 non-ready tasks
+0 (localhost, tid=0) [time : 8.27692294120789]: [Protocol]task virtual//b0 is forked by 0
+0 (localhost, tid=0) [time : 8.27704095840454]: [Protocol]task virtual//a2 is forked by 0
+0 (localhost, tid=0) [time : 8.27713203430176]: [Protocol]task virtual//b2 is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.82165098190308]: [Protocol]task virtual//a1 is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.82227110862732]: [Protocol]task virtual//a1 is not forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 7.82247996330261]: [Protocol]task virtual//split-b is forked by 0
+0 (localhost, tid=0) [time : 8.28450989723206]: [Protocol]task virtual//b0 is not forked by 0
+0 (localhost, tid=0) [time : 8.28461098670959]: [Protocol]task virtual//a0 is forked by 0
+0 (localhost, tid=0) [time : 8.28474593162537]: [Protocol]task virtual//a0 is not forked by 0
+0 (localhost, tid=0) [time : 8.28479909896851]: [Protocol]task virtual//b2 is not forked by 0
+0 (localhost, tid=0) [time : 8.2882878780365]: created task {virtual//b1: b1 virtual//split-b}
+0 (localhost, tid=0) [time : 8.28835010528564]: [Protocol]fork accepted, new task on stack : virtual//b1
+0 (localhost, tid=0) [time : 8.28845310211182]: created task {TASK: b1: split-b
+ command : 
+}
+0 (localhost, tid=0) [time : 8.28850507736206]: created task {virtual//split-b: split-b virtual//b}
+0 (localhost, tid=0) [time : 8.28853106498718]: executed virtual//b1 ; we generated : virtual//split-b b1
+0 (localhost, tid=0) [time : 8.28879904747009]: stack now contains 2 ready tasks and 15 non-ready tasks
+0 (localhost, tid=0) [time : 8.28890609741211]: created task {virtual//a1: a1 virtual//split-a}
+0 (localhost, tid=0) [time : 8.2889518737793]: [Protocol]fork accepted, new task on stack : virtual//a1
+0 (localhost, tid=0) [time : 8.28902506828308]: created task {TASK: a1: split-a
+ command : 
+}
+0 (localhost, tid=0) [time : 8.28907203674316]: created task {virtual//split-a: split-a virtual//a}
+0 (localhost, tid=0) [time : 8.28909397125244]: executed virtual//a1 ; we generated : virtual//split-a a1
+0 (localhost, tid=0) [time : 8.28932094573975]: stack now contains 3 ready tasks and 16 non-ready tasks
+0 (localhost, tid=0) [time : 8.28941488265991]: created task {virtual//split-b: split-b virtual//b}
+0 (localhost, tid=0) [time : 8.2894299030304]: [Protocol]fork accepted, new task on stack : virtual//split-b
+0 (localhost, tid=0) [time : 8.28949594497681]: created task {TASK: split-b: b
+ command : matrix_split.pl b
+}
+0 (localhost, tid=0) [time : 8.28953695297241]: created task {virtual//b: b}
+0 (localhost, tid=0) [time : 8.28955793380737]: executed virtual//split-b ; we generated : virtual//b split-b
+0 (localhost, tid=0) [time : 8.28978991508484]: stack now contains 4 ready tasks and 17 non-ready tasks
+0 (localhost, tid=0) [time : 8.29000496864319]: created task {virtual//b0: b0 virtual//split-b}
+0 (localhost, tid=0) [time : 8.2900230884552]: [Protocol]fork accepted, new task on stack : virtual//b0
+0 (localhost, tid=0) [time : 8.29008889198303]: created task {TASK: b0: split-b
+ command : 
+}
+0 (localhost, tid=0) [time : 8.2901349067688]: created task {virtual//split-b: split-b virtual//b}
+0 (localhost, tid=0) [time : 8.29015588760376]: executed virtual//b0 ; we generated : virtual//split-b b0
+0 (localhost, tid=0) [time : 8.29040288925171]: stack now contains 5 ready tasks and 18 non-ready tasks
+0 (localhost, tid=0) [time : 8.29047894477844]: created task {virtual//a2: a2 virtual//split-a}
+0 (localhost, tid=0) [time : 8.29049396514893]: [Protocol]fork accepted, new task on stack : virtual//a2
+0 (localhost, tid=0) [time : 8.29056096076965]: created task {TASK: a2: split-a
+ command : 
+}
+0 (localhost, tid=0) [time : 8.29060697555542]: created task {virtual//split-a: split-a virtual//a}
+0 (localhost, tid=0) [time : 8.29062795639038]: executed virtual//a2 ; we generated : virtual//split-a a2
+0 (localhost, tid=0) [time : 8.29087996482849]: stack now contains 6 ready tasks and 19 non-ready tasks
+0 (localhost, tid=0) [time : 8.29095792770386]: created task {virtual//b2: b2 virtual//split-b}
+0 (localhost, tid=0) [time : 8.29097390174866]: [Protocol]fork accepted, new task on stack : virtual//b2
+0 (localhost, tid=0) [time : 8.29103708267212]: created task {TASK: b2: split-b
+ command : 
+}
+0 (localhost, tid=0) [time : 8.29108309745789]: created task {virtual//split-b: split-b virtual//b}
+0 (localhost, tid=0) [time : 8.29110407829285]: executed virtual//b2 ; we generated : virtual//split-b b2
+0 (localhost, tid=0) [time : 8.2925169467926]: stack now contains 7 ready tasks and 20 non-ready tasks
+0 (localhost, tid=0) [time : 8.29279804229736]: created task {virtual//a0: a0 virtual//split-a}
+0 (localhost, tid=0) [time : 8.29307699203491]: [Protocol]fork accepted, new task on stack : virtual//a0
+0 (localhost, tid=0) [time : 8.29322409629822]: created task {TASK: a0: split-a
+ command : 
+}
+0 (localhost, tid=0) [time : 8.29331994056702]: created task {virtual//split-a: split-a virtual//a}
+0 (localhost, tid=0) [time : 8.29337501525879]: executed virtual//a0 ; we generated : virtual//split-a a0
+0 (localhost, tid=0) [time : 8.29371404647827]: stack now contains 8 ready tasks and 21 non-ready tasks
+0 (localhost, tid=0) [time : 9.27815198898315]: [Protocol]task virtual//split-a is forked by 0
+0 (localhost, tid=0) [time : 9.27874708175659]: [Protocol]task virtual//split-a is not forked by 0
+0 (localhost, tid=0) [time : 9.27897095680237]: created task {virtual//split-a: split-a virtual//a}
+0 (localhost, tid=0) [time : 9.27899098396301]: [Protocol]fork accepted, new task on stack : virtual//split-a
+0 (localhost, tid=0) [time : 9.27907490730286]: created task {TASK: split-a: a
+ command : matrix_split.pl a
+}
+0 (localhost, tid=0) [time : 9.27912092208862]: created task {virtual//a: a}
+0 (localhost, tid=0) [time : 9.2791690826416]: executed virtual//split-a ; we generated : virtual//a split-a
+0 (localhost, tid=0) [time : 9.27945494651794]: stack now contains 4 ready tasks and 22 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 8.82000708580017]: [Protocol]task virtual//split-b is not forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 8.82041096687317]: [Protocol]task virtual//split-b is not forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 8.82136201858521]: [Protocol]task virtual//b is forked by 0
+0 (localhost, tid=0) [time : 9.28192901611328]: [Protocol]task virtual//a is forked by 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 8.82251715660095]: [Protocol]task virtual//split-b is not forked by 0
+0 (localhost, tid=0) [time : 9.28279089927673]: [Protocol]task virtual//split-a is not forked by 0
+0 (localhost, tid=0) [time : 9.28292989730835]: [Protocol]task virtual//split-a is not forked by 0
+0 (localhost, tid=0) [time : 9.28303503990173]: created task {virtual//a: a}
+0 (localhost, tid=0) [time : 9.28305101394653]: [Protocol]fork accepted, new task on stack : virtual//a
+0 (localhost, tid=0) [time : 9.28316497802734]: created task {TASK: a: 
+ command : 
+}
+0 (localhost, tid=0) [time : 9.28322505950928]: executed virtual//a ; we generated : a
+0 (localhost, tid=0) [time : 9.28346395492554]: stack now contains 1 ready tasks and 22 non-ready tasks
+tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27341794967651]: [ExecutionEngine]get virtual task: virtual//b2 (sons: 2)
+0 (localhost, tid=3) [time : 8.27343988418579]: [ExecutionEngine]task virtual//b2 is requested
+0 (localhost, tid=3) [time : 8.27542304992676]: stack now contains 0 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 8.27547407150269]: [ExecutionEngine]get virtual task: virtual//a1 (sons: 2)
+0 (localhost, tid=3) [time : 8.27552008628845]: [ExecutionEngine]task virtual//a1 is requested
+0 (localhost, tid=3) [time : 8.27592396736145]: stack now contains 0 ready tasks and 13 non-ready tasks
+0 (localhost, tid=3) [time : 8.27594995498657]: [ExecutionEngine]get virtual task: virtual//split-b (sons: 2)
+0 (localhost, tid=3) [time : 8.27602291107178]: [ExecutionEngine]task virtual//split-b is requested
+0 (localhost, tid=3) [time : 8.27629899978638]: stack now contains 0 ready tasks and 13 non-ready tasks
+0 (localhost, tid=3) [time : 9.27683591842651]: stack now contains 7 ready tasks and 21 non-ready tasks
+0 (localhost, tid=3) [time : 9.27689003944397]: [ExecutionEngine]get virtual task: virtual//split-a (sons: 2)
+0 (localhost, tid=3) [time : 9.27693390846252]: [ExecutionEngine]task virtual//split-a is requested
+0 (localhost, tid=3) [time : 9.27726793289185]: stack now contains 6 ready tasks and 21 non-ready tasks
+0 (localhost, tid=3) [time : 9.27729487419128]: [ExecutionEngine]get virtual task: virtual//split-b (sons: 2)
+0 (localhost, tid=3) [time : 9.2773220539093]: [ExecutionEngine]task virtual//split-b is requested
+0 (localhost, tid=3) [time : 9.27760291099548]: stack now contains 5 ready tasks and 21 non-ready tasks
+0 (localhost, tid=3) [time : 9.27762699127197]: [ExecutionEngine]get virtual task: virtual//split-a (sons: 2)
+0 (localhost, tid=3) [time : 9.27765202522278]: [ExecutionEngine]task virtual//split-a is requested
+0 (localhost, tid=3) [time : 9.27794194221497]: stack now contains 4 ready tasks and 21 non-ready tasks
+0 (localhost, tid=3) [time : 9.2779688835144]: [ExecutionEngine]get virtual task: virtual//split-b (sons: 2)
+0 (localhost, tid=3) [time : 9.27799487113953]: [ExecutionEngine]task virtual//split-b is requested
+0 (localhost, tid=3) [time : 9.27859997749329]: stack now contains 3 ready tasks and 21 non-ready tasks
+0 (localhost, tid=3) [time : 9.27863001823425]: [ExecutionEngine]get virtual task: virtual//b (sons: 1)
+0 (localhost, tid=3) [time : 9.2786591053009]: [ExecutionEngine]task virtual//b is requested
+0 (localhost, tid=3) [time : 9.28118300437927]: stack now contains 3 ready tasks and 22 non-ready tasks
+0 (localhost, tid=3) [time : 9.28122210502625]: [ExecutionEngine]get virtual task: virtual//a (sons: 1)
+0 (localhost, tid=3) [time : 9.28125786781311]: [ExecutionEngine]task virtual//a is requested
+0 (localhost, tid=3) [time : 9.28150200843811]: stack now contains 2 ready tasks and 22 non-ready tasks
+0 (localhost, tid=3) [time : 9.28152799606323]: [ExecutionEngine]get virtual task: virtual//split-a (sons: 2)
+0 (localhost, tid=3) [time : 9.28155398368835]: [ExecutionEngine]task virtual//split-a is requested
+0 (localhost, tid=3) [time : 9.28193092346191]: stack now contains 1 ready tasks and 22 non-ready tasks
+0 (localhost, tid=3) [time : 9.28196001052856]: [ExecutionEngine]get virtual task: virtual//split-b (sons: 2)
+0 (localhost, tid=3) [time : 9.28199696540833]: [ExecutionEngine]task virtual//split-b is requested
+0 (localhost, tid=3) [time : 9.28226709365845]: stack now contains 0 ready tasks and 22 non-ready tasks
+0 (localhost, tid=3) [time : 9.28229403495789]: [ExecutionEngine]get virtual task: virtual//split-a (sons: 2)
+0 (localhost, tid=3) [time : 9.2823178768158]: [ExecutionEngine]task virtual//split-a is requested
+0 (localhost, tid=3) [time : 9.28270888328552]: stack now contains 0 ready tasks and 22 non-ready tasks
+0 (localhost, tid=3) [time : 10.2831959724426]: stack now contains 0 ready tasks and 22 non-ready tasks
+0 (localhost, tid=3) [time : 10.2832489013672]: [ExecutionEngine]get real task: a and execute cmd
+0 (localhost, tid=3) [time : 10.2832639217377]: [ExecutionEngine] completed task 'a'
+0 (localhost, tid=3) [time : 10.2866730690002]: task split-a still needs 
+0 (localhost, tid=3) [time : 10.2871029376984]: stack now contains 0 ready tasks and 21 non-ready tasks
+0 (localhost, tid=3) [time : 10.2871429920197]: [ExecutionEngine]get real task: split-a and execute cmd
+0 (localhost, tid=3) [time : 10.3262450695038]: [ExecutionEngine] completed task 'split-a'
+0 (localhost, tid=3) [time : 10.329922914505]: task a3 still needs 
+0 (localhost, tid=3) [time : 10.3299880027771]: task a1 still needs 
+0 (localhost, tid=3) [time : 10.330048084259]: task a0 still needs 
+0 (localhost, tid=3) [time : 10.3300929069519]: task a2 still needs 
+0 (localhost, tid=3) [time : 10.3304810523987]: stack now contains 3 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 10.3305299282074]: [ExecutionEngine]get real task: a2 and execute cmd
+0 (localhost, tid=3) [time : 10.3339190483093]: [ExecutionEngine] completed task 'a2'
+0 (localhost, tid=0) [time : 10.3362419605255]: [Protocol]task a0 is now ready
+0 (localhost, tid=0) [time : 10.3366038799286]: stack now contains 3 ready tasks and 17 non-ready tasks
+0 (localhost, tid=0) [time : 10.3367059230804]: [Protocol]task a2 is now ready
+0 (localhost, tid=0) [time : 10.3369610309601]: stack now contains 3 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 10.3382790088654]: task tc2 still needs b0
+0 (localhost, tid=3) [time : 10.3388140201569]: stack now contains 2 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 10.3388559818268]: [ExecutionEngine]get real task: a0 and execute cmd
+0 (localhost, tid=3) [time : 10.3411169052124]: [ExecutionEngine] completed task 'a0'
+0 (localhost, tid=3) [time : 10.3518769741058]: task tc0 still needs b0
+0 (localhost, tid=3) [time : 10.3519489765167]: task tc1 still needs b1
+0 (localhost, tid=3) [time : 10.3522930145264]: stack now contains 1 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 10.352343082428]: [ExecutionEngine]get real task: a1 and execute cmd
+0 (localhost, tid=3) [time : 10.3573670387268]: [ExecutionEngine] completed task 'a1'
+0 (localhost, tid=3) [time : 10.3626499176025]: task sc0 still needs b2
+0 (localhost, tid=3) [time : 10.3627359867096]: task sc1 still needs b3
+0 (localhost, tid=3) [time : 10.3631448745728]: stack now contains 0 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 10.3632109165192]: [ExecutionEngine]get real task: a3 and execute cmd
+0 (localhost, tid=3) [time : 10.3676919937134]: [ExecutionEngine] completed task 'a3'
+0 (localhost, tid=0) [time : 10.4928500652313]: [Protocol]task virtual//a2 is not forked by 1
+0 (localhost, tid=0) [time : 10.4932150840759]: created task {virtual//b: b}
+0 (localhost, tid=0) [time : 10.493234872818]: [Protocol]fork accepted, new task on stack : virtual//b
+0 (localhost, tid=0) [time : 10.4933478832245]: created task {TASK: b: 
+ command : 
+}
+0 (localhost, tid=0) [time : 10.4933838844299]: executed virtual//b ; we generated : b
+0 (localhost, tid=0) [time : 10.4936149120331]: stack now contains 1 ready tasks and 17 non-ready tasks
+0 (localhost, tid=0) [time : 10.4937999248505]: [Protocol]task a3 is now ready
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 10.0335121154785]: [Protocol]task virtual//b1 is not forked by 1
+0 (localhost, tid=0) [time : 10.4940409660339]: stack now contains 1 ready tasks and 17 non-ready tasks
+0 (localhost, tid=0) [time : 10.494078874588]: [Protocol]task a1 is now ready
+0 (localhost, tid=0) [time : 10.4943010807037]: stack now contains 1 ready tasks and 17 non-ready tasks
+0 (localhost, tid=0) [time : 10.4947578907013]: [Protocol]task split-a is now ready
+0 (localhost, tid=0) [time : 10.4950258731842]: stack now contains 1 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 10.3715600967407]: task sc3 still needs b3
+0 (localhost, tid=3) [time : 10.3716340065002]: task sc2 still needs b2
+0 (localhost, tid=3) [time : 10.3719890117645]: stack now contains 0 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 11.3723180294037]: stack now contains 0 ready tasks and 17 non-ready tasks
+0 (localhost, tid=3) [time : 11.3723800182343]: [ExecutionEngine]get real task: b and execute cmd
+0 (localhost, tid=3) [time : 11.3723940849304]: [ExecutionEngine] completed task 'b'
+0 (localhost, tid=3) [time : 11.3758280277252]: task split-b still needs 
+0 (localhost, tid=3) [time : 11.3760840892792]: stack now contains 0 ready tasks and 16 non-ready tasks
+0 (localhost, tid=3) [time : 11.3761219978333]: [ExecutionEngine]get real task: split-b and execute cmd
+0 (localhost, tid=0) [time : 11.3766460418701]: [Protocol]task split-b is now ready
+0 (localhost, tid=0) [time : 11.3789350986481]: stack now contains 0 ready tasks and 16 non-ready tasks
+0 (localhost, tid=3) [time : 11.422159910202]: [ExecutionEngine] completed task 'split-b'
+0 (localhost, tid=3) [time : 11.4263620376587]: task b1 still needs 
+0 (localhost, tid=3) [time : 11.4265229701996]: task b3 still needs 
+0 (localhost, tid=3) [time : 11.426570892334]: task b0 still needs 
+0 (localhost, tid=3) [time : 11.426619052887]: task b2 still needs 
+0 (localhost, tid=3) [time : 11.4267680644989]: stack now contains 3 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 11.4268140792847]: [ExecutionEngine]get real task: b2 and execute cmd
+0 (localhost, tid=0) [time : 11.4285960197449]: [Protocol]task b3 is now ready
+0 (localhost, tid=0) [time : 11.4303689002991]: stack now contains 3 ready tasks and 12 non-ready tasks
+0 (localhost, tid=0) [time : 11.4305019378662]: [Protocol]task b1 is now ready
+0 (localhost, tid=0) [time : 11.4307310581207]: stack now contains 3 ready tasks and 12 non-ready tasks
+0 (localhost, tid=0) [time : 11.4308969974518]: [Protocol]task b0 is now ready
+0 (localhost, tid=0) [time : 11.4311618804932]: stack now contains 3 ready tasks and 12 non-ready tasks
+0 (localhost, tid=0) [time : 11.4312219619751]: [Protocol]task b2 is now ready
+0 (localhost, tid=0) [time : 11.4314270019531]: stack now contains 3 ready tasks and 12 non-ready tasks
+0 (localhost, tid=3) [time : 11.432718038559]: [ExecutionEngine] completed task 'b2'
+0 (localhost, tid=3) [time : 11.4361128807068]: task sc0 still needs 
+0 (localhost, tid=3) [time : 11.436203956604]: task sc2 still needs 
+0 (localhost, tid=3) [time : 11.4363689422607]: stack now contains 4 ready tasks and 10 non-ready tasks
+0 (localhost, tid=3) [time : 11.436408996582]: [ExecutionEngine]get real task: b0 and execute cmd
+0 (localhost, tid=3) [time : 11.4398589134216]: [ExecutionEngine] completed task 'b0'
+0 (localhost, tid=3) [time : 11.4437189102173]: task tc0 still needs 
+0 (localhost, tid=3) [time : 11.4437940120697]: task tc2 still needs 
+0 (localhost, tid=3) [time : 11.4439430236816]: stack now contains 5 ready tasks and 8 non-ready tasks
+0 (localhost, tid=3) [time : 11.4439840316772]: [ExecutionEngine]get real task: b3 and execute cmd
+0 (localhost, tid=3) [time : 11.4473309516907]: [ExecutionEngine] completed task 'b3'
+0 (localhost, tid=3) [time : 11.4510090351105]: task sc1 still needs 
+0 (localhost, tid=3) [time : 11.4511070251465]: task sc3 still needs 
+0 (localhost, tid=3) [time : 11.4512560367584]: stack now contains 6 ready tasks and 6 non-ready tasks
+0 (localhost, tid=3) [time : 11.451297044754]: [ExecutionEngine]get real task: sc3 and execute cmd
+0 (localhost, tid=0) [time : 11.4936800003052]: stack now contains 6 ready tasks and 6 non-ready tasks
+0 (localhost, tid=0) [time : 11.4938879013062]: stack now contains 5 ready tasks and 6 non-ready tasks
+0 (localhost, tid=0) [time : 11.4939379692078]: [Protocol] we authorize 1 to steal us of task b1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 11.0347630977631]: [Protocol]steal success on 0, new task on stack : b1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 11.0352611541748]: created task {TASK: b1: split-b
+localhost-1: jael -m localhost,localhost -i 1 (14107): error >  command : 
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > }
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 11.0355939865112]: [Protocol]Missing dependency for task b1 : split-b
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 11.0359320640564]: stack now contains 0 ready tasks and 2 non-ready tasks
+0 (localhost, tid=3) [time : 11.8886320590973]: [ExecutionEngine] completed task 'sc3'
+0 (localhost, tid=3) [time : 11.8918929100037]: task c3 still needs tc3
+0 (localhost, tid=3) [time : 11.8921020030975]: stack now contains 4 ready tasks and 6 non-ready tasks
+0 (localhost, tid=3) [time : 11.8921399116516]: [ExecutionEngine]get real task: tc2 and execute cmd
+0 (localhost, tid=3) [time : 12.3023030757904]: [ExecutionEngine] completed task 'tc2'
+0 (localhost, tid=3) [time : 12.3056509494781]: task c2 still needs sc2
+0 (localhost, tid=3) [time : 12.3058350086212]: stack now contains 3 ready tasks and 6 non-ready tasks
+0 (localhost, tid=3) [time : 12.3058710098267]: [ExecutionEngine]get real task: sc2 and execute cmd
+0 (localhost, tid=0) [time : 12.4937350749969]: stack now contains 3 ready tasks and 6 non-ready tasks
+0 (localhost, tid=0) [time : 12.4938960075378]: stack now contains 2 ready tasks and 6 non-ready tasks
+0 (localhost, tid=0) [time : 12.4939239025116]: [Protocol] we authorize 1 to steal us of task sc0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 12.034569978714]: [Protocol]steal success on 0, new task on stack : sc0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 12.0350410938263]: created task {TASK: sc0: a1 b2
+localhost-1: jael -m localhost,localhost -i 1 (14107): error >  command : matrix_multiply.pl a1 b2 sc0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > }
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 12.0354020595551]: [Protocol]Missing dependency for task sc0 : a1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 12.0356171131134]: [Protocol]Missing dependency for task sc0 : b2
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 12.0359189510345]: stack now contains 0 ready tasks and 3 non-ready tasks
+0 (localhost, tid=3) [time : 12.7228260040283]: [ExecutionEngine] completed task 'sc2'
+0 (localhost, tid=3) [time : 12.7261040210724]: task c2 still needs 
+0 (localhost, tid=3) [time : 12.7262659072876]: stack now contains 2 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 12.7263031005859]: [ExecutionEngine]get real task: tc0 and execute cmd
+0 (localhost, tid=0) [time : 12.7268331050873]: [Protocol]task c2 is now ready
+0 (localhost, tid=0) [time : 12.7280149459839]: stack now contains 2 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 13.1453049182892]: [ExecutionEngine] completed task 'tc0'
+0 (localhost, tid=3) [time : 13.1486320495605]: task c0 still needs sc0
+0 (localhost, tid=3) [time : 13.1487910747528]: stack now contains 1 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 13.1488280296326]: [ExecutionEngine]get real task: sc1 and execute cmd
+0 (localhost, tid=0) [time : 13.4940478801727]: stack now contains 1 ready tasks and 5 non-ready tasks
+0 (localhost, tid=0) [time : 13.4941508769989]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0347580909729]: [Protocol]steal fail on 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0396139621735]: [TasksStack]checking TASK: sc0: a1 b2
+localhost-1: jael -m localhost,localhost -i 1 (14107): error >  command : matrix_multiply.pl a1 b2 sc0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error >  with dependency sc0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0400459766388]: [TasksStack]undefined split-b in dependencies of sc0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0402319431305]: [TasksStack]in stack, status of tc3 is 3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0404160022736]: [TasksStack]checking TASK: b1: split-b
+localhost-1: jael -m localhost,localhost -i 1 (14107): error >  command : 
+localhost-1: jael -m localhost,localhost -i 1 (14107): error >  with dependency b1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0407400131226]: stack now contains 2 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0416419506073]: [TasksStack]in stack, status of sc0 is 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0418930053711]: [TasksStack]in stack, status of tc3 is 3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0420949459076]: [TasksStack]in stack, status of b1 is 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0423030853271]: stack now contains 2 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0434141159058]: [TasksStack]in stack, status of sc0 is 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0436761379242]: [TasksStack]in stack, status of tc3 is 3
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.043879032135]: [TasksStack]in stack, status of b1 is 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.0440890789032]: stack now contains 2 ready tasks and 1 non-ready tasks
+0 (localhost, tid=3) [time : 13.5702240467072]: [ExecutionEngine] completed task 'sc1'
+0 (localhost, tid=3) [time : 13.5735499858856]: task c1 still needs tc1
+0 (localhost, tid=3) [time : 13.5739190578461]: stack now contains 0 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 13.5739588737488]: [ExecutionEngine]get real task: c2 and execute cmd
+0 (localhost, tid=3) [time : 13.6015019416809]: [ExecutionEngine] completed task 'c2'
+0 (localhost, tid=0) [time : 13.606950044632]: [Protocol]steal success on 1, new task on stack : sc0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.146213054657]: stack now contains 2 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.1466209888458]: stack now contains 1 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 13.146831035614]: [Protocol] we authorize 0 to steal us of task sc0
+0 (localhost, tid=0) [time : 13.6071269512177]: created task {TASK: sc0: a1 b2
+ command : matrix_multiply.pl a1 b2 sc0
+}
+0 (localhost, tid=0) [time : 13.6072039604187]: [Protocol]task sc0 is now ready
+0 (localhost, tid=0) [time : 13.607372045517]: stack now contains 1 ready tasks and 5 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 0.0292820930480957]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 0.029325008392334]: sending steal request to 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 1.03031802177429]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 2.03050994873047]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 3.03065204620361]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 4.03081512451172]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 5.0310070514679]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 6.03120493888855]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 6.03126692771912]: sending steal request to 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 7.03165292739868]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 7.03170800209045]: [ExecutionEngine]get virtual task: virtual//tc3 (sons: 3)
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 7.0317599773407]: [ExecutionEngine]task virtual//tc3 is requested
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 7.03182506561279]: stack now contains 0 ready tasks and 0 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 8.03221893310547]: stack now contains 1 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 8.03227210044861]: [ExecutionEngine]get virtual task: virtual//b1 (sons: 2)
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 8.03231406211853]: [ExecutionEngine]task virtual//b1 is requested
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 8.03241610527039]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 8.03243899345398]: [ExecutionEngine]get virtual task: virtual//a2 (sons: 2)
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 8.03246402740479]: [ExecutionEngine]task virtual//a2 is requested
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 8.03251314163208]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 9.0327091217041]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 10.0329360961914]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 11.0332400798798]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 11.0333299636841]: sending steal request to 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 12.0336570739746]: stack now contains 0 ready tasks and 2 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 12.0337090492249]: sending steal request to 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 13.0339450836182]: stack now contains 0 ready tasks and 3 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 13.0340049266815]: sending steal request to 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 14.034255027771]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 14.0343179702759]: [ExecutionEngine]get real task: b1 and execute cmd
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=3) [time : 14.0372331142426]: [ExecutionEngine] completed task 'b1'
+0 (localhost, tid=0) [time : 14.4991309642792]: stack now contains 1 ready tasks and 5 non-ready tasks
+0 (localhost, tid=0) [time : 14.4992048740387]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 14.0397419929504]: [Protocol]steal fail on 0
+0 (localhost, tid=3) [time : 13.6052670478821]: task c still needs c3 c0 c1
+0 (localhost, tid=3) [time : 13.6054399013519]: stack now contains 0 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 13.605486869812]: sending steal request to 1
+0 (localhost, tid=3) [time : 14.6058208942413]: stack now contains 0 ready tasks and 5 non-ready tasks
+0 (localhost, tid=3) [time : 14.6058869361877]: [ExecutionEngine]get real task: sc0 and execute cmd
+0 (localhost, tid=3) [time : 15.0285069942474]: [ExecutionEngine] completed task 'sc0'
+0 (localhost, tid=3) [time : 15.0318210124969]: task c0 still needs 
+0 (localhost, tid=3) [time : 15.0319409370422]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=3) [time : 15.0319790840149]: [ExecutionEngine]get real task: c0 and execute cmd
+0 (localhost, tid=0) [time : 15.0352909564972]: [Protocol]task c0 is now ready
+0 (localhost, tid=0) [time : 15.035551071167]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=3) [time : 15.0635950565338]: [ExecutionEngine] completed task 'c0'
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 14.6091599464417]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 14.6096069812775]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 15.0701079368591]: [Protocol]steal fail on 1
+0 (localhost, tid=0) [time : 15.4995050430298]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 15.4995889663696]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 15.0402600765228]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 16.0688290596008]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 15.608845949173]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 15.6089069843292]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 16.4998309612274]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 16.4999639987946]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 16.0406091213226]: [Protocol]steal fail on 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 16.6091871261597]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 16.6095809936523]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 17.0699870586395]: [Protocol]steal fail on 1
+0 (localhost, tid=0) [time : 17.5001380443573]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 17.5002160072327]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 17.0408010482788]: [Protocol]steal fail on 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 17.6095991134644]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 17.6099829673767]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 18.0703890323639]: [Protocol]steal fail on 1
+0 (localhost, tid=0) [time : 18.5004599094391]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 18.5005400180817]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 18.0411231517792]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 19.0698909759521]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 18.6099071502686]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 18.6099679470062]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 19.5007719993591]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 19.5008599758148]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 19.0414490699768]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 20.0703620910645]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 19.6103799343109]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 19.6104390621185]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 20.5010879039764]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 20.5011749267578]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 20.0417580604553]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 21.0708270072937]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 20.6108479499817]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 20.6109080314636]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 21.501403093338]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 21.5014970302582]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 21.0421359539032]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 22.0712270736694]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 21.6112389564514]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 21.6112971305847]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 22.501785993576]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 22.5018661022186]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 22.0424520969391]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 23.0715839862823]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 22.6116070747375]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 22.6116659641266]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 23.5021789073944]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 23.5022599697113]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 23.0428409576416]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 24.0719590187073]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 23.6119780540466]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 23.6120381355286]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 24.502513885498]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 24.5025949478149]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 24.0431771278381]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 25.0723400115967]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 24.6123549938202]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 24.6124169826508]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 25.5028419494629]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 25.5029220581055]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 25.0435030460358]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 26.0728158950806]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 25.6128389835358]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 25.6128971576691]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 26.5031599998474]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 26.5032539367676]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 26.0439109802246]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 27.0732359886169]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 26.6132521629333]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 26.613312959671]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 27.5035119056702]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 27.5035920143127]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 27.0441660881042]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 28.0735919475555]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 27.6136109828949]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 27.6136701107025]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 28.5038080215454]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 28.5038869380951]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 28.0444631576538]: [Protocol]steal fail on 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 28.614443063736]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 28.6145031452179]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 29.0751469135284]: [Protocol]steal fail on 1
+0 (localhost, tid=0) [time : 29.5041370391846]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 29.5042159557343]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 29.0447919368744]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 30.0747580528259]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 29.6147661209106]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 29.61483502388]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 30.504467010498]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 30.5045609474182]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 30.045156955719]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 31.0751180648804]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 30.6151361465454]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 30.6151969432831]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 31.5048170089722]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 31.5049080848694]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 31.0455470085144]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 32.0754959583282]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 31.6155109405518]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 31.615571975708]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 32.5050849914551]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 32.5051651000977]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 32.0457451343536]: [Protocol]steal fail on 0
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 32.6158809661865]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 32.6159360408783]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 33.0764670372009]: [Protocol]steal fail on 1
+0 (localhost, tid=0) [time : 33.5056190490723]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 33.5056979656219]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 33.0462901592255]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 34.076220035553]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 33.6162390708923]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 33.6162991523743]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 34.5059480667114]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 34.5060269832611]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 34.0466151237488]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 35.07683801651]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 34.6166491508484]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 34.616711139679]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 35.5063080787659]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 35.5063939094543]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 35.047080039978]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 36.07896900177]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 35.6184110641479]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 35.6184930801392]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 36.5067451000214]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 36.5068640708923]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 36.0477020740509]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 37.0780279636383]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 36.6174221038818]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 36.6174919605255]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 37.5069298744202]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 37.5070099830627]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 37.0475969314575]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 38.0779130458832]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 37.6177339553833]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 37.6177921295166]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 38.5072720050812]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 38.5073421001434]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 38.0479130744934]: [Protocol]steal fail on 0
+0 (localhost, tid=0) [time : 39.0809109210968]: [Protocol]steal fail on 1
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 38.6185550689697]: stack now contains 0 ready tasks and 1 non-ready tasks
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 38.6186361312866]: [Protocol] we don't authorize 0 to steal us
+0 (localhost, tid=0) [time : 39.5075969696045]: stack now contains 0 ready tasks and 4 non-ready tasks
+0 (localhost, tid=0) [time : 39.5076720714569]: [Protocol] we don't authorize 1 to steal us
+localhost-1: jael -m localhost,localhost -i 1 (14107): error > 1 (localhost, tid=0) [time : 39.0483191013336]: [Protocol]steal fail on 0
