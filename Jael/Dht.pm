@@ -167,17 +167,17 @@ sub update_reverse_dependencies_status {
 sub get_completed_dependencies {
     my $self = shift;
     my $task_id = shift;
-    my @ready_tasks_ids;
+    my @completed_tasks_ids;
 
     my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 
     for my $dependency (@{$dependencies}) {
         if (defined $self->{task_status}->{$dependency} and $self->{task_status}->{$dependency} == $TASK_STATUS_COMPLETED) {
-            push @ready_tasks_ids, $dependency;
+            push @completed_tasks_ids, $dependency;
         }
     }
 
-    return \@ready_tasks_ids;
+    return \@completed_tasks_ids;
 }
 
 # Return machine owning task id

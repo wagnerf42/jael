@@ -296,8 +296,6 @@ sub incoming_message {
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
             my $completed_dependencies = $message->get_machines_list();
 
-            print STDERR "DEPS of $task_id: " . join(",", @{$completed_dependencies}) . "\n";
-
             for my $dependency (@{$completed_dependencies}) {
                 $task->unset_dependency($dependency);
             }
@@ -305,6 +303,11 @@ sub incoming_message {
 
         $self->{fork_set}->set_done_status($task_id);
         $self->{tasks_stack}->push_task($task);
+
+        # Notify if we have one real task on stack
+        unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
+            $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id));
+        }
     }
 
     # -----------------------------------------------------------------
