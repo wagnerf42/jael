@@ -35,6 +35,11 @@ sub new {
     return $self;
 }
 
+sub is_real_task_id {
+	my $id = shift;
+	return (not($id=~/^$VIRTUAL_TASK_PREFIX(.*)/));
+}
+
 sub stringify {
     my $self = shift;
     return $VIRTUAL_TASK_PREFIX . "$self->{target_name}: " . join(" ", @{$self->{reverse_dependencies}});
@@ -56,7 +61,27 @@ sub get_id {
 # - The reverse dependencies of the real task 'target name' with virtual prefix
 sub get_tasks_to_generate {
     my $self = shift;
-    return $self->{reverse_dependencies};
+	# we look at reverse deps
+	# any real task is created
+	# any non-file virtual task is created
+	# for file virtual tasks we recurse on them
+	my @created_ids;
+	for my $id (@{$self->{reverse_dependencies}}) {
+		if (is_real_task_id($id)) {
+			push @created_ids, $id;
+		} else {
+			if (Jael::TasksGraph::is_file_transfer_task($id)) {
+				# we add virtual tasks for each dependency
+				die unless ($id =~ /^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/);
+				my $real_task_id = $1;
+				my $dependencies = Jael::TasksGraph::get_dependencies($real_task_id);
+				push @created_ids, map {"$VIRTUAL_TASK_PREFIX$_"} @$dependencies;
+			} else {
+				push @created_ids, $id;
+			}
+		}
+	}
+	return @created_ids;
 }
 
 # Generate all tasks inside virtual one
@@ -66,8 +91,9 @@ sub generate_tasks {
     my $completed_dependencies = shift;
     my @tasks;
     my $real_task;
+	print STDERR "generating tasks for $self\n";
 
-    for my $task_id (@{$self->get_tasks_to_generate()}) {
+    for my $task_id ($self->get_tasks_to_generate()) {
         my $task = Jael::TasksGraph::get_task($task_id);
 
         if ($task->is_virtual()) {
@@ -79,6 +105,7 @@ sub generate_tasks {
     }
 
     push @tasks, $real_task;
+    print STDERR "executed " . $self->get_id() . " ; we generated : " . join(' ', map {$_->get_id()} @tasks)."\n";
     Jael::Debug::msg('task', "executed " . $self->get_id() . " ; we generated : " . join(' ', map {$_->get_id()} @tasks));
 
     return \@tasks;

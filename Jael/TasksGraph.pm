@@ -111,18 +111,6 @@ sub get_task {
     return $task;
 }
 
-# Return 1 if one virtual task must be forked, else 0
-sub task_must_be_forked {
-    my $task_id = shift;
-
-    if ($task_id =~ /^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/) {
-        # One virtual task must be forked if the linked real task has more one reserve dependency
-        return (scalar @{$tasksgraph->{reverse_dependencies}->{$1}}) > 1;
-    }
-
-    die "$task_id is not one virtual task";
-}
-
 # Add one real task to tasksgraph
 # Note: The virtual tasks are not added directly in tasksgraph
 sub add_task {
@@ -260,6 +248,30 @@ sub get_dependencies {
 sub get_reverse_dependencies {
     my $task_id = shift;
     return $tasksgraph->{reverse_dependencies}->{$task_id};
+}
+
+# return true if a task has no command and is only used to transfer files
+sub is_file_transfer_task {
+	my $task_id = shift;
+	$task_id = $1 if ($task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/);
+	return 1 unless defined $tasksgraph->{commands}->{$task_id};
+	return 1 if $tasksgraph->{commands}->{$task_id} eq ''; #TODO: not needed ?
+	print STDERR "$task_id is not a file transfer task : command is $tasksgraph->{commands}->{$task_id}\n";
+	return 0;
+}
+
+sub get_initial_file_transfer_tasks {
+	my @tasks;
+	my %real_tasks;
+	for my $task (keys %{$tasksgraph->{commands}}) {
+		$real_tasks{$task} = 1;
+	}
+	for my $task (keys %{$tasksgraph->{commands}}) {
+		for my $dep (@{$tasksgraph->{dependencies}->{$task}}) {
+			push @tasks, $dep unless defined $real_tasks{$dep};
+		}
+	}
+	return @tasks;
 }
 
 1;

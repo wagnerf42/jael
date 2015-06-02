@@ -13,6 +13,7 @@ use Jael::Task;
 use Jael::VirtualTask;
 use Jael::Dht;
 use Jael::Paje;
+use Jael::TasksGraph;
 
 use Data::Dumper; # TMP
 
@@ -73,14 +74,16 @@ sub incoming_message {
     if ($type == $Jael::Message::TASK_COMPUTATION_COMPLETED) {
         my $task_id = $message->get_task_id();
 
+		my $machine_which_completed_task = $message->get_machines_list()->[0];
+		Jael::Debug::msg('dht', "we are informed that $task_id completed on machine $machine_which_completed_task");
         # $sender_id is an owner of the data's $task_id
-        $self->{dht}->add_data_owner($task_id, $sender_id);
+        $self->{dht}->add_data_owner($task_id, $machine_which_completed_task);
 
         # Get machines depending on $task_id
         my @machines_to_inform = $self->{dht}->compute_dht_owners_for_tasks_depending_on($task_id);
 
         # Send to DHT_OWNER($task_id) : '$task_id completed'
-        my $message = Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id);
+        my $message = Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id, $machine_which_completed_task);
 
         for my $machine_id (@machines_to_inform) {
             $self->{server}->send($machine_id, $message);
@@ -92,14 +95,21 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED) {
         my $task_id = $message->get_task_id();
+		my $machine_which_completed_task = $message->get_machines_list()->[0];
 
         # We get ready reverse dependencies
         my $ready_tasks_ids = $self->{dht}->update_reverse_dependencies_status($task_id);
+		Jael::Debug::msg('dht', "we are informed for deps that $task_id completed on machine $machine_which_completed_task ; tasks turning ready are @$ready_tasks_ids");
 
         for my $ready_task_id (@{$ready_tasks_ids}) {
-            my $machine_id = $self->{dht}->get_machine_owning($ready_task_id);
-            $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY,
-                                                                  $ready_task_id));
+			if (Jael::TasksGraph::is_file_transfer_task($ready_task_id)) {
+				# file tasks never become READY
+				# they directly reach the COMPLETED status
+				$self->{server}->send($self->{id}, Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $ready_task_id, $machine_which_completed_task));
+			} else {
+				my $machine_id = $self->{dht}->get_machine_owning($ready_task_id);
+				$self->{server}->send($machine_id, Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
+			}
         }
     }
 

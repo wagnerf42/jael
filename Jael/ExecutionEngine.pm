@@ -128,7 +128,7 @@ sub compute_virtual_task {
     my $task_id = $task->get_id();
 
     Jael::Debug::msg('task', "[ExecutionEngine]get virtual task: $task_id (sons: " .
-                     @{$task->get_tasks_to_generate()} . ")");
+                     $task->get_tasks_to_generate() . ")");
 
     $self->{fork_set}->set_wait_status($task_id);
     $self->fork_task($task_id);
@@ -146,9 +146,6 @@ sub compute_real_task {
     # Execute real task & update dependencies
     my $main_task_completed = $task->execute();
     Jael::Debug::msg('task', "[ExecutionEngine] completed task '$task_id'");
-
-    # TMP
-    `touch $task_id`;
 
     # TODO: Check if execute returns error !
 
@@ -172,7 +169,7 @@ sub compute_real_task {
         $self->{network}->send($self->{id}, $message);
     } else {
         # We send to DHT_OWNER($task) : 'I computed $task' and local dependencies update
-        my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $task->get_id());
+        my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $task->get_id(), $self->{id});
         my $destination = Jael::Dht::hash_task_id($task->get_id());
 
         # Send to DHT_OWNER($task)
@@ -274,8 +271,16 @@ sub bootstrap_system {
     #Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
 
     # Broadcast the graph to everyone and wait
-    $self->{network}->broadcast(new Jael::Message($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));
+    $self->{network}->broadcast(Jael::Message->new($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));
     $self->{network}->wait_while_messages_exists();
+
+	# mark initial files we own as ours
+	my @files_transfers_tasks = Jael::TasksGraph::get_initial_file_transfer_tasks();
+	for my $file_task (@files_transfers_tasks) {
+        my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $file_task, $self->{id});
+        my $destination = Jael::Dht::hash_task_id($file_task);
+		$self->{network}->send($destination, $message);
+	}
 
     # Get initial task
     my $init_task_id = Jael::TasksGraph::get_init_task_id();

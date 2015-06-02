@@ -6,6 +6,7 @@ use warnings;
 
 use Jael::Task;
 use Jael::VirtualTask qw($VIRTUAL_TASK_PREFIX);
+use Carp;
 
 # We need to know number of machines in hash function
 my $machines_number;
@@ -45,6 +46,7 @@ sub mark_dependency_finished {
 	my $self = shift;
 	my $task_id = shift;
 	my $dependency = shift;
+	die "i am not owner of $task_id" unless $self->owns($task_id);
 	$self->{completed_tasks_dependencies}->{$task_id}->{$dependency} = 1;
 	return;
 }
@@ -138,7 +140,7 @@ sub compute_dht_owners_for_tasks_depending_on {
 sub add_data_owner {
     my $self = shift;
     my $task_id = shift;
-	die "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "we are not responsible for $task_id" unless $self->owns($task_id);
     my $machine_id = shift;
 
     push @{$self->{data_owners}->{$task_id}}, $machine_id;
@@ -158,7 +160,7 @@ sub get_data_owners {
 }
 
 # One task is now completed => Check if we can update the reverse dependencies to READY state
-# Return the list of existing tasks which turned ready
+# Return the list of existing tasks which turned ready or file tasks which turned ready
 sub update_reverse_dependencies_status {
     my $self = shift;
     my $task_id = shift;
@@ -169,14 +171,15 @@ sub update_reverse_dependencies_status {
     my @ready_tasks;
 	# update info and get list of ready tasks
 	for my $task (@$reverse_dependencies) {
+		next unless $self->owns($task);
 		$self->mark_dependency_finished($task, $task_id);
 		if ($self->all_dependencies_finished($task)) {
 			push @ready_tasks, $task;
 		}
 	}
 
-	#now filter list of ready tasks to retrieve only the ones already created
-	my @existing_ready_tasks = grep {defined $self->{tasks_owners}->{$_}} @ready_tasks;
+	#now filter list of ready tasks to retrieve only the ones already created or file tasks
+	my @existing_ready_tasks = grep {defined $self->{tasks_owners}->{$_} or Jael::TasksGraph::is_file_transfer_task($_)} @ready_tasks;
 
     Jael::Debug::msg('dht', "[Dht]task $task_id is now completed, new ready tasks: " . join(", ", @existing_ready_tasks));
     return \@existing_ready_tasks;
@@ -199,9 +202,10 @@ sub get_completed_dependencies {
 sub get_machine_owning {
     my $self = shift;
     my $task_id = shift;
-	die "we are not responsible for $task_id" unless $self->owns($task_id);
 
-    die "[Dht] $task_id was never created" unless defined $self->{tasks_owners}->{$task_id};
+	confess "we are not responsible for $task_id" unless $self->owns($task_id);
+    confess "[Dht] $task_id was never created" unless defined $self->{tasks_owners}->{$task_id};
+
     return $self->{tasks_owners}->{$task_id};
 }
 
