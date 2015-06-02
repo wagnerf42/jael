@@ -79,7 +79,7 @@ sub generate_tasks {
     }
 
     push @tasks, $real_task;
-    Jael::Debug::msg('task', "executed ".$self->get_id()." ; we generated : ".join(' ', map {$_->get_id()} @tasks));
+    Jael::Debug::msg('task', "executed " . $self->get_id() . " ; we generated : " . join(' ', map {$_->get_id()} @tasks));
 
     return \@tasks;
 }

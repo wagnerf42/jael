@@ -38,14 +38,18 @@ sub hash_task_id {
     my $task_id = shift;
     my $hash_value = 0;
 
-    # TODO : Temp hash function... Test others functions
+    print STDERR "HASH VIRTUAL TASK $task_id !\n" if ($task_id =~ /^$VIRTUAL_TASK_PREFIX(.*)/);
 
     for my $c (split //, $task_id) {
         $hash_value = ($hash_value << 5) | ($hash_value >> 27);
         $hash_value += ord($c);
     }
 
-    return $hash_value % $machines_number;
+    $hash_value %= $machines_number;
+
+    Jael::Debug::msg('hash_value', "Hash value for '$task_id' : $hash_value");
+
+    return $hash_value;
 }
 
 # Set machine owning task, not the DHT_OWNER but the machine's stack using this task.
@@ -170,7 +174,7 @@ sub get_completed_dependencies {
     my $self = shift;
     my $virtual_task_id = shift;
 
-    die "not virtual : '$virtual_task_id'" unless $virtual_task_id=~/$VIRTUAL_TASK_PREFIX(\S+)/;
+    die "not virtual : '$virtual_task_id'" unless $virtual_task_id =~ /$VIRTUAL_TASK_PREFIX(\S+)/;
 
     my $real_task_id = $1;
     my @completed_tasks_ids;

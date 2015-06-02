@@ -82,7 +82,7 @@ sub incoming_message {
         # Get machines depending on $task_id
         my @machines_to_inform = $self->{dht}->compute_dht_owners_for_tasks_depending_on($task_id);
 
-        # Send to DHT_OWNER($task_id) : 'ID_TASK completed'
+        # Send to DHT_OWNER($task_id) : '$task_id completed'
         my $message = Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id);
 
         for my $machine_id (@machines_to_inform) {
@@ -291,17 +291,18 @@ sub incoming_message {
         my $task_id = $message->get_label();
         my $task = Jael::TasksGraph::get_task($task_id);
 
-        Jael::Debug::msg('fork', "[Protocol]fork accepted, new task on stack : $task_id");
         Jael::Paje::destroy_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
         my $completed_dependencies = [split('&', $message->get_string())];
         my $tasks_inside_forked_virtual = $task->generate_tasks($completed_dependencies);
 
         $self->{fork_set}->set_done_status($task_id);
-        $self->{tasks_stack}->push_task(@$tasks_inside_forked_virtual);
+        $self->{tasks_stack}->push_task(@{$tasks_inside_forked_virtual});
 
-        # Notify if we have one real task on stack
-        # TODO: can we avoid this message ?
+        Jael::Debug::msg('fork', "[Protocol]fork accepted, new task on stack : $task_id with completed dependencies : " .
+            join(',', @{$completed_dependencies}));
+
+        # Notify we have one real task on stack
         my $real_task_created = $tasks_inside_forked_virtual->[-1];
         my $real_task_id = $real_task_created->get_id();
         my $dht_owner = Jael::Dht::hash_task_id($real_task_id);

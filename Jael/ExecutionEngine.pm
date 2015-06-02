@@ -125,13 +125,13 @@ sub fork_task {
 sub compute_virtual_task {
     my $self = shift;
     my $task = shift;
-	my $task_id = $task->get_id();
+    my $task_id = $task->get_id();
 
     Jael::Debug::msg('task', "[ExecutionEngine]get virtual task: $task_id (sons: " .
                      @{$task->get_tasks_to_generate()} . ")");
 
-	$self->{fork_set}->set_wait_status($task_id);
-	$self->fork_task($task_id);
+    $self->{fork_set}->set_wait_status($task_id);
+    $self->fork_task($task_id);
 
     return;
 }
@@ -216,7 +216,7 @@ sub computation_thread {
                         $self->{last_rand_machine} = $self->{last_rand_machine}++ % @{$self->{rand_machines}};
                         ${$self->{steal_authorized}} = 0;
 
-						Jael::Debug::msg('protocol', "sending steal request to $machine_id");
+                        Jael::Debug::msg('protocol', "sending steal request to $machine_id");
                         $self->{network}->send($machine_id, Jael::Message->new($Jael::Message::STEAL_REQUEST));
                     }
                 }
@@ -271,7 +271,7 @@ sub bootstrap_system {
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
     #TODO: use macros to avoid extra debug costs
-    Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
+    #Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
 
     # Broadcast the graph to everyone and wait
     $self->{network}->broadcast(new Jael::Message($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));

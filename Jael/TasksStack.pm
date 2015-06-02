@@ -30,17 +30,20 @@ sub stringify {
 
 #precondition : stack is locked
 sub stats {
-	my $self = shift;
-	my ($ready, $not_ready) = (0, 0);
-	for my $task (@{$self->{tasks}}) {
-		if ($task->is_ready()) {
-			$ready++;
-		} else {
-			$not_ready++;
-		}
-	}
-	Jael::Debug::msg('stack', "stack now contains $ready ready tasks and $not_ready non-ready tasks");
-	return ($ready, $not_ready);
+    my $self = shift;
+    my ($ready, $not_ready) = (0, 0);
+
+    for my $task (@{$self->{tasks}}) {
+        if ($task->is_ready()) {
+            $ready++;
+        } else {
+            $not_ready++;
+        }
+    }
+
+    Jael::Debug::msg('stack', "stack now contains $ready ready tasks and $not_ready non-ready tasks");
+
+    return ($ready, $not_ready);
 }
 
 # Add many tasks on stack
@@ -49,7 +52,7 @@ sub push_task {
 
     lock($self->{tasks});
     push @{$self->{tasks}}, map {shared_clone($_)} @_;
-	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
+    $self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return;
 }
@@ -75,7 +78,7 @@ sub pop_task {
     }
 
     push @{$self->{tasks}}, @remaining_tasks;
-	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
+    $self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return $selected_task;
 }
@@ -89,7 +92,7 @@ sub steal_task {
     my @remaining_tasks;
 
     lock($self->{tasks});
-	my ($ready, $not_ready) = $self->stats();
+    my ($ready, $not_ready) = $self->stats();
 
     # Useless to steal if there are not enough tasks in stack
     return undef unless $ready > 1;
@@ -107,7 +110,7 @@ sub steal_task {
     }
 
     unshift @{$self->{tasks}}, @remaining_tasks;
-	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
+    $self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return $selected_task;
 }
@@ -148,7 +151,8 @@ sub change_task_status {
     if (defined $tasks[0]) {
         $tasks[0]->update_status($new_status);
     }
-	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
+
+    $self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return;
 }
@@ -187,7 +191,7 @@ sub set_ready_status_if_necessary {
             Jael::Debug::msg('task', "[TasksStack]in stack, status of " . $task->get_id() . " is " . $task->get_status());
         }
     }
-	$self->stats() if (Jael::Debug::logs_activated_for('stack'));
+    $self->stats() if (Jael::Debug::logs_activated_for('stack'));
 
     return;
 }
