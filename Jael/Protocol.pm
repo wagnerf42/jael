@@ -25,8 +25,8 @@ sub new {
     my $execution_engine = shift;
     my $server = shift;
 
-    $self->{dht} = Jael::Dht->new();
     $self->{id} = $execution_engine->get_id();
+    $self->{dht} = Jael::Dht->new($self->{id});
     $self->{tasks_stack} = $execution_engine->get_tasks_stack();
     $self->{fork_set} = $execution_engine->get_fork_set();
     $self->{steal_authorized} = $execution_engine->get_steal_variable();
@@ -72,9 +72,6 @@ sub incoming_message {
     # -----------------------------------------------------------------
     if ($type == $Jael::Message::TASK_COMPUTATION_COMPLETED) {
         my $task_id = $message->get_task_id();
-
-        # Update local status
-        $self->{dht}->change_task_status($task_id, $Jael::Task::TASK_STATUS_COMPLETED);
 
         # $sender_id is an owner of the data's $task_id
         $self->{dht}->add_data_owner($task_id, $sender_id);

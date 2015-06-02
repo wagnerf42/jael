@@ -14,15 +14,39 @@ my $machines_number;
 sub new {
     my $class = shift;
     my $self = {};
+	$self->{id} = shift; # who we are
 
+	# remember for each task who is holding it
     $self->{tasks_owners} = {}; # Update by TASK_IS_PUSHED
-    $self->{task_status} = {};  # Update by TASK_COMPUTATION_COMPLETED and DEPENDENCIES_UPDATE_TASK_COMPLETED
+	# remember for each task if forked yet or not
     $self->{task_forked} = {};  # Update by FORK_REQUEST
+	# remember for each task a list of machines owning the corresponding data
     $self->{data_owners} = {};  # Update by TASK_COMPUTATION_COMPLETED
+	# remember for each task the hash of dependencies which already finished
+	$self->{completed_tasks_dependencies} = {};
 
     bless $self, $class;
 
     return $self;
+}
+
+# return true if given task has all its dependencies which already finished
+sub all_dependencies_finished {
+	my $self = shift;
+	my $task_id = shift;
+	my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
+	for my $dependency (@$dependencies) {
+		return 0 unless (defined $self->{completed_tasks_dependencies}->{$task_id}->{$dependency});
+	}
+	return 1;
+}
+
+sub mark_dependency_finished {
+	my $self = shift;
+	my $task_id = shift;
+	my $dependency = shift;
+	$self->{completed_tasks_dependencies}->{$task_id}->{$dependency} = 1;
+	return;
 }
 
 # Define the machines number on network
@@ -33,12 +57,20 @@ sub set_machines_number {
     return;
 }
 
+
+# are we responsible for given task ?
+sub owns {
+	my $self = shift;
+	my $task_id = shift;
+	return (hash_task_id($task_id) == $self->{id});
+}
+
 # Get not unique identifier for one task id in [0..n_machines]
 sub hash_task_id {
     my $task_id = shift;
     my $hash_value = 0;
 
-    print STDERR "HASH VIRTUAL TASK $task_id !\n" if ($task_id =~ /^$VIRTUAL_TASK_PREFIX(.*)/);
+    $task_id = $1 if ($task_id =~ /^$VIRTUAL_TASK_PREFIX(.*)/);
 
     for my $c (split //, $task_id) {
         $hash_value = ($hash_value << 5) | ($hash_value >> 27);
@@ -57,21 +89,10 @@ sub hash_task_id {
 sub set_machine_owning {
     my $self = shift;
     my $task_id = shift;
+	die "we are not responsible for $task_id" unless $self->owns($task_id);
     my $machine_id = shift;
 
     $self->{tasks_owners}->{$task_id} = $machine_id;
-    $self->{task_status}->{$task_id} = $TASK_STATUS_NOT_READY;
-
-    return;
-}
-
-# Update task's status
-sub change_task_status {
-    my $self = shift;
-    my $task_id = shift;
-    my $task_status = shift;
-
-    $self->{task_status}->{$task_id} = $task_status;
 
     return;
 }
@@ -81,6 +102,7 @@ sub change_task_status {
 sub fork_request {
     my $self = shift;
     my $task_id = shift;
+	die "we are not responsible for $task_id" unless $self->owns($task_id);
     my $machine_id = shift;
 
     # Check if task is already forked
@@ -96,6 +118,7 @@ sub fork_request {
 sub compute_dht_owners_for_tasks_depending_on {
     my $self = shift;
     my $task_id = shift;
+	die "we are not responsible for $task_id" unless $self->owns($task_id);
 
     # Get tasks depending on $task_id
     my $sons_task_id = Jael::TasksGraph::get_reverse_dependencies($task_id);
@@ -115,6 +138,7 @@ sub compute_dht_owners_for_tasks_depending_on {
 sub add_data_owner {
     my $self = shift;
     my $task_id = shift;
+	die "we are not responsible for $task_id" unless $self->owns($task_id);
     my $machine_id = shift;
 
     push @{$self->{data_owners}->{$task_id}}, $machine_id;
@@ -127,45 +151,35 @@ sub get_data_owners {
     my $self = shift;
     my $task_id = shift;
 
+	die "we are not responsible for $task_id" unless $self->owns($task_id);
+
     return [] if not defined $self->{data_owners}->{$task_id};
     return $self->{data_owners}->{$task_id};
 }
 
 # One task is now completed => Check if we can update the reverse dependencies to READY state
-# Return the list of tasks which turned ready
+# Return the list of existing tasks which turned ready
 sub update_reverse_dependencies_status {
     my $self = shift;
     my $task_id = shift;
 
-    # $task_id is now COMPLETED
-    $self->{task_status}->{$task_id} = $TASK_STATUS_COMPLETED;
-
-    my @ready_tasks;
-
-    # For each reverse dependencies we check if it exists new ready task
+    # update deps information for each task depending on the one which just completed
     my $reverse_dependencies = Jael::TasksGraph::get_reverse_dependencies($task_id);
 
-  REV_IDS:
-    for my $reverse_dependency (@{$reverse_dependencies}) {
-        next unless defined $self->{tasks_owners}->{$reverse_dependency}; # We are not DHT_OWNER(reverse_dependency)
+    my @ready_tasks;
+	# update info and get list of ready tasks
+	for my $task (@$reverse_dependencies) {
+		$self->mark_dependency_finished($task, $task_id);
+		if ($self->all_dependencies_finished($task)) {
+			push @ready_tasks, $task;
+		}
+	}
 
-        my $dependencies = Jael::TasksGraph::get_dependencies($reverse_dependency);
+	#now filter list of ready tasks to retrieve only the ones already created
+	my @existing_ready_tasks = grep {defined $self->{tasks_owners}->{$_}} @ready_tasks;
 
-        for my $dependency (@{$dependencies}) {
-            # If one dependency is not completed, we check other tasks (go to first loop)
-            if (not defined $self->{task_status}->{$dependency} or $self->{task_status}->{$dependency} != $TASK_STATUS_COMPLETED) {
-                next REV_IDS;
-            }
-        }
-
-        # All dependencies are completed => New ready task
-        $self->{task_status}->{$reverse_dependency} = $TASK_STATUS_READY;
-        push @ready_tasks, $reverse_dependency;
-    }
-
-    Jael::Debug::msg('dht', "[Dht]task $task_id is now completed, new ready tasks: " . join(", ", @ready_tasks));
-
-    return \@ready_tasks;
+    Jael::Debug::msg('dht', "[Dht]task $task_id is now completed, new ready tasks: " . join(", ", @existing_ready_tasks));
+    return \@existing_ready_tasks;
 }
 
 # Return one list of completed dependencies
@@ -177,25 +191,17 @@ sub get_completed_dependencies {
     die "not virtual : '$virtual_task_id'" unless $virtual_task_id =~ /$VIRTUAL_TASK_PREFIX(\S+)/;
 
     my $real_task_id = $1;
-    my @completed_tasks_ids;
-
-    my $dependencies = Jael::TasksGraph::get_dependencies($real_task_id);
-
-    for my $dependency (@{$dependencies}) {
-        if (defined $self->{task_status}->{$dependency} and $self->{task_status}->{$dependency} == $TASK_STATUS_COMPLETED) {
-            push @completed_tasks_ids, $dependency;
-        }
-    }
-
-    return \@completed_tasks_ids;
+	die "we are not responsible for $real_task_id" unless $self->owns($real_task_id);
+	return [keys %{$self->{completed_tasks_dependencies}->{$real_task_id}}];
 }
 
 # Return machine owning task id
 sub get_machine_owning {
     my $self = shift;
     my $task_id = shift;
+	die "we are not responsible for $task_id" unless $self->owns($task_id);
 
-    die "[Dht]we are not DHT_OWNER of $task_id" if not defined $self->{tasks_owners}->{$task_id};
+    die "[Dht] $task_id was never created" unless defined $self->{tasks_owners}->{$task_id};
     return $self->{tasks_owners}->{$task_id};
 }
 
