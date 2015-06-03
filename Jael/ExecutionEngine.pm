@@ -70,6 +70,7 @@ sub new {
     } else {
         $self->{working_directory} = tempdir("/tmp/jael_$self->{id}_XXXXXX");
         chdir $self->{working_directory} or die "Unable to chdir !";
+		Jael::Debug::msg('big_event', "chdir to $self->{working_directory}");
     }
 
     bless $self, $class;

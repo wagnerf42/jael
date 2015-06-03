@@ -91,7 +91,6 @@ sub generate_tasks {
     my $completed_dependencies = shift;
     my @tasks;
     my $real_task;
-	print STDERR "generating tasks for $self\n";
 
     for my $task_id ($self->get_tasks_to_generate()) {
         my $task = Jael::TasksGraph::get_task($task_id);
@@ -105,7 +104,6 @@ sub generate_tasks {
     }
 
     push @tasks, $real_task;
-    print STDERR "executed " . $self->get_id() . " ; we generated : " . join(' ', map {$_->get_id()} @tasks)."\n";
     Jael::Debug::msg('task', "executed " . $self->get_id() . " ; we generated : " . join(' ', map {$_->get_id()} @tasks));
 
     return \@tasks;

@@ -143,6 +143,7 @@ sub add_data_owner {
 	confess "we are not responsible for $task_id" unless $self->owns($task_id);
     my $machine_id = shift;
 
+	Jael::Debug::msg('dht', "we set $machine_id as data owner for $task_id");
     push @{$self->{data_owners}->{$task_id}}, $machine_id;
 
     return;

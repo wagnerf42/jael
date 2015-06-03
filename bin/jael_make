@@ -46,5 +46,5 @@ $current_directory = "$current_directory/$directory/" if defined $directory;
 print "jael_make_wrapper directory is '$current_directory'\n";
 #print "jael_make_wrapper : target requested : $current_directory.$target\n" if defined $target;
 #print "jael_make_wrapper : $current_directory\n" unless defined $target;
-system("make @makeoption MAKE=\"jael_make -t -p\"");
+system("make @makeoption MAKE=\"jael_make -n -p\"");
 

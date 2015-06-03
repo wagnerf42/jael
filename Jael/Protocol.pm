@@ -44,9 +44,11 @@ sub ask_for_files {
     my $dependencies = shift;
     my $is_ready = 1;
 
+	my @missing_files;
     for my $dependency (@{$dependencies}) {
         # One or more files are missing
         if (not -e $dependency) {
+			push @missing_files, $dependency;
             my $dht_owner = Jael::Dht::hash_task_id($dependency);
 
             Jael::Debug::msg('protocol', "[Protocol]Missing dependency for task $task_id : $dependency");
@@ -55,6 +57,7 @@ sub ask_for_files {
             $is_ready = 0;
         }
     }
+	Jael::Debug::msg('task', "asking for files for $task_id ; deps are @$dependencies ; missing is @missing_files");
 
     return $is_ready;
 }
@@ -146,8 +149,10 @@ sub incoming_message {
     elsif ($type == $Jael::Message::DATA_LOCATED) {
         my $task_id = $message->get_task_id();
         my $machines = $message->get_machines_list();
+		Jael::Debug::msg('protocol', "data located for $task_id on machines @$machines");
         my $destination = ${$machines}[int(rand(scalar @{$machines}))];
 
+		Jael::Debug::msg('protocol', "asking for data $task_id to machine $destination");
         $self->{server}->send($destination, Jael::Message->new($Jael::Message::FILE_REQUEST, $task_id));
     }
 
@@ -331,7 +336,7 @@ sub incoming_message {
     elsif ($type == $Jael::Message::FILE_REQUEST) {
         my $filename = $message->get_task_id();
         my $message = Jael::Message->new_file($filename);
-
+		Jael::Debug::msg('protocol', "we have been asked file $filename by $sender_id");
         $self->{server}->send($sender_id, $message);
     }
 
@@ -339,6 +344,7 @@ sub incoming_message {
         my $filename = $message->get_label();
         my $content = $message->get_string();
 
+		Jael::Debug::msg('protocol', "we received file $filename sent by $sender_id");
         open(my $fh, '>', $filename) or die "Can't open file '$filename' : $!";
         print $fh $content;
         close $fh;

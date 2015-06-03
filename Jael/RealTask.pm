@@ -59,7 +59,9 @@ sub is_virtual {
 # Execute the task's commands and return 1 if it's the main task else 0
 sub execute {
     my $self = shift;
-    system("$self->{commands}") if defined $self->{commands};
+	die "undefined command" unless defined $self->{commands};
+	Jael::Debug::msg('task', "executing $self->{target_name} : command is $self->{commands}");
+    system("$self->{commands}");
     return (defined $self->{is_main_task});
 }
 
@@ -111,7 +113,7 @@ sub unset_dependency {
 
     # Update status
     if ($self->{remaining_unfilled_dependencies} == 0) {
-        $self->{status} = $Jael::Task::TASK_STATUS_READY;
+        $self->{status} = $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES;
     }
 
     return;
