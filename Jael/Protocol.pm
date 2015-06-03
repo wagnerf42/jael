@@ -40,8 +40,8 @@ sub new {
 
 sub ask_for_files {
     my $self = shift;
-    my $task_id = shift;
-    my $dependencies = shift;
+    my $task_id = shift; #TODO use task instead of task id ????? (avoid loop on stack)
+	my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
     my $is_ready = 1;
 
 	my @missing_files;
@@ -59,7 +59,13 @@ sub ask_for_files {
     }
 	Jael::Debug::msg('task', "asking for files for $task_id ; deps are @$dependencies ; missing is @missing_files");
 
-    return $is_ready;
+	if ($is_ready) {
+		Jael::Debug::msg('task', "[Protocol]task $task_id is now ready");
+		$self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY);
+	} else {
+		$self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
+	}
+    return;
 }
 
 sub incoming_message {
@@ -121,16 +127,9 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY) {
         my $task_id = $message->get_task_id();
-        my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 
         # Set $TASK_STATUS_READY if there is no dependency problems
-        if ($self->ask_for_files($task_id, $dependencies)) {
-            Jael::Debug::msg('task', "[Protocol]task $task_id is now ready");
-            $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY);
-        } else {
-            # No effects if the task is already ready
-            $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
-        }
+        $self->ask_for_files($task_id);
     }
 
     # -----------------------------------------------------------------
@@ -224,17 +223,9 @@ sub incoming_message {
 
         # We have stolen one real task
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
-            my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 
             # Set $TASK_STATUS_READY if there is no dependency problems
-            if ($self->ask_for_files($task_id, $dependencies)) {
-                Jael::Debug::msg('task', "[Protocol]task $task_id is now ready");
-                $task->update_status($Jael::Task::TASK_STATUS_READY);
-            } else {
-                # No effects if the task is already ready
-                Jael::Debug::msg('task', "[Protocol]task $task_id is now ready waiting for files");
-                $task->update_status($Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
-            }
+            $self->ask_for_files($task_id);
 
             # Notify DHT 'I have pushed a new task'
             my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
@@ -317,6 +308,8 @@ sub incoming_message {
         # Notify we have one real task on stack
         my $real_task_created = $tasks_inside_forked_virtual->[-1];
         my $real_task_id = $real_task_created->get_id();
+        $self->ask_for_files($real_task_id);
+
         my $dht_owner = Jael::Dht::hash_task_id($real_task_id);
 
         $self->{server}->send($dht_owner, Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $real_task_id));
