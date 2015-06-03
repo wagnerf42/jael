@@ -38,6 +38,7 @@ sub stats {
             $ready++;
         } else {
             $not_ready++;
+            Jael::Debug::msg('stack', $task->get_id() . "'s status in stack: " . $task->get_status());
         }
     }
 

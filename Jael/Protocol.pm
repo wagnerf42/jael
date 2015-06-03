@@ -41,14 +41,14 @@ sub new {
 sub ask_for_files {
     my $self = shift;
     my $task_id = shift; #TODO use task instead of task id ????? (avoid loop on stack)
-	my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
+    my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
     my $is_ready = 1;
 
-	my @missing_files;
+    my @missing_files;
     for my $dependency (@{$dependencies}) {
         # One or more files are missing
         if (not -e $dependency) {
-			push @missing_files, $dependency;
+            push @missing_files, $dependency;
             my $dht_owner = Jael::Dht::hash_task_id($dependency);
 
             Jael::Debug::msg('protocol', "[Protocol]Missing dependency for task $task_id : $dependency");
@@ -57,14 +57,16 @@ sub ask_for_files {
             $is_ready = 0;
         }
     }
-	Jael::Debug::msg('task', "asking for files for $task_id ; deps are @$dependencies ; missing is @missing_files");
 
-	if ($is_ready) {
-		Jael::Debug::msg('task', "[Protocol]task $task_id is now ready");
-		$self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY);
-	} else {
-		$self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
-	}
+    Jael::Debug::msg('task', "asking for files for $task_id ; deps are @$dependencies ; missing is @missing_files");
+
+    if ($is_ready) {
+        Jael::Debug::msg('task', "[Protocol]task $task_id is now ready");
+        $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY);
+    } else {
+        $self->{tasks_stack}->change_task_status($task_id, $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES);
+    }
+
     return;
 }
 
@@ -83,8 +85,8 @@ sub incoming_message {
     if ($type == $Jael::Message::TASK_COMPUTATION_COMPLETED) {
         my $task_id = $message->get_task_id();
 
-		my $machine_which_completed_task = $message->get_machines_list()->[0];
-		Jael::Debug::msg('dht', "we are informed that $task_id completed on machine $machine_which_completed_task");
+        my $machine_which_completed_task = $message->get_machines_list()->[0];
+        Jael::Debug::msg('dht', "we are informed that $task_id completed on machine $machine_which_completed_task");
         # $sender_id is an owner of the data's $task_id
         $self->{dht}->add_data_owner($task_id, $machine_which_completed_task);
 
@@ -104,21 +106,21 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED) {
         my $task_id = $message->get_task_id();
-		my $machine_which_completed_task = $message->get_machines_list()->[0];
+        my $machine_which_completed_task = $message->get_machines_list()->[0];
 
         # We get ready reverse dependencies
         my $ready_tasks_ids = $self->{dht}->update_reverse_dependencies_status($task_id);
-		Jael::Debug::msg('dht', "we are informed for deps that $task_id completed on machine $machine_which_completed_task ; tasks turning ready are @$ready_tasks_ids");
+        Jael::Debug::msg('dht', "we are informed for deps that $task_id completed on machine $machine_which_completed_task ; tasks turning ready are @$ready_tasks_ids");
 
         for my $ready_task_id (@{$ready_tasks_ids}) {
-			if (Jael::TasksGraph::is_file_transfer_task($ready_task_id)) {
-				# file tasks never become READY
-				# they directly reach the COMPLETED status
-				$self->{server}->send($self->{id}, Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $ready_task_id, $machine_which_completed_task));
-			} else {
-				my $machine_id = $self->{dht}->get_machine_owning($ready_task_id);
-				$self->{server}->send($machine_id, Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
-			}
+            if (Jael::TasksGraph::is_file_transfer_task($ready_task_id)) {
+                # file tasks never become READY
+                # they directly reach the COMPLETED status
+                $self->{server}->send($self->{id}, Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $ready_task_id, $machine_which_completed_task));
+            } else {
+                my $machine_id = $self->{dht}->get_machine_owning($ready_task_id);
+                $self->{server}->send($machine_id, Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_READY, $ready_task_id));
+            }
         }
     }
 
@@ -148,10 +150,10 @@ sub incoming_message {
     elsif ($type == $Jael::Message::DATA_LOCATED) {
         my $task_id = $message->get_task_id();
         my $machines = $message->get_machines_list();
-		Jael::Debug::msg('protocol', "data located for $task_id on machines @$machines");
+        Jael::Debug::msg('protocol', "data located for $task_id on machines @$machines");
         my $destination = ${$machines}[int(rand(scalar @{$machines}))];
 
-		Jael::Debug::msg('protocol', "asking for data $task_id to machine $destination");
+        Jael::Debug::msg('protocol', "asking for data $task_id to machine $destination");
         $self->{server}->send($destination, Jael::Message->new($Jael::Message::FILE_REQUEST, $task_id));
     }
 
@@ -223,15 +225,13 @@ sub incoming_message {
 
         # We have stolen one real task
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
-
-            # Set $TASK_STATUS_READY if there is no dependency problems
-            $self->ask_for_files($task_id);
-
             # Notify DHT 'I have pushed a new task'
             my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
             my $destination = Jael::Dht::hash_task_id($task_id);
 
+            # Set $TASK_STATUS_READY if there is no dependency problems
             $self->{tasks_stack}->push_task($task);
+            $self->ask_for_files($task_id);
             $self->{server}->send($destination, $message);
         }
         # We have stolen one virtual task
@@ -303,7 +303,7 @@ sub incoming_message {
         $self->{tasks_stack}->push_task(@{$tasks_inside_forked_virtual});
 
         Jael::Debug::msg('fork', "[Protocol]fork accepted, new task on stack : $task_id with completed dependencies : " .
-            join(',', @{$completed_dependencies}));
+                         join(',', @{$completed_dependencies}));
 
         # Notify we have one real task on stack
         my $real_task_created = $tasks_inside_forked_virtual->[-1];
@@ -329,7 +329,7 @@ sub incoming_message {
     elsif ($type == $Jael::Message::FILE_REQUEST) {
         my $filename = $message->get_task_id();
         my $message = Jael::Message->new_file($filename);
-		Jael::Debug::msg('protocol', "we have been asked file $filename by $sender_id");
+        Jael::Debug::msg('protocol', "we have been asked file $filename by $sender_id");
         $self->{server}->send($sender_id, $message);
     }
 
@@ -337,7 +337,7 @@ sub incoming_message {
         my $filename = $message->get_label();
         my $content = $message->get_string();
 
-		Jael::Debug::msg('protocol', "we received file $filename sent by $sender_id");
+        Jael::Debug::msg('protocol', "we received file $filename sent by $sender_id");
         open(my $fh, '>', $filename) or die "Can't open file '$filename' : $!";
         print $fh $content;
         close $fh;

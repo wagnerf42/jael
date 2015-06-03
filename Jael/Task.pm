@@ -14,7 +14,7 @@ our @EXPORT = qw($TASK_STATUS_READY $TASK_STATUS_READY_WAITING_FOR_FILES $TASK_S
 # Once in the system, tasks can be in one of the following states :
 Readonly::Scalar our $TASK_STATUS_READY => 1;                   # All dependencies are ok, all files are here => ready to run
 Readonly::Scalar our $TASK_STATUS_READY_WAITING_FOR_FILES => 2; # All dependencies are ok, but waiting for files
-Readonly::Scalar our $TASK_STATUS_NOT_READY => 3;               # Some dependencies are not computed ye
+Readonly::Scalar our $TASK_STATUS_NOT_READY => 3;               # Some dependencies are not computed yet
 Readonly::Scalar our $TASK_STATUS_FAILED => 4;                  # Task executed and failed
 Readonly::Scalar our $TASK_STATUS_COMPLETED => 5;               # Task executed successfully
 

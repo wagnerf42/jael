@@ -269,7 +269,7 @@ sub bootstrap_system {
     Jael::TasksGraph::set_main_target($self->{config}->{target});
     Jael::TasksGraph::generate_reverse_dependencies();
     #TODO: use macros to avoid extra debug costs
-    #Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
+    Jael::TasksGraph::display() if (exists $ENV{JAEL_DEBUG}) ;
 
     # Broadcast the graph to everyone and wait
     $self->{network}->broadcast(Jael::Message->new($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));
