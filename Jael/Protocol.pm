@@ -308,7 +308,7 @@ sub incoming_message {
         # Notify we have one real task on stack
         my $real_task_created = $tasks_inside_forked_virtual->[-1];
         my $real_task_id = $real_task_created->get_id();
-        $self->ask_for_files($real_task_id);
+        $self->ask_for_files($real_task_id) if $real_task_created->get_status() == $Jael::Task::TASK_STATUS_READY_WAITING_FOR_FILES;
 
         my $dht_owner = Jael::Dht::hash_task_id($real_task_id);
 
