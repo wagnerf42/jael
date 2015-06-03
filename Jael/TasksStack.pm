@@ -194,4 +194,19 @@ sub set_ready_status_if_necessary {
     return;
 }
 
+sub apply_function_on_task {
+    my $self = shift;
+    my $id = shift;
+    my $ref = shift;
+    my @args = @_;
+
+    lock($self->{tasks});
+
+    my @tasks = grep { $id eq $_->get_id() } @{$self->{tasks}};
+
+    $ref->(@args, $tasks[0]) if (defined $tasks[0]);
+
+    return;
+}
+
 1;
