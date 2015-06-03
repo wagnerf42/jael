@@ -19,7 +19,7 @@ my $current_time;
 for my $event (@$events) {
 	my ($date, $thread_id, $task_id) = @$event;
 	if (defined $current_time) {
-		sleep($date - $current_time);
+#		sleep($date - $current_time);
 	} else {
 		Jael::TasksGraph::display();
 	}

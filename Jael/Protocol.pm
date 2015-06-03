@@ -98,6 +98,7 @@ sub incoming_message {
         my $message = Jael::Message->new($Jael::Message::REVERSE_DEPENDENCIES_UPDATE_TASK_COMPLETED, $task_id, $machine_which_completed_task);
 
         for my $machine_id (@machines_to_inform) {
+			Jael::Debug::msg('dht', "forwarding completion information of $task_id to $machine_id");
             $self->{server}->send($machine_id, $message);
         }
     }
@@ -230,6 +231,8 @@ sub incoming_message {
         # We have stolen one real task
         unless ($task_id =~ /^$VIRTUAL_TASK_PREFIX/) {
             # Notify DHT 'I have pushed a new task'
+			# TODO TODO : why exactly do we need this message ?
+			# TODO : remove it ?
             my $message = Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $task_id);
             my $destination = Jael::Dht::hash_task_id($task_id);
 
@@ -273,15 +276,19 @@ sub incoming_message {
     # -----------------------------------------------------------------
     elsif ($type == $Jael::Message::FORK_REQUEST) {
         my $task_id = $message->get_task_id(); # task_i
+		die unless $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/;
+		my $real_task_id = $1;
 
         # Fork success
-        if ($self->{dht}->fork_request($task_id, $sender_id)) {
+        if ($self->{dht}->fork_request($real_task_id, $sender_id)) {
             Jael::Debug::msg('fork', "[Protocol]task $task_id is forked by $sender_id");
             Jael::Paje::create_link($Jael::Message::FORK_ACCEPTED, $sender_id, $task_id);
 
             my $completed_dependencies = $self->{dht}->get_completed_dependencies($task_id, $sender_id);
             #TODO: clarify delimiter and escape codes
             my $dependencies = join('&', @$completed_dependencies);
+			#TODO: factorize them all
+			$self->{dht}->set_machine_owning($real_task_id, $sender_id);
             $self->{server}->send($sender_id, Jael::Message->new($Jael::Message::FORK_ACCEPTED, $task_id, $dependencies));
         }
         # Fork failure
@@ -317,7 +324,7 @@ sub incoming_message {
 
         my $dht_owner = Jael::Dht::hash_task_id($real_task_id);
 
-        $self->{server}->send($dht_owner, Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $real_task_id));
+		# $self->{server}->send($dht_owner, Jael::Message->new($Jael::Message::TASK_IS_PUSHED, $real_task_id));
     }
 
     # -----------------------------------------------------------------

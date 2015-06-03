@@ -35,6 +35,8 @@ sub new {
 sub all_dependencies_finished {
 	my $self = shift;
 	my $task_id = shift;
+	confess "i am not owner of $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
 	my $dependencies = Jael::TasksGraph::get_dependencies($task_id);
 	for my $dependency (@$dependencies) {
 		return 0 unless (defined $self->{completed_tasks_dependencies}->{$task_id}->{$dependency});
@@ -46,14 +48,16 @@ sub mark_dependency_finished {
 	my $self = shift;
 	my $task_id = shift;
 	my $dependency = shift;
-	die "i am not owner of $task_id" unless $self->owns($task_id);
+	confess "i am not owner of $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
+	Jael::Debug::msg('dht', "we store in dht that dep $dependency is now completed for task $task_id");
 	$self->{completed_tasks_dependencies}->{$task_id}->{$dependency} = 1;
 	return;
 }
 
 # Define the machines number on network
 sub set_machines_number {
-    die "machines number is already defined !" if defined $machines_number;
+    confess "machines number is already defined !" if defined $machines_number;
     $machines_number = shift;
 
     return;
@@ -91,8 +95,10 @@ sub hash_task_id {
 sub set_machine_owning {
     my $self = shift;
     my $task_id = shift;
-	die "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
     my $machine_id = shift;
+	Jael::Debug::msg('dht', "we record in dht that task $task_id is now physically on machine $machine_id");
 
     $self->{tasks_owners}->{$task_id} = $machine_id;
 
@@ -104,7 +110,8 @@ sub set_machine_owning {
 sub fork_request {
     my $self = shift;
     my $task_id = shift;
-	die "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
     my $machine_id = shift;
 
     # Check if task is already forked
@@ -120,7 +127,8 @@ sub fork_request {
 sub compute_dht_owners_for_tasks_depending_on {
     my $self = shift;
     my $task_id = shift;
-	die "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
 
     # Get tasks depending on $task_id
     my $sons_task_id = Jael::TasksGraph::get_reverse_dependencies($task_id);
@@ -130,6 +138,7 @@ sub compute_dht_owners_for_tasks_depending_on {
     # Get owners
     for my $son_task_id (@{$sons_task_id}) {
         my $owner = hash_task_id($son_task_id);
+		Jael::Debug::msg('dht', "$task_id completed we need to inform $owner that status of $son_task_id might change");
         $owners{$owner} = 1;
     }
 
@@ -141,6 +150,7 @@ sub add_data_owner {
     my $self = shift;
     my $task_id = shift;
 	confess "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
     my $machine_id = shift;
 
 	Jael::Debug::msg('dht', "we set $machine_id as data owner for $task_id");
@@ -154,7 +164,8 @@ sub get_data_owners {
     my $self = shift;
     my $task_id = shift;
 
-	die "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
 
     return [] if not defined $self->{data_owners}->{$task_id};
     return $self->{data_owners}->{$task_id};
@@ -165,6 +176,7 @@ sub get_data_owners {
 sub update_reverse_dependencies_status {
     my $self = shift;
     my $task_id = shift;
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
 
     # update deps information for each task depending on the one which just completed
     my $reverse_dependencies = Jael::TasksGraph::get_reverse_dependencies($task_id);
@@ -179,6 +191,7 @@ sub update_reverse_dependencies_status {
 		}
 	}
 
+    Jael::Debug::msg('dht', "[Dht]task $task_id is now completed, candidate ready tasks: " . join(", ", @ready_tasks));
 	#now filter list of ready tasks to retrieve only the ones already created or file tasks
 	my @existing_ready_tasks = grep {defined $self->{tasks_owners}->{$_} or Jael::TasksGraph::is_file_transfer_task($_)} @ready_tasks;
 
@@ -192,10 +205,10 @@ sub get_completed_dependencies {
     my $self = shift;
     my $virtual_task_id = shift;
 
-    die "not virtual : '$virtual_task_id'" unless $virtual_task_id =~ /$VIRTUAL_TASK_PREFIX(\S+)/;
+    confess "not virtual : '$virtual_task_id'" unless $virtual_task_id =~ /$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(\S+)/;
 
     my $real_task_id = $1;
-	die "we are not responsible for $real_task_id" unless $self->owns($real_task_id);
+	confess "we are not responsible for $real_task_id" unless $self->owns($real_task_id);
 	return [keys %{$self->{completed_tasks_dependencies}->{$real_task_id}}];
 }
 
@@ -205,6 +218,7 @@ sub get_machine_owning {
     my $task_id = shift;
 
 	confess "we are not responsible for $task_id" unless $self->owns($task_id);
+	confess "virtual task accessed in dht : $task_id" if $task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX/;
     confess "[Dht] $task_id was never created" unless defined $self->{tasks_owners}->{$task_id};
 
     return $self->{tasks_owners}->{$task_id};
