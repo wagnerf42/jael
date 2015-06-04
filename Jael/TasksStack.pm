@@ -33,16 +33,20 @@ sub stats {
     my $self = shift;
     my ($ready, $not_ready) = (0, 0);
 
+    my @tasks;
+
     for my $task (@{$self->{tasks}}) {
         if ($task->is_ready()) {
             $ready++;
         } else {
             $not_ready++;
-            Jael::Debug::msg('stack', $task->get_id() . "'s status in stack: " . $task->get_status());
         }
+
+        push @tasks, ($task->get_id() . "(" . $task->get_status() . ")");
     }
 
     Jael::Debug::msg('stack', "stack now contains $ready ready tasks and $not_ready non-ready tasks");
+    Jael::Debug::msg('stack', "stack contains: " . join(", ", @tasks));
 
     return ($ready, $not_ready);
 }
@@ -74,7 +78,7 @@ sub pop_task {
             $selected_task = $candidate_task;
             last;
         } else {
-            push @remaining_tasks, $candidate_task;
+            unshift @remaining_tasks, $candidate_task;
         }
     }
 
@@ -106,7 +110,7 @@ sub steal_task {
             $selected_task = $candidate_task;
             last;
         } else {
-            unshift @remaining_tasks, $candidate_task;
+            push @remaining_tasks, $candidate_task;
         }
     }
 

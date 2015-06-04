@@ -35,10 +35,10 @@ sub initialize {
 }
 
 sub colorize_task {
-	my $task_id = shift;
-	my $color = shift;
-	$tasksgraph->{colors}->{$task_id} = $color;
-	return;
+    my $task_id = shift;
+    my $color = shift;
+    $tasksgraph->{colors}->{$task_id} = $color;
+    return;
 }
 
 # Initialize the singleton TasksGraph by networking message
@@ -148,43 +148,43 @@ sub display {
         $nums{$id} = $current_num;
         $current_num++;
     }
-	# Get a unique integer identifier for each file
-	$current_num = 0;
-	my %files_num;
+    # Get a unique integer identifier for each file
+    $current_num = 0;
+    my %files_num;
     for my $id (sort keys %{$tasksgraph->{commands}}) {
         for my $dep (sort @{$tasksgraph->{dependencies}->{$id}}) {
-			unless (defined $nums{$dep}) {
-				$files_num{$dep} = $current_num;
-				$current_num++;
-			}
-		}
-	}
+            unless (defined $nums{$dep}) {
+                $files_num{$dep} = $current_num;
+                $current_num++;
+            }
+        }
+    }
 
     # Generate dot content
-	# start with files nodes
-	for my $id (sort keys %files_num) {
-		print $dotfile "f$files_num{$id}\[color=\"blue\"\, label=\"$id\"];\n";
-	}
+    # start with files nodes
+    for my $id (sort keys %files_num) {
+        print $dotfile "f$files_num{$id}\[color=\"blue\"\, label=\"$id\"];\n";
+    }
 
-	#continue with tasks and dependencies
+    #continue with tasks and dependencies
     for my $id (sort keys %{$tasksgraph->{commands}}) {
         my $num = $nums{$id};
-		my $color = $tasksgraph->{colors}->{$id};
-		if (defined $color) {
-			print $dotfile "n$num [style=filled,color=$color,label=\"$id\"];\n";
-		} else {
-			print $dotfile "n$num [label=\"$id\"];\n";
-		}
+        my $color = $tasksgraph->{colors}->{$id};
+        if (defined $color) {
+            print $dotfile "n$num [style=filled,color=$color,label=\"$id\"];\n";
+        } else {
+            print $dotfile "n$num [label=\"$id\"];\n";
+        }
 
         for my $dep (sort @{$tasksgraph->{dependencies}->{$id}}) {
             my $dep_num = $nums{$dep};
-			if (defined $dep_num) {
-				#we depend on a task
-				print $dotfile "n$dep_num -> n$num;\n";
-			} else {
-				#we depend on a file
-				print $dotfile "f$files_num{$dep} -> n$num;\n";
-			}
+            if (defined $dep_num) {
+                #we depend on a task
+                print $dotfile "n$dep_num -> n$num;\n";
+            } else {
+                #we depend on a file
+                print $dotfile "f$files_num{$dep} -> n$num;\n";
+            }
         }
     }
 
@@ -195,11 +195,11 @@ sub display {
     my $img = "$dotfilename.jpg";
 
     `dot -Tjpg $dotfilename -o $img`;
-	if (exists $ENV{IMAGE_VIEWER}) {
-		`$ENV{IMAGE_VIEWER} $img`; #security problem
-	} else {
-		`$IMAGE_VIEWER $img`;
-	}
+    if (exists $ENV{IMAGE_VIEWER}) {
+        `$ENV{IMAGE_VIEWER} $img`; #security problem
+    } else {
+        `$IMAGE_VIEWER $img`;
+    }
 
     unlink $img;
     unlink $dotfilename;
@@ -252,26 +252,28 @@ sub get_reverse_dependencies {
 
 # return true if a task has no command and is only used to transfer files
 sub is_file_transfer_task {
-	my $task_id = shift;
-	$task_id = $1 if ($task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/);
-	return 1 unless defined $tasksgraph->{commands}->{$task_id};
-	return 1 if $tasksgraph->{commands}->{$task_id} eq ''; #TODO: not needed ?
-	print STDERR "$task_id is not a file transfer task : command is $tasksgraph->{commands}->{$task_id}\n";
-	return 0;
+    my $task_id = shift;
+    $task_id = $1 if ($task_id =~/^$Jael::VirtualTask::VIRTUAL_TASK_PREFIX(.*)/);
+    return 1 unless defined $tasksgraph->{commands}->{$task_id};
+    return 1 if $tasksgraph->{commands}->{$task_id} eq ''; #TODO: not needed ?
+    print STDERR "$task_id is not a file transfer task : command is $tasksgraph->{commands}->{$task_id}\n";
+    return 0;
 }
 
 sub get_initial_file_transfer_tasks {
-	my @tasks;
-	my %real_tasks;
-	for my $task (keys %{$tasksgraph->{commands}}) {
-		$real_tasks{$task} = 1;
-	}
-	for my $task (keys %{$tasksgraph->{commands}}) {
-		for my $dep (@{$tasksgraph->{dependencies}->{$task}}) {
-			push @tasks, $dep unless defined $real_tasks{$dep};
-		}
-	}
-	return @tasks;
+    my @tasks;
+    my %real_tasks;
+    
+    for my $task (keys %{$tasksgraph->{commands}}) {
+        $real_tasks{$task} = 1;
+    }
+    
+    for my $task (keys %{$tasksgraph->{commands}}) {
+        for my $dep (@{$tasksgraph->{dependencies}->{$task}}) {
+            push @tasks, $dep unless defined $real_tasks{$dep};
+        }
+    }
+    return @tasks;
 }
 
 1;

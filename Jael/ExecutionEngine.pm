@@ -70,7 +70,7 @@ sub new {
     } else {
         $self->{working_directory} = tempdir("/tmp/jael_$self->{id}_XXXXXX");
         chdir $self->{working_directory} or die "Unable to chdir !";
-		Jael::Debug::msg('big_event', "chdir to $self->{working_directory}");
+        Jael::Debug::msg('big_event', "chdir to $self->{working_directory}");
     }
 
     bless $self, $class;
@@ -275,13 +275,14 @@ sub bootstrap_system {
     $self->{network}->broadcast(Jael::Message->new($Jael::Message::TASKGRAPH, 'taskgraph', Jael::TasksGraph::serialize()));
     $self->{network}->wait_while_messages_exists();
 
-	# mark initial files we own as ours
-	my @files_transfers_tasks = Jael::TasksGraph::get_initial_file_transfer_tasks();
-	for my $file_task (@files_transfers_tasks) {
+    # Mark initial files we own as ours
+    my @files_transfers_tasks = Jael::TasksGraph::get_initial_file_transfer_tasks();
+
+    for my $file_task (@files_transfers_tasks) {
         my $message = Jael::Message->new($Jael::Message::TASK_COMPUTATION_COMPLETED, $file_task, $self->{id});
         my $destination = Jael::Dht::hash_task_id($file_task);
-		$self->{network}->send($destination, $message);
-	}
+        $self->{network}->send($destination, $message);
+    }
 
     # Get initial task
     my $init_task_id = Jael::TasksGraph::get_init_task_id();
